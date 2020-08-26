@@ -1,0 +1,259 @@
+<html>
+<head>
+
+<meta charset="UTF-8">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<style>
+body {
+	background-color:#EFEFFF;
+	margin:0px;
+}
+.index {
+	bold;
+	width:100%;
+	background-color:#FEEEEE;
+	margin:2px;
+}
+.session {
+	margin-left:10px;
+}
+.sutra {
+	bold;
+	color:red;
+	text-indent: 30px;
+	border: 1px solid #0000ff;
+	border-radius: 5px;
+	padding:3px;
+	margin:2px;
+}
+.sutraEng {
+	color:black;
+	text-indent: 30px;
+	padding:3px;
+	border: 1px solid #00de8f;
+	border-radius: 5px;
+	margin:2px;
+}
+.indexHided {
+	color:black;
+	background-color:#DCCCCC;
+}
+.sutraContent {
+	border: 5px solid #ffa0d0;
+	border-radius: 5px;
+	padding:4px;
+	margin: 2px 0px 10px 0px;
+}
+.heading-1 {
+	text-align: center;
+	bold;
+	font-size:160%;
+	color:#fff020;
+	background-color:#b0b0e0;
+	padding:4px;
+}
+.heading-2 {
+	text-align: center;
+	bold;
+	font-size:150%;
+	color:#fff020;
+	background-color:#b0b0e0;
+	padding:4px;
+}
+.menu {
+	background-color:#b0b0e0;
+	padding:4px;
+}
+.button {
+	margin:2px;
+	background-color:#ffffcf;
+	border: 5px solid #eff0c0;
+	border-radius: 5px;
+	width:120px;
+	text-align:center;
+}
+</style>
+<script>
+var showChi=true;
+var showEng=true;
+var showAll=true;
+$(document).ready(function(){
+	$(".index").click(function() {
+		if ($(this).next().is(':visible')) {
+			$(this).addClass("indexHided");
+			$(this).next().slideUp(100);
+		}else {
+			$(this).removeClass("indexHided");
+			$(this).next().slideDown(100);
+		}
+	});
+	$("#showHideAll").click(function() {
+		if (showAll) {
+			$(".index").addClass("indexHided");
+			$(".session").slideUp(100);
+			showAll=false;
+		}else {
+			$(".index").removeClass("indexHided");
+			$(".session").slideDown(100);
+			showAll=true;
+		}
+	});
+	$("#showHideChineseSutra").click(function() {
+		if (showAll) {
+			$(".sutra").slideUp(100);
+			showAll=false;
+		}else {
+			$(".sutra").slideDown(100);
+			showAll=true;
+		}
+	});
+	$("#showHideEnglishSutra").click(function() {
+		if (showAll) {
+			$(".sutraEng").slideUp(100);
+			showAll=false;
+		}else {
+			$(".sutraEng").slideDown(100);
+			showAll=true;
+		}
+	});
+});
+</script>
+</head>
+<body>
+<div class='main'>
+	<div class="menu">
+		<div style="display:inline-block;text-align:center;height:100px;">
+			<div class="heading-1">《解深密經》</div>
+			<div class="heading-2">【勝義諦相品 第二】</div>
+		</div>
+		<div style="display:inline-block;position:relative;float:right;">
+			<div class="button" id="showHideAll" >展開收起</div>
+			<div class="button" id="showHideChineseSutra">中文經文</div>
+			<div class="button" id="showHideEnglishSutra">英文經文</div>
+		</div>
+	</div>
+	<div class='sutraContent'>
+	
+	
+<div class='index'>己一、明離言相及無二相</div><div class='session'>
+<div class='index'>庚一、長行廣釋</div><div class='session'>
+<div class='index'>辛一、菩薩請問</div><div class='session'><div class='sutra'>爾時如理請問菩薩摩訶薩，即於佛前，問解甚深義密意菩薩言：「最勝子言一切法無二。一切法無二者，何等一切法？云何為無二？」</div><div class='sutraEng'>At that time the Bodhisattva Vidhivatpariprcchaka questioned the Bodhisattva Gambhlrarthasamdhinirmocana, in the presence of the Buddha, and said: "Son of the Victor, it is said that all things are not dual. What does 'all things' mean? And why are they not dual?"</div>
+</div><div class='index'>辛二、依問略答</div><div class='session'><div class='sutra'>解甚深義密意菩薩謂如理請問菩薩曰：「善男子！一切法者略有二種，所謂有為、無為。</div><div class='sutra'>是中有為非有為、非無為；無為亦非無為、非有為。」</div><div class='sutraEng'>The Bodhisattva Gambhlrarthasamdhinirmocana answered the Bodhisattva Vidhivatpariprcchaka and said: "Good son, in sum, all things are of two kinds, conditioned and unconditioned. Herein conditioned things are neither conditioned nor unconditioned, and unconditioned things are neither unconditioned nor conditioned."</div>
+</div><div class='index'>辛三、菩薩徵問</div><div class='session'><div class='sutra'>如理請問菩薩，復問解甚深義密意菩薩言：「最勝子，如何有為非有為非無為？無為亦非無為非有為？」</div><div class='sutraEng'>The Bodhisattva Vidhivatpariprcchaka again questioned the Bodhisattva Gambhlrarthasamdhinirmocana and said: "Son of the Victor, what does it mean to say that conditioned things are neither conditioned nor unconditioned or that unconditioned things are neither unconditioned nor conditioned?"</div>
+</div><div class='index'>辛四、廣釋</div><div class='session'>
+<div class='index'>壬一、明說之由序</div><div class='session'><div class='sutra'>解甚深義密意菩薩謂如理請問菩薩曰：</div><div class='sutraEng'>Gambhlrarthasamdhinirmocana addressed the Bodhisattva Vidhivatpariprcchaka and said:</div>
+</div><div class='index'>壬二、依問正答</div><div class='session'>
+<div class='index'>癸一、釋有為無二相</div><div class='session'><div class='sutra'>「善男子！言有為者，乃是本師假施設句。若是本師假施設句，即是遍計所集言辭所說。若是遍計所集言辭所說，即是究竟種種遍計言辭所說，不成實故，非是有為。</div><div class='sutra'>善男子！言無為者亦墮言辭。設離有為、無為少有所說，其相亦爾。</div><div class='sutra'>然非無事而有所說。</div><div class='sutra'>何等為事？謂諸聖者，以聖智聖見離名言故，現正等覺，即於如是離言法性；為欲令他現等覺故，假立名想，謂之有為。</div><div class='sutraEng'>"Good son, the term 'conditioned' is a provisional word invented by the First Teacher. Now, if it is a provisional word invented by the First Teacher, then it is a verbal expression apprehended by imagination. And if it is a verbal expression apprehended by imagination, then, in the final analysis, such an imagined description does not validate a real thing. Therefore, the conditioned does not exist. </div><div class='sutraEng'>Good son, the term 'unconditioned' is also invented from language [and it also validates nothing real]. Furthermore, besides the conditioned and the unconditioned, any other expression that exists in language is the same. </div><div class='sutraEng'>But, it might be objected, is it not true that there are no expressions without some [corresponding] reality? What, then, is the reality here? I would reply that it is that reality apart from language and realized in the perfect awakening of the saints through their holy wisdom and insight apart from all names and words. It is because they desire to lead others to realize perfect awakening that they provisionally establish [such expressions] as 'the conditioned' as verbal descriptions.</div>
+</div><div class='index'>癸二、釋無為無二相</div><div class='session'><div class='sutra'>「善男子，言無為者亦是本師假施設句。若是本師假施設句，即是遍計所集言辭所說。若是遍計所集言辭所說，即是究竟種種遍計言辭所說，不成實故，非是無為。</div><div class='sutra'>善男子，言有為者亦墮言辭。設離無為有為少有所說，其相亦爾。</div><div class='sutra'>然非無事而有所說。何等為事？謂諸聖者以聖智、聖見離名言故，現正等覺，即於如是離言法性，為欲令他現等覺故，假立名想，謂之無為。」</div><div class='sutraEng'>"Good son, the term 'unconditioned' is also a word provisionally invented by the First Teacher. Now, if the First Teacher provisionally invented this word, then it is a verbal expression apprehended by imagination. And, if it is a verbal expression apprehended by imagination, then, in the final analysis, such an imagined description does not validate a real thing. Therefore, the unconditioned does not exist. </div><div class='sutraEng'>Good son, the term 'conditioned' is invented from language [and it validates nothing real]. Besides 'the unconditioned' and 'the conditioned,' any other expression that exists in language is the same. </div><div class='sutraEng'>But [some may object], is it not true that there are no expressions without some [corresponding] reality? What then is that reality here? I would reply that it is that reality apart from language and realized in the perfect awakening of the saints through their wisdom and insight apart from all names and words. It is because they desire to lead others to realize perfect awakening that they establish [such expressions] as ' the unconditioned' as verbal descriptions."</div>
+</div></div></div><div class='index'>辛五、重徵</div><div class='session'><div class='sutra'>爾時，如理請問菩薩摩訶薩，復問解甚深義密意菩薩摩訶薩言：「最勝子！如何此事，彼諸聖者，以聖智、聖見離名言故，現正等覺，即於如是離言法性，為欲令他現等覺故，假立名想，或謂有為，或謂無為？」</div><div class='sutraEng'>Then the Bodhisattva Vidhivatpariprcchaka again questioned the Bodhisattva Gambhlrarthasamdhinirmocana and said: "Son of the Victor, why is it that those saints, being freed from language through holy wisdom and insight, realizing perfect awakening in that ineffable nature of reality, and desiring to lead others to realize perfect awakening, provisionally establish verbal descriptions, such as 'conditioned' and 'unconditioned'?"</div>
+</div><div class='index'>辛六、舉喻重說</div><div class='session'>
+<div class='index'>壬一、明說之由序</div><div class='session'><div class='sutra'>解甚深義密意菩薩謂如理請問菩薩曰：</div><div class='sutraEng'>The Bodhisattva Gambhlrarthasamdhinirmocana addressed the Bodhisattva Vidhivatpariprcchaka and said:</div>
+</div><div class='index'>壬二、依徵廣釋</div><div class='session'>
+<div class='index'>癸一、舉喻重說</div><div class='session'>
+<div class='index'>子一、幻師幻事喻</div><div class='session'><div class='sutra'>「善男子！如善幻師，或彼弟子，住四衢道，積集草、葉、木、瓦礫等，現作種種幻化事業，所謂象身、車身、馬身、步身，末尼、真珠、琉璃、螺貝、璧玉、珊瑚，種種財穀庫藏等身。</div><div class='sutraEng'>"Good son, one can liken [those saints] to skillful magicians or apprentices, who, setting themselves up at a crossroads, make things like broken tiles, grass, leaves, pieces of wood, etc., appear to be magical things, [such as] herds of elephants, horses, chariots, soldiers, gems, pearls, cat's-eyes, conches, crystal, coral, treasure, grain, storehouses, etc. </div>
+</div><div class='index'>子二、愚者執實喻</div><div class='session'><div class='sutra'>若諸眾生愚癡、頑鈍、惡慧種類無所知曉，於草、葉、木、瓦礫等上諸幻化事，見已，聞已，作如是念：『此所見者，實有象身、實有馬身、車身、步身，末尼、真珠、琉璃、螺貝、璧玉、珊瑚種種財穀庫藏等身。』如其所見，如其所聞，堅固執著，隨起言說：『唯此諦實，餘皆愚妄。』彼於後時應更觀察。</div><div class='sutraEng'>Some people, dull and slow-witted, of perverse understanding and lacking acumen, see and hear those magical things and think that they really are elephants, horses, etc. They tenaciously cling to the verbal expressions that are engendered from what they themselves have seen and heard, [thinking] only that is true and real and everything else is false. It is only later that they are forced to change their opinions. </div>
+</div><div class='index'>子三、悟者覺妄喻</div><div class='session'><div class='sutra'>「若有眾生非愚非鈍、善慧種類，有所知曉。於草、葉、木、瓦礫等上諸幻化事，見已，聞已，作如是念：『此所見者，無實象身、無實馬身、車身、步身，末尼、真珠、琉璃、螺貝、璧玉、珊瑚種種財穀庫藏等身；然有幻狀迷惑眼事，於中發起大象身想，或大象身差別之想，乃至發起種種財穀庫藏等想，或彼種類差別之想。』不如所見，不如所聞，堅固執著。隨起言說，唯此諦實，餘皆愚妄；為欲表知如是義故，亦於此中隨起言說。彼於後時不須觀察。</div><div class='sutraEng'>Other people, not dull nor slow-witted, of good understanding and having acumen, see and hear those magical things and understand that what they see are not really elephants, horses, etc., but rather magical tricks that confuse the eye and cause it to engender the concept of a herd of elephants, the imagined concept of a herd of horses, the many imagined concepts of grain, storehouses, or other magical illusions. They do not tenaciously cling to verbal expressions that are engendered from what they have seen and heard. With them it is not the case that only that is true and real and everything else is false. But, in order to express objects [ seen and heard], they also follow the accepted language. Afterwards they do not have to reconsider.</div>
+</div></div><div class='index'>癸二、舉法同喻</div><div class='session'>
+<div class='index'>子一、明迷者執實</div><div class='session'><div class='sutra'>「如是若有眾生是愚夫類，是異生類，未得諸聖出世間慧，於一切法離言法性，不能了知。彼於一切有為、無為，見已聞已，作如是念：『此所得者，決定實有有為、無為。』如其所見，如其所聞，堅固執著隨起言說。唯此諦實，餘皆癡妄。彼於後時應更觀察。</div><div class='sutraEng'>"In like manner, some sentient beings, foolish and profane, have not yet attained to the transcendent understanding of the saints and are not able to recognize that in all things reality is apart from language. After they have seen and heard about all conditioned and unconditioned [things], they think that what they have learned is most certainly really existing conditioned and unconditioned things. They cling tenaciously to the verbal expressions engendered by what they have seen and heard. Only that is true and everything else is false. But later they must reconsider.</div>
+</div><div class='index'>子二、辨悟者覺妄</div><div class='session'><div class='sutra'>「若有眾生，非愚夫類，已見聖諦，已得諸聖出世間慧，於一切法離言法性，如實了知。彼於一切有為、無為，見已聞已，作如是念：此所得者，決定無實有為、無為。然有分別所起行相，猶如幻事，迷惑覺慧，於中發起為、無為想，或為、無為差別之想。不如所見，不如所聞，堅固執著，隨起言說，唯此諦實，餘皆癡妄。為欲表知如是義故，亦於此中隨起言說。彼於後時不須觀察。</div><div class='sutraEng'>"Other sentient beings, not foolish, who have gained insight into the holy truth, who have attained the transcendent insight of the saints, do truly understand that in all things reality is apart from language. After they have seen and heard about conditioned and unconditioned things, they think that what they have learned are most certainly not really existing conditioned and unconditioned things. Rather they are descriptions engendered from imagination and are magical, confused understandings in which one produces concepts about the conditioned and the unconditioned, concepts about whether they exist or not. They do not tenaciously cling to verbal expressions that are engendered from what they have seen and heard or think that only [those expressions] are true and everything else false. [But,] in order to express the meanings they know, they follow the accepted language. Afterwards they are not forced to reconsider.</div>
+</div></div><div class='index'>癸三、結通外難</div><div class='session'><div class='sutra'>「如是，善男子，彼諸聖者，於此事中，以聖智、聖見離名言故，現正等覺；即於如是離言法性，為欲令他現等覺故，假立名想，謂之有為，謂之無為。」</div><div class='sutraEng'>Thus, good son, the saints, being freed from language through their holy wisdom and insight in this regard, realize the perfect awakening that reality is truly apart from language. It is because they desire to lead others to realize perfect awakening that they provisionally establish names and concepts and call things conditioned or unconditioned."</div>
+</div></div></div></div><div class='index'>庚二、以頌略說</div><div class='session'><div class='sutra'>爾時解甚深義密意菩薩摩訶薩，欲重宣此義，而說頌曰：</div><div class='sutra'>佛說離言無二義，甚深非愚之所行。</div><div class='sutra'>愚夫於此癡所惑，樂著二依言戲論。</div><div class='sutra'>彼或不定或邪定，流轉極長生死苦。</div><div class='sutra'>復違如是正智論，當生牛羊等類中。</div><div class='sutraEng'>At that time the Bodhisattva Gambhlrarthasamdhinirmocana recited these verses to emphasize his meaning:</div><div class='sutraEng'>Buddha speech is apart from language and is nondual. Its depths are beyond the sphere of fools.</div><div class='sutraEng'>In their idiotic confusion, fools delight in duality and rely upon verbal fabrications.</div><div class='sutraEng'>Whether without understanding or with perverse understanding, they will revolve in the suffering of transmigration for a great length of time.</div><div class='sutraEng'>They are indeed far from the discourse of true wisdom and will certainly be reborn as cows, sheep, and so forth.</div>
+</div></div><div class='index'>己二、明超過尋思所行相</div><div class='session'>
+<div class='index'>庚一、長行廣釋</div><div class='session'>
+<div class='index'>辛一、菩薩問</div><div class='session'><div class='sutra'>爾時，法涌菩薩白佛言：「世尊！從此東方過七十二殑伽河沙等世界，有世界名具大名稱，是中如來號廣大名稱，我於先日從彼佛土發來至此。</div><div class='sutra'>我於彼佛土，曾見一處，有七萬七千外道并其師首，同一會坐。</div><div class='sutra'>為思諸法勝義諦相，彼共思議，稱量觀察，遍尋求時，於一切法勝義諦相，竟不能得。</div><div class='sutra'>唯除種種意解，別異意解，變異意解，互相違背，共興諍論，口出矛[矛*(替-曰+貝)]，更相[矛*(替-曰+貝)]刺，既惱壞已，各各離散。</div><div class='sutra'>我於爾時竊作是念：『如來出世甚奇希有，由出世故，乃於如是超過一切尋思所行勝義諦相，亦有通達作證可得。』」說是語已。</div><div class='sutraEng'>At that time the Bodhisattva Dharmodgata addressed the Buddha and said: "World-honored One, at a distance from this eastern sector equal to the sands of seventy-two Ganges, there is a world realm named Visalaklrti, whose Tathagata is named Visalakirti Tathagata. I used to live there before I came here. In that Buddha land I once saw seventy-seven thousand heretics together with their teachers gathered in one place to consider the descriptive marks of the ultimate meaning of all things. But althoughthey thought, pondered, investigated, and thoroughly examined these marks of the ultimate meaning of all things, in the end they were unable to reach any conclusion. They went no further than to exclude certain interpretations, delineating and modifying their own interpretations. They confronted one another and argued fiercely. Their mouths emitted barbed comments, pointed, captious, angry, vicious; and then each went his separate way. I then thought to myself, The appearance of a Tathagata in the world is indeed a rare occurrence. But, because of his appearance, it becomes possible to understand the marks of ultimate meaning, which transcend the sphere of any reasoning.'"</div>
+</div><div class='index'>辛二、世尊略答</div><div class='session'><div class='sutra'>爾時世尊告法涌菩薩摩訶薩曰：「善男子！如是，如是。如汝所說，我於超過一切尋思勝義諦相，現正等覺；現等覺已，為他宣說，顯現開解，施設照了。</div><div class='sutraEng'>Then the World-honored One addressed the Bodhisattva Dharmodgata and said: "Good son, it is just as you have expressed it. I am perfectly awakened to the marks of the truth of ultimate meaning, which transcend any reasoning. Being already perfectly awakened, I declare, preach, explain, teach, and illumine [those marks] for others.</div>
+</div><div class='index'>辛三、菩薩徹問</div><div class='session'><div class='sutra'>何以故？</div><div class='sutraEng'>Why do I do this? </div>
+</div><div class='index'>辛四、如來廣釋</div><div class='session'>
+<div class='index'>壬一、內自所證</div><div class='session'><div class='sutra'>我說：『勝義是諸聖者內自所證，尋思所行是諸異生輾轉所證。』</div><div class='sutra'>是故法涌！由此道理，當知勝義超過一切尋思境相。</div><div class='sutraEng'>Because I have preached that ultimate meaning is realized internally by each saint, while reasoning is attained in the give and take [of joint discussion] among common worldlings. Dharmodgata, from this principle you should understand that ultimate meaning transcends the descriptions of reasoned meaning.</div>
+</div><div class='index'>壬二、無相所行</div><div class='session'><div class='sutra'>法涌！我說：『勝義無相所行，尋思但行有相境界。』</div><div class='sutra'>是故法涌！由是道理，當知勝義超過一切尋思境相。</div><div class='sutraEng'>Furthermore, Dharmodgata, I have preached that ultimate meaning does not function through images, but the functioning of reason does move within the realm of images. From this principle, Dharmodgata, you should understand that ultimate meaning transcends the descriptions of reasoned meaning. </div>
+</div><div class='index'>壬三、不可言說相</div><div class='session'><div class='sutra'>法涌！我說：『勝義不可言說，尋思但行言說境界。』</div><div class='sutra'>是故法涌！由是道理，當知勝義超過一切尋思境相。</div><div class='sutraEng'>Furthermore, Dharmodgata, I preach tha t ultimate meaning is ineffable, but the functioning of reason moves within the realm of language. From this principle, Dharmodgata, you should understand that ultimate meaning transcends the descriptions of reasoned meaning. </div>
+</div><div class='index'>壬四、絕諸表示</div><div class='session'><div class='sutra'>法涌！我說：『勝義絕諸表示，尋思但行表示境界。』</div><div class='sutra'>是故法涌！由是道理，當知勝義，超過一切尋思境相。</div><div class='sutraEng'>Furthermore, Dharmodgata, I teach that ultimate meaning severs all expression, but the functioning of reason moves within the realm of expression. From this principle, Dharmodgata, you should understand tha t ultimate meaning transcends the descriptions of reasoned meaning. </div>
+</div><div class='index'>壬五、絕諸諍論相</div><div class='session'><div class='sutra'>法涌！我說勝義絕諸諍論，尋思但行諍論境界。</div><div class='sutra'>是故法涌！由是道理，當知勝義超過一切尋思境相。</div><div class='sutraEng'>Furthermore, Dharmodgata,I preach that ultimate meaning severs all disputation, but the functioning of reason does move within the realm of disputation about meaning. From this principle, Dharmodgata, you should understand that ultimate meaning transcends the descriptions of reasoned meaning.</div>
+</div></div><div class='index'>辛五、舉喻重釋</div><div class='session'>
+<div class='index'>壬一、上味勝樂喻</div><div class='session'><div class='sutra'>「法涌當知！譬如有人，盡其壽量，習辛苦味，於蜜、石蜜上妙美味，不能尋思，不能比度，不能信解。</div><div class='sutraEng'>"Furthermore, Dharmodgata, you should understand that it is like a man who all his life long was accustomed to tart and bitter tastes. He would be incapable of comprehending, evaluating, or appreciating the wonderful taste of honey or rock candy. </div>
+</div><div class='index'>壬二、遠離五欲妙樂喻</div><div class='session'><div class='sutra'>或於長夜，由欲貪勝解，諸欲熾火所燒然故，於內除滅一切色、聲、香、味、觸相，妙遠離樂，不能尋思，不能比度，不能信解。</div><div class='sutraEng'>It is like a man who for ages has placed his concern upon and taken his delight in cravings [for this or that]. With his desires burning like fire, he would be unable to comprehend, evaluate, or appreciate the wonderful inner detachment that severs the images of all sense objects, sounds, smells, tastes, and touches. </div>
+</div><div class='index'>壬三、賢聖默然寂靜樂喻</div><div class='session'><div class='sutra'>或於長夜，由言說勝解，樂著世間綺言說故，於內寂靜聖默然樂，不能尋思，不能比度、不能信解。</div><div class='sutraEng'>It is like a man who for ages has placed his concern upon and taken his delight in fine, worldly conversations. He would be unable to comprehend, evaluate, or appreciate the joy of the inner, holy silence of tranquility. </div>
+</div><div class='index'>壬四、絕諸表示寂樂喻</div><div class='session'><div class='sutra'>或於長夜，由見、聞、覺、知表示勝解，樂著世間諸表示故，於永除斷一切表示薩迦耶滅究竟涅槃，不能尋思，不能比度，不能信解。</div><div class='sutraEng'>It is like a man who for ages has placed his concern upon and taken his delight in all the worldly ideas he had heard, expressed, and understood. He would be unable to comprehend, evaluate, or appreciate the final cessation that forever eradicates all ideas and destroys personality. </div>
+</div><div class='index'>壬五、離諸諍論樂喻</div><div class='session'><div class='sutra'>法涌當知！譬如有人，於其長夜，由有種種我所、攝受，諍論勝解，樂著世間諸諍論故，於北拘盧洲無我所、無攝受、離諍論，不能尋思，不能比度，不能信解。</div><div class='sutraEng'>Understand, Dharmodgata, it is like a man who for ages has placed his concern upon and taken his delight in worldly disputation. He would be unable to comprehend, evaluate, or appreciate the fact that in north Kuru [where I have preached] there are no disputes over the constituents or over noself. </div>
+</div></div><div class='index'>辛六、舉法同喻</div><div class='session'><div class='sutra'>如是法涌！諸尋思者，於超一切尋思所行勝義諦相，不能尋思，不能比度，不能信解。</div><div class='sutraEng'>In like fashion, Dharmodgata, reason is entirely unable to comprehend, evaluate, or appreciate the descriptive marks of ultimate meaning, which transcend the functioning of any reasoning."</div>
+</div></div><div class='index'>庚二、以頌略說</div><div class='session'><div class='sutra'>爾時世尊，欲重宣此義，而說頌曰：</div><div class='sutra'>內證無相之所行，不可言說絕表示，</div><div class='sutra'>息諸諍論勝義諦，超過一切尋思相。</div><div class='sutraEng'>At that time the World-honored One recited these verses to emphasize his meaning:</div><div class='sutraEng'>The sphere that is internally realized without descriptions cannot be spoken and severs expressions. Ultimate meaning, laying to rest all disputes, transcends all the descriptive marks of reasoning.</div>
+</div></div><div class='index'>己三、釋超過諸法一異性相</div><div class='session'>
+<div class='index'>庚一、長行廣釋</div><div class='session'>
+<div class='index'>辛一、善清淨問</div><div class='session'>
+<div class='index'>壬一、善清淨問</div><div class='session'><div class='sutra'>爾時善清淨慧菩薩摩訶薩白佛言：「世尊甚奇！乃至世尊善說！」謂世尊言：『勝義諦相，微細甚深，超過諸法一異性相，難可通達。』</div><div class='sutraEng'>At that time the Bodhisattva Suvisuddhimati addressed the Buddha and said: "Wonderful it is, World-honored One, that I have been able to hear these words of yours. It is just as you have said, for the marks of the truth of ultimate meaning, being subtle and profound, can be characterized as neither identical with nor different from all things. They are indeed difficult to fathom. </div>
+</div><div class='index'>壬二、顯眾諍論</div><div class='session'><div class='sutra'>世尊！我即於此曾見一處，有眾菩薩等正修行勝解行地，同一會坐，皆共思議勝義諦相與諸行相一異性相。</div><div class='sutra'>於此會中一類菩薩，作如是言：『勝義諦相，與諸行相都無有異。』</div><div class='sutra'>一類菩薩，復作是言：『非勝義諦相與諸行相，都無有異；然勝義諦相異諸行相。』</div><div class='sutra'>有餘菩薩疑惑猶豫，復作是言：『是諸菩薩，誰言諦實，誰言虛妄；誰如理行，誰不如理。』或唱是言：『勝義諦相與諸行相都無有異；』或唱是言：『勝義諦相異諸行相。』</div><div class='sutraEng'>World-honored One, I once saw an assembly of bodhisattvas gathered together and seated. They were in the stage of fully cultivating their commitment, and were all considering the descriptive marks of the truth of ultimate meaning, whether they were identical with or different from the descriptive marks of conditioned states of being. Some of these bodhisattvas said that there was no difference between the marks of the truth of ultimate meaning and the marks of conditioned states of being. Others said that it was not true that there was no difference between the marks of the truth of ultimate meaning and the marks of conditioned states of being, but that the marks of the truth of ultimate meaning do differ from the marks of conditioned states of being. Yet other bodhisattvas, in doubt and perplexed, said: 'Which bodhisattvas are speaking truth and which falsity? Which are reasoning intelligently and which not intelligently?' But, whether they declared that the marks of ultimate meaning did not differ from the marks of conditioned states of being, or that the marks of ultimate meaning did differ from the marks of conditioned states of being,</div>
+</div><div class='index'>壬三、申己疑情</div><div class='session'><div class='sutra'>世尊，我見彼已，竊作是念：『此諸善男子，愚癡頑鈍，不明，不善，不如理行，於勝義諦微細甚深超過諸行一異性相，不能解了。』說是語已。</div><div class='sutraEng'>I, Worldhonored One, thought to myself that all these good sons were foolish and slow-witted. They did not have insight, and, behaving poorly, did not reason intelligently in regard to the subtlety and profundity of the truth of ultimate meaning, for it transcends being characterized as either identical with or different from conditioned</div>
+</div></div><div class='index'>辛二、如來正答</div><div class='session'>
+<div class='index'>壬一、如來印可</div><div class='session'><div class='sutra'>爾時世尊，告善清淨慧菩薩摩訶薩曰：「善男子！如是如是，如汝所說，此諸善男子，愚癡頑鈍，不明，不善，不如理行，於勝義諦微細甚深超過諸行一異性相，不能解了。</div><div class='sutraEng'>Then the World-honored One addressed the Bodhisattva Suvisuddhimati and said: "Good son, it is just as you have expressed it. All those good sons were indeed foolish and slow-witted. They did not have insight, and, behaving poorly, did not reason intelligently in regard to the subtlety and profundity of the truth of ultimate meaning, for it does transcend being characterized as either identical with or different from conditioned states of being. </div>
+</div><div class='index'>壬二、菩薩徵詰</div><div class='session'><div class='sutra'>何以故？</div><div class='sutraEng'>Why is this so, Suvisuddhimati? </div>
+</div><div class='index'>壬三、如來略答</div><div class='session'><div class='sutra'>善清淨慧！非於諸行如是行時，名能通達勝義諦相，或於勝義諦而得作證。</div><div class='sutraEng'>It is because one cannot comprehend the descriptive marks of the truth of ultimate meaning in names by performing such exercises.</div>
+</div><div class='index'>壬四、菩薩重徵</div><div class='session'><div class='sutra'>何以故？</div><div class='sutraEng'>"Why is this so, Suvisuddhimati? </div>
+</div><div class='index'>壬五、依徵廣釋</div><div class='session'>
+<div class='index'>癸一、第一復次</div><div class='session'>
+<div class='index'>子一、反釋破執</div><div class='session'>
+<div class='index'>丑一、約三失以破一執</div><div class='session'><div class='sutra'>善清淨慧！若勝義諦相，與諸行相，都無異者，應於今時一切異生皆已見諦。又諸異生皆應已得無上方便安隱涅槃，或應已證阿耨多羅三藐三菩提。</div><div class='sutraEng'>It is because, if the descriptive marks of the truth of ultimate meaning were not different from conditioned states of being at all, then at this very moment all common worldlings would have already gained insight into truth. They all necessarily would have already attained the quiescent cessation of supreme skill or would have realized full, perfect awakening. </div>
+</div><div class='index'>丑二、約五失破其異執</div><div class='session'><div class='sutra'>若勝義諦相與諸行相一向異者，已見諦者，於諸行相，應不除遣。若不除遣諸行相者，應於相縛不得解脫。此見諦者，於諸相縛不解脫故，於麤重縛亦應不脫。由於二縛不解脫故，已見諦者應不能得無上方便安隱涅槃。或不應證阿耨多羅三藐三菩提。</div><div class='sutraEng'>But, [on the other hand,] if the descriptive marks of ultimate meaning were entirely different from the marks of conditioned states of being, then those who have already gained insight into truth would not have expunged images of conditioned states of being. And if they had not expunged images of conditioned states of being, then they would not have attained liberation from bondage to those images. Not being liberated from those images, they would not be freed from bondage to their gross weaknesses. Not being freed from bondage to gross weaknesses, those who have gained insight into truth would have been unable to attain the quiescent cessation of supreme skill or full, perfect awakening.</div>
+</div></div><div class='index'>子二、順釋破執</div><div class='session'>
+<div class='index'>丑一、舉無三失破一執</div><div class='session'><div class='sutra'>「善清淨慧！由於今時非諸異生皆已見諦，非諸異生已能獲得無上方便安隱涅槃，亦非已證阿耨多羅三藐三菩提，是故勝義諦相與諸行相都無異相，不應道理。若於此中作如是言：『勝義諦相與諸行相都無異者，』由此道理，當知一切非如理行，不如正理。</div><div class='sutraEng'>But, Suvisuddhimati, it is not the case that at this very moment all the common worldlings have already gained insight into truth, are already capable of attaining the quiescent cessation of supreme skill, or have realized full, perfect awakening. Therefore the opinion that the descriptive marks of the truth of ultimate meaning are not different from the descriptive marks of conditioned states of being is not reasonable. If someone were to say that the descriptive marks of the truth of ultimate meaning were not different from the descriptive marks of conditioned states of being, from this above argument you should understand that this opinion is neither intelligent nor truly reasonable. </div>
+</div><div class='index'>丑二、約無五失破彼異執</div><div class='session'><div class='sutra'>「善清淨慧！由於今時非見諦者，於諸行相不能除遣；然能除遣。非見諦者於諸相縛，不能解脫；然能解脫。非見諦者，於麤重縛，不能解脫；然能解脫。以於二障能解脫故，亦能獲得無上方便安隱涅槃。或有能證阿耨多羅三藐三菩提。</div><div class='sutra'>是故勝義諦相與諸行相，一向異相，不應道理。若於此中，作如是言：『勝義諦相與諸行相一向異者。』由是道理，當知一切非如理行，不如正理。</div><div class='sutraEng'>Suvisuddhimati, neither is it the case that those who have gained insight into truth have not been able to expunge all the images of conditioned states of being, for they have indeed been able to expunge them. It is not the case that those who have gained insight into truth have been incapable of liberation from bondage to the images of conditioned states of being, for they have indeed been capable of such liberation. It is not the case that those who have gained insight into truth have been incapable of liberation from bondage to gross weaknesses, for they have indeed been capable of such liberation. It is precisely because they have been capable of liberation from these two obstacles that they have been able to attain the quiescent cessation of supreme skill and to realize full, perfect wisdom.</div><div class='sutraEng'>Therefore, the opinion that the descriptive marks of the truth of ultimate meaning are entirely different from the descriptive marks of conditioned states of being is not reasonable. If some say that the marks of the truth of ultimate meaning are entirely different from the marks of conditioned states of being, from the above argument you should understand that this opinion is neither intelligent nor truly reasonable.</div>
+</div></div></div><div class='index'>癸二、第二復次</div><div class='session'>
+<div class='index'>子一、釋</div><div class='session'><div class='sutra'>「善清淨慧！若勝義諦相與諸行相都無異者，如諸行相墮雜染相，此勝義諦相亦應如是墮雜染相。</div><div class='sutra'>善清淨慧！若勝義諦相與諸行相一向異者，應非一切行相共相名勝義諦相。</div><div class='sutra'>善清淨慧！由於今時勝義諦相非墮雜染相，諸行共相名勝義諦相，</div><div class='sutraEng'>"Moreover, Suvisuddhimati, if the marks of the truth of ultimate meaning were identical with the marks of conditioned states of being, then, just as the marks of conditioned states of being are defiled, so also the marks of the truth of ultimate meaning would be defiled.</div><div class='sutraEng'>Suvisuddhimati, if the marks of the truth of ultimate meaning were entirely different from the marks of conditioned states of being, then the common mark that describes conditioned states of being could not be termed the mark of the truth of ultimate meaning.</div><div class='sutraEng'>But, Suvisuddhimati, the descriptive marks of the truth of ultimate meaning are not defiled, and the common marks of conditioned states of being are termed the mark of the truth of ultimate meaning.</div>
+</div><div class='index'>子二、結一異過</div><div class='session'><div class='sutra'>是故勝義諦相，與諸行相，都無異相，不應道理；勝義諦相，與諸行相，一向異相，不應道理。若於此中，作如是言：『勝義諦相，與諸行相，都無有異，或勝義諦相，與諸行相，一向異者。』由此道理，當知一切非如理行，不如正理。</div><div class='sutraEng'>Therefore it is not reasonable to say that the descriptive marks of the truth of ultimate meaning are identical with the descriptive marks of conditioned states of being, nor that they are entirely different one from the other. From this argument you should understand that both those who speak for the identity of marks and those who speak for their complete difference are neither intelligent nor reasonable.</div>
+</div></div><div class='index'>癸三、第三復次</div><div class='session'>
+<div class='index'>子一、破</div><div class='session'>
+<div class='index'>丑一、反解顯失</div><div class='session'><div class='sutra'>「善清淨慧！若勝義諦相與諸行相，都無異者，如勝義諦相，於諸行相，無有差別，一切行相，亦應如是無有差別。</div><div class='sutra'>修觀行者，於諸行中，如其所見，如其所聞，如其所覺，如其所知，不應後時，更求勝義。</div><div class='sutra'>若勝義諦相，與諸行相，一向異者，應非諸行唯無我性，唯無自性之所顯現，是勝義相。</div><div class='sutra'>又應俱時別相成立，謂雜染相及清淨相。</div><div class='sutraEng'>"Moreover, Suvisuddhimati, if the descriptive marks of ultimate truth were identical with the descriptive marks of conditioned states of being, then, just as the mark of the truth of ultimate meaning is undifferentiated in all conditioned states, so all the marks of those conditioned states would be undifferentiated.</div><div class='sutraEng'>Then those who practice meditation would not have to search for ultimate meaning in all the conditioned states of being that they have seen, heard, understood, and known.</div><div class='sutraEng'>On the other hand, if the descriptive mark of the truth of ultimate meaning were entirely different from conditioned states of being, then it would not be true that all conditioned states of being are manifestations only of the absence of self, of the absence of essence.</div><div class='sutraEng'>The marks of ultimate truth would then simultaneously be held to be characterized in two different manners, one of defilement and one of purity.</div>
+</div><div class='index'>丑二、順釋顯過</div><div class='session'><div class='sutra'>「善清淨慧！由於今時一切行相皆有差別，非無差別。</div><div class='sutra'>修觀行者，於諸行中，如其所見，如其所聞，如其所覺，如其所知，復於後時，更求勝義。</div><div class='sutra'>又即諸行唯無我性，唯無自性之所顯現，名勝義相。</div><div class='sutra'>又非俱時染、淨二相別相成立。</div><div class='sutraEng'>But, Suvisuddhimati, these marks of conditioned things are indeed different.</div><div class='sutraEng'>Those who practice meditation do search for ultimate meaning in the conditioned states of being they have seen, heard, understood, and known.</div><div class='sutraEng'>Also, all conditioned states of being are indeed manifestations only of the absence of self, the absence of essence, and they are rightly termed marks of ultimate truth.</div><div class='sutraEng'>It is not true that it is simultaneously characterized in two manners, one of defilement and one of purity. </div>
+</div></div><div class='index'>子二、結破二失</div><div class='session'><div class='sutra'>是故勝義諦相與諸行相都無有異，或一向異，不應道理。</div><div class='sutra'>若於此中，作如是言：『勝義諦相與諸行相，都無有異，或一向異者。』由此道理，當知一切非如理行，不如正理。</div><div class='sutraEng'>Therefore, the opinion that the marks of the truth of ultimate meaning are either identical with or entirely different from the marks of conditioned states of being is not reasonable.</div><div class='sutraEng'> If some say that these marks of the truth of ultimate meaning are either identical with or entirely different from the marks of conditioned states of being, from this argument you should understand that they are neither intelligent nor truly reasonable.</div>
+</div></div></div></div><div class='index'>辛三、舉喻重釋</div><div class='session'><div class='sutra'>「善清淨慧！如螺貝上鮮白色性，不易施設與彼螺貝一相、異相。如螺貝上鮮白色性，金上黃色，亦復如是。如箜篌聲上美妙曲性，不易施設與箜篌聲一相、異相。如黑沈上有妙香性，不易施設與彼黑沈一相、異相。如胡椒上辛猛利性，不易施設與彼胡椒一相、異相。如胡椒上辛猛利性，訶梨淡性、亦復如是。如蠧羅綿上有柔軟性，不易施設與蠧羅綿一相、異相。如熟酥上所有醍醐，不易施設與彼熟酥一相、異相。又如一切行上無常性，一切有漏法上苦性，一切法上補特伽羅無我性，不易施設與彼行等一相、異相。又如貪上不寂靜相及雜染相，不易施設此與彼貪一相、異相。如於貪上，於瞋、癡上，當知亦爾。</div><div class='sutraEng'>"It is like unto the fresh white color of a conch shell, for it is not easily ascertained whether [that color] is identical with or different from the shell. The yellow color of gold presents a similar case. Or consider the melodies from the sound of a guitar, for it is difficult to ascertain whether that sound is identical with or different from the guitar. Or take the fragrance that wells up from aloes, for it is difficult to tell whether it is identical with or different from the aloes. Or take the bitter taste of pepper, for it is difficult to tell if it is identical with or different from the pepper. A similar case is the insipid taste of an astringent nut. It is like the silky skin of a moth and its softness, for it is difficult to ascertain if that silky texture is identical with or different from the softness. Or take the rich liquor on the top of boiled butter. Is it identical with or different from the boiled butter?</div><div class='sutraEng'>"Likewise it is difficult to tell whether Impermanence is identical with or different from conditioned states of being, whether suffering is identical with or different from impure states of mind, whether the no-self of personality is identical with or different from all things, whether inquietude is identical with or different from covetousness. The same is true about anger and delusion vis-a-vis covetousness.</div>
+</div><div class='index'>辛四、舉法同喻</div><div class='session'><div class='sutra'>如是善清淨慧，勝義諦相，不可施設與諸行相一相、異相。</div><div class='sutraEng'>Thus, Suvisuddhimati, the descriptive marks of the truth of ultimate meaning cannot be said to be either identical with or different from the descriptive marks of conditioned states of being.</div>
+</div><div class='index'>辛五、結通外疑</div><div class='session'><div class='sutra'>「善清淨慧！我於如是微細極微細，甚深極甚深，難通達極難通達，超過諸法一異性相勝義諦相，現正等覺；現正等覺已，為他宣說顯示開解施設照了。」</div><div class='sutraEng'>Suvisuddhimati, I have perfectly understood the descriptive marks of the truth of ultimate meaning, which are subtle indeed, profound indeed, hard to fathom indeed, which transcend all descriptions as being identical with or different from all things. Having perfectly understood, I declare, preach, explain, and illumine for the sake of others."</div>
+</div></div><div class='index'>庚二、以頌略說</div><div class='session'><div class='sutra'>爾時，世尊欲重宣此義，而說頌曰：</div><div class='sutra'>行界勝義相，離一異性相；</div><div class='sutra'>若分別一異，彼非如理行。</div><div class='sutra'>眾生為相縛，及彼麤重縛；</div><div class='sutra'>要勤修止觀，爾乃得解脫。</div><div class='sutraEng'>Then the World-honored One recited these verses to emphasize his meaning:</div><div class='sutraEng'>The descriptive marks of the realm of conditioned states of being and of ultimate meaning are apart from being described either as identical or as different. If one imagines them to be either identical or different, one is acting unreasonably. Because of bondage to images and to gross weaknesses, sentient beings must assiduously cultivate quietude and vision, and then they will be able to attain liberation.</div>
+</div></div><div class='index'>己四、釋遍一切一味相</div><div class='session'>
+<div class='index'>庚一、長行廣釋</div><div class='session'>
+<div class='index'>辛一、如來告問</div><div class='session'><div class='sutra'>爾時世尊告尊者善現曰：「善現！汝於有情界中，知幾有情懷增上慢，為增上慢所執持故，記別所解？汝於有情界中，知幾有情離增上慢，記別所解？」</div><div class='sutraEng'>At that time the World-honored One addressed the venerable Subhuti and said: "Subhuti, in the world of sentient beings, how many do you know who cherish their pride and in a prideful manner state their understanding? And how many do you know who state their understanding without pride?"</div>
+</div><div class='index'>辛二、善現奉答</div><div class='session'>
+<div class='index'>壬一、釋後問</div><div class='session'><div class='sutra'>爾時尊者善現白佛言：「世尊！我知有情界中，少分有情離增上慢記別所解。</div><div class='sutraEng'>The venerable Subhuti addressed the Buddha and said: "Worldhonored One, in the world of sentient beings, I know a few who state their understanding without pride, </div>
+</div><div class='index'>壬二、答第一問</div><div class='session'>
+<div class='index'>癸一、略答</div><div class='session'><div class='sutra'>世尊！我知有情界中，有無量無數不可說有情懷增上慢，為增上慢所執持故，記別所解。</div><div class='sutraEng'>but I know innumerable, untold sentient beings who cherish their pride and state their understanding in a prideful manner.</div>
+</div><div class='index'>癸二、申己所見</div><div class='session'>
+<div class='index'>子一、明自他住處</div><div class='session'><div class='sutra'>「世尊！我於一時，住阿練若大樹林中。時有眾多苾芻，亦於此林依近我住。</div><div class='sutraEng'>World-honored One, once I was dwelling in a grove in a forest. A large number of monks lived nearby.</div>
+</div><div class='index'>子二、敍他記別</div><div class='session'>
+<div class='index'>丑一、總敍諸計</div><div class='session'><div class='sutra'>我見彼諸苾芻，於日後分，輾轉聚集，依有所得現觀，各說種種相法，記別所解。</div><div class='sutraEng'>I saw them assemble after sunrise to discuss various issues and to propose their understandings, each according to his insight.</div>
+</div><div class='index'>丑二、別敍諸計</div><div class='session'>
+<div class='index'>寅一、約六種善巧所觀境界記別所解</div><div class='session'>
+<div class='index'>卯一、約五蘊</div><div class='session'><div class='sutra'>「於中一類由得蘊故，得蘊相故，得蘊起故，得蘊盡故，得蘊滅故，得蘊滅作證故，記別所解。</div><div class='sutraEng'>"Some proposed their understanding of the aggregates, their descriptive marks, their arising, their exhaustion, their destruction, and the realization of their destruction. </div>
+</div><div class='index'>卯二、約處及緣起</div><div class='session'><div class='sutra'>如此一類，由得蘊故，復有一類，由得處故，復有一類，得緣起故，當知亦爾。</div><div class='sutraEng'>Others, in like fashion, proposed their understanding of the [twelve] bases [of consciousness] and of dependent co-arising, </div>
+</div><div class='index'>卯三、約四食門記別所解</div><div class='session'><div class='sutra'>「復有一類，由得食故，得食相故，得食起故，得食盡故，得食滅故，得食滅作證故，記別所解。</div><div class='sutraEng'>while yet others proposed their understanding of sustenance, its descriptive marks, arising, exhaustion, destruction, and the realization of its destruction. </div>
+</div><div class='index'>卯四、約四諦門記別所解</div><div class='session'><div class='sutra'>「復有一類，由得諦故，得諦相故，得諦遍知故，得諦永斷故，得諦作證故，得諦修習故，記別所解。</div><div class='sutraEng'>Yet others proposed their understanding of truth, its descriptive marks, the full awareness of truth, the severance [brought about by] truth, the realization of truth, and the cultivation of truth.</div>
+</div><div class='index'>卯五、約十八界門記別所解</div><div class='session'><div class='sutra'>「復有一類，由得界故，得界相故，得界種種性故，得界非一性故，得界滅故。得界滅作證故，記別所解。</div><div class='sutraEng'>Others proposed their understanding of the realms, their descriptive marks, their various natures, their multiplicity, their destruction, and the realization of their destruction.</div>
+</div></div><div class='index'>寅二、約道品中七觀門記別所解</div><div class='session'>
+<div class='index'>卯一、約念住記別解</div><div class='session'><div class='sutra'>「復有一類，由得念住故，得念住相故，得念住能治所治故，得念住修故，得念住未生令生故，得念住生已堅住不忘倍修增廣故，記別所解。</div><div class='sutraEng'>Others proposed their understanding of the stations of recollection, their descriptive marks, the states they are able to control, their cultivation, their arising from a state of being non-arisen, their assured non-forgetfulness after arising, and their increase from repeated practice.</div>
+</div><div class='index'>卯二、類釋正斷等五門記別所解</div><div class='session'><div class='sutra'>如有一類得念住故，復有一類，得正斷故，得神足故，得諸根故，得諸力故，得覺支故，當知亦爾。</div><div class='sutraEng'>At the same time, others proposed their understanding of true severance, of the supernatural abilities, of the sense faculties, of the powers, of the factors of awakening,</div>
+</div><div class='index'>卯三、約八道支記別所解</div><div class='session'><div class='sutra'>「復有一類，得八支聖道故，得八支聖道相故，得八支聖道能治所治故，得八支聖道修故，得八支聖道未生令生故，得八支聖道生已堅住不忘倍修增廣故，記別所解。</div><div class='sutraEng'>while yet others talked about the eightfold path, its descriptive marks, the states it is able to control, its arising from a state of being non-arisen, its assured unforgettableness once it has arisen, and its increase from repeated practice.</div>
+</div></div></div></div></div><div class='index'>癸三、述己所念</div><div class='session'>
+<div class='index'>子一、略述己念</div><div class='session'><div class='sutra'>「世尊我見彼已，便作是念：『此諸長老，依有所得現觀，各說種種相法，記別所解。</div><div class='sutraEng'>"World-honored One, when I saw them, I thought that all tthose venerable persons were engaged in addressing these various issues and proposing their interpretations, each according to the insights he had attained. </div>
+</div><div class='index'>子二、重述己念</div><div class='session'><div class='sutra'>當知彼諸長老一切皆懷增上慢，為增上慢所執持故，於勝義諦遍一切一味相，不能解了。』</div><div class='sutraEng'>But, note well, all of them cherished their pride and, because they clung to that pride, they were unable to comprehend the one universal taste of the truth of ultimate meaning.</div>
+</div><div class='index'>子三、讚世尊德</div><div class='session'><div class='sutra'>是故世尊甚奇，乃至世尊善說。謂世尊言：勝義諦相微細最微細，甚深最甚深，難通達最難通達，遍一切一味相。世尊，此聖教中修行苾芻，於勝義諦遍一切一味相，尚難通達，況諸外道!」</div><div class='sutraEng'>But you, World-honored One, have already explained that the descriptive mark of the truth of ultimate meaning is rare, most subtle indeed, most profound, difficult to fathom. You have explained that one universal taste as difficult to fathom. World-honored One, if practicing monks find it difficult to fathom this one universal taste of the truth of ultimate meaning in this holy teaching, then how much harder will it be for heretics to understand it?"</div>
+</div></div></div></div><div class='index'>辛三、世尊正說</div><div class='session'>
+<div class='index'>壬一、印所讚德</div><div class='session'><div class='sutra'>爾時世尊，告尊者善現曰：「如是如是。善現，我於微細最微細，甚深最甚深，難通達最難通達，遍一切一味相勝義諦，現正等覺，現等覺已，為他宣說顯示開解施設照了。</div><div class='sutraEng'>Then the World-honored One addressed Subhtiti and said: "This is so, Subhtiti, for I have been awakened to the truth of ultimate meaning which is of one universal taste, most subtle, most profound, most difficult to fathom. Having been awakened, I declare, preach, explain, and illumine it for the sake of others. </div>
+</div><div class='index'>壬二、依徵廣釋</div><div class='session'>
+<div class='index'>癸一、徵</div><div class='session'><div class='sutra'>何以故？</div><div class='sutraEng'>What is it that I have preached, Subhtiti? </div>
+</div><div class='index'>癸二、釋</div><div class='session'>
+<div class='index'>子一、法</div><div class='session'>
+<div class='index'>丑一、約清淨所緣顯一味相</div><div class='session'><div class='sutra'>善現，我已顯示於一切蘊中，清淨所緣，是勝義諦。</div><div class='sutra'>我已顯示於一切處、緣起、食、諦、界、念住、正斷、神足、根、力、覺支、道支中清淨所緣，是勝義諦。</div><div class='sutra'>此清淨所緣，於一切蘊中，是一味相，無別異相。</div><div class='sutra'>如於蘊中，如是於一切處中乃至一切道支中，是一味相，無別異相。</div><div class='sutra'>是故善現，由此道理，當知勝義諦是遍一切一味相。</div><div class='sutraEng'>I have preached that the purified content of understanding in all the aggregates is the truth of ultimate meaning. I have preached that the purified content of understanding in all dependent co-arising, in sustenance, in the realms, in recollection, in true severance, in the supernatural abilities, in the factors of awakening, and in the factors of the path is the truth of ultimate meaning.This purified content of understanding is characterized as being of one taste, being undifferentiated in all the aggregates, in all the bases, in all they discussed [above], for it is of one taste and not differentiated. It is from this principle that the truth of ultimate meaning is of one universal taste.</div>
+</div><div class='index'>丑二、約三遍義以辨一味相</div><div class='session'><div class='sutra'>「善現，修觀行苾芻，通達一蘊真如勝義法無我性已，更不尋求各別餘蘊、諸處、緣起、食、諦、界、念住、正斷、神足、根、力、覺支、道支真如勝義法無我性。</div><div class='sutra'>唯即隨此真如勝義無二智為依止故，於遍一切一味相勝義諦，審察趣證。</div><div class='sutra'>是故善現，由此道理當知勝義諦是遍一切一味相。</div><div class='sutraEng'>"Furthermore, Subhtiti, once those practicing monks who cultivate centering have understood the suchness of a single group [of questions], the selflessness of the teaching on ultimate meaning, then they will not engage in analyzing one after the other the aggregates, bases, dependent co-arising, sustenance, truth, the realms, recollection, true severance, the supernatural abilities, the faculties, the powers, the factors of awakening, or the factors of the path. The selflessness of the teaching of suchness and ultimate meaning is based upon the nondual wisdom of suchness and ultimate meaning. They then will come to awareness and realize the truth of ultimate meaning, which is of one universal taste. Therefore, Subhuti, from this principle understand that the truth of ultimate meaning is of one universal taste.</div>
+</div><div class='index'>丑三、以離三過釋一味相</div><div class='session'><div class='sutra'>「善現，如彼諸蘊輾轉異相，如彼諸處、緣起、食、諦、界、念住、正斷、神足、根、力、覺支、道支輾轉異相。</div><div class='sutra'>若一切法真如勝義法無我性亦異相者，是則真如勝義法無我性亦應有因，從因所生，若從因生，應是有為，若是有為，應非勝義，若非勝義，應更尋求餘勝義諦。</div><div class='sutra'>善現，由此真如勝義法無我性，不名有因非因所生，亦非有為是勝義諦，得此勝義，更不尋求餘勝義諦。</div><div class='sutra'>唯有常常時，恒恒時，如來出世，若不出世，諸法法性安立法界安住。</div><div class='sutra'>是故善現，由此道理，當知勝義諦是遍一切一味相。</div><div class='sutraEng'>"Furthermore, Subhuti, if, like all the aggregates, like all the bases, dependent co-arising, sustenance, truth, realms, recollection, true severance, supernatural abilities, sense faculties, powers, factors of awakening, and factors of the path, all of which are described by differentiating one from the other; if, like these, suchness, ultimate meaning, and no-essence had descriptive marks that differentiated one from the other, then these would issue from causes, they would be caused. And, if they arose from causes, they would themselves be conditioned. And, if conditioned, they would not be ultimate meaning. And, if they were not ultimate meaning, then one would once more have to seek the truth of another ultimate meaning. It is because suchness, ultimate meaning, and the no-essence of all things are not said to be caused, do not arise from causes, and are not conditioned that they are the truth of ultimate meaning. Once one attains this ultimate meaning, there is no further need to seek another ultimate meaning. Only it is eternal and permanent, whether a Tathagata appears in the world or not, for in all things reality is established, the reality realm perdures. Therefore, Subhuti, from this principle you should understand that the truth of ultimate meaning is of one universal taste.</div>
+</div></div><div class='index'>子二、舉喻重說</div><div class='session'><div class='sutra'>「善現，譬如種種非一品類異相色中，虛空無相無分別無變異，遍一切一味相。</div><div class='sutraEng'>"Subhuti, in empty space there are differences in the mmultiple varieties of color, while [space itself] remains unmarked, undifferentiated, and unchanged by them. Rather it encompasses all those marks within its one taste.</div>
+</div><div class='index'>子三、舉法同喻</div><div class='session'><div class='sutra'>如是異性異相一切法中，勝義諦遍一切一味相，當知亦爾。」</div><div class='sutraEng'>In a similar fashion, the truth of ultimate meaning is in all things, which are of different natures and do have differing marks; and it encompasses all those marks with its one taste."</div>
+</div></div></div></div></div><div class='index'>庚二、舉頌略說</div><div class='session'><div class='sutra'>爾時，世尊欲重宣此義，而說頌曰：</div><div class='sutra'>此遍一切一味相，勝義諸佛說無異；</div><div class='sutra'>若有於中異分別，彼定愚癡依上慢。</div><div class='sutraEng'>Then the World-honored One recited these verses to emphasize his meaning:</div><div class='sutraEng'>Encompassing all marks with one taste, ultimate meaning is taught by all Buddhas to be undifferentiated. If one were to discriminate it in those differentiations, one should assuredly be foolish and prideful.</div>
+
+</div></div>
+
+
+	</div>
+</div>
+
+</body>
+
+</html>
