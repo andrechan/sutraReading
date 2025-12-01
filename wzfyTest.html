@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>唯識方隅考试系统</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        
+        .control-panel {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, select, button {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .exam-container {
+            display: none;
+        }
+        
+        .question-container {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        
+        .question-number {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .question-text {
+            font-size: 18px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .options {
+            margin-left: 20px;
+        }
+        
+        .option {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .option:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .option.selected {
+            background-color: #d6eaf8;
+            border-left: 4px solid #3498db;
+        }
+        
+        .option.correct {
+            background-color: #d5f5e3;
+            border-left: 4px solid #28b463;
+        }
+        
+        .option.incorrect {
+            background-color: #fadbd8;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .result-container {
+            display: none;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            margin-top: 20px;
+        }
+        
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .result-details {
+            margin-top: 20px;
+        }
+        
+        .result-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .result-item.correct {
+            border-left-color: #28b463;
+            background-color: #eafaf1;
+        }
+        
+        .result-item.incorrect {
+            border-left-color: #e74c3c;
+            background-color: #fdedec;
+        }
+        
+        .explanation {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 4px;
+            font-style: italic;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #3498db;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .question-text {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>唯識方隅考试系统</h1>
+        
+        <div class="control-panel" id="controlPanel">
+            <div class="form-group">
+                <label for="questionCount">選擇題目數量 (1-70):</label>
+                <input type="number" id="questionCount" min="1" max="70" value="10">
+            </div>
+            <button id="startExam">開始考試</button>
+        </div>
+        
+        <div class="exam-container" id="examContainer">
+            <div class="stats">
+                <span id="currentQuestion">第 1 題</span>
+                <span id="timer">時間: 00:00</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question-number" id="questionNumber">題目 1</div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+            </div>
+            
+            <div class="navigation">
+                <button id="prevQuestion">上一題</button>
+                <button id="nextQuestion">下一題</button>
+                <button id="submitExam">提交答案</button>
+            </div>
+        </div>
+        
+        <div class="result-container" id="resultContainer">
+            <div class="score" id="scoreText"></div>
+            <div class="result-details" id="resultDetails"></div>
+            <button id="restartExam">重新考試</button>
+        </div>
+    </div>
+
+    <script>
+        // 考試題目數據
+        const questions = [
+            {
+                question: "關於「三自性」，以下哪一選項是正確的？",
+                options: [
+                    "徧計所執性是有體有用的假有",
+                    "依他起性是無體無用的全無",
+                    "圓成實性是宇宙萬有的實體",
+                    "三自性中只有圓成實性是空無的"
+                ],
+                answer: 2, // C
+                explanation: "圓成實性即真如，是宇宙萬有的實體（無為法），周遍、永恆、真實。徧計所執性無體無用（如誤認繩為蛇），依他起性有體有用但為假有（如繩依麻而生），故A、B、D錯誤。"
+            },
+            {
+                question: "《解深密經》將佛陀說法分為三個時期，其正確順序是？",
+                options: [
+                    "有教→空教→唯識教",
+                    "空教→有教→唯識教",
+                    "唯識教→空教→有教",
+                    "有教→唯識教→空教"
+                ],
+                answer: 0, // A
+                explanation: "據《解深密經》，佛陀先說「有教」（小乘四諦），次說「空教」（《般若經》破執），後說「唯識教」（《解深密經》等，非空非有）。"
+            },
+            {
+                question: "唯識學被稱為「非空非有」的中道教，主要是因為？",
+                options: [
+                    "它完全否定現象界的存在",
+                    "它承認外境實有而內識空無",
+                    "它否定離識獨存的外境，但承認內識非無",
+                    "它主張一切法既是空又是有"
+                ],
+                answer: 2, // C
+                explanation: "唯識學「遮境有」（否定離識實存的外境）而「簡心空」（內識非無），故非空（識有用）非有（境無體），契合中道。"
+            },
+            {
+                question: "關於「徧計所執性」的比喻，以下哪項是《唯識方隅》中使用的？",
+                options: [
+                    "如繩被誤認為蛇",
+                    "如夢中見山河",
+                    "如鏡中映現影像",
+                    "如陽焰似水"
+                ],
+                answer: 0, // A
+                explanation: "書中以「誤認繩為蛇」比喻徧計所執性（於無中妄執為有），蛇喻執著，繩喻依他起性。"
+            },
+            {
+                question: "唯識學所依的根本經典不包括？",
+                options: [
+                    "《解深密經》",
+                    "《般若經》",
+                    "《楞伽經》",
+                    "《華嚴經》"
+                ],
+                answer: 1, // B
+                explanation: "《般若經》屬空輪經典，唯識學主要依據《解深密經》《楞伽經》《華嚴經》等有輪經典。"
+            },
+            {
+                question: "小乘「有教」的主要經典是？",
+                options: [
+                    "《般若經》",
+                    "《阿含經》",
+                    "《法華經》",
+                    "《涅槃經》"
+                ],
+                answer: 1, // B
+                explanation: "小乘有教指佛陀初說《阿含經》，主張「我空法有」，唯識學稱其為「小乘有宗」。"
+            },
+            {
+                question: "唯識學批判「惡取空」是指？",
+                options: [
+                    "正確理解空性的智慧",
+                    "執著空義而否定一切因果現象",
+                    "主張空有不二的中道觀",
+                    "否認圓成實性的存在"
+                ],
+                answer: 1, // B
+                explanation: "「惡取空」是空宗末流誤解空義，墮入虛無主義，否定因果、涅槃，唯識學力矯此弊。"
+            },
+            {
+                question: "關於「圓成實性」的描述，正確的是？",
+                options: [
+                    "是生滅變化的現象",
+                    "需依靠眾緣和合而生",
+                    "是無分別智所證的宇宙實體",
+                    "是眾生計度執著的產物"
+                ],
+                answer: 2, // C
+                explanation: "圓成實性是真如實體，需無分別智親證，非緣起法（排除A、B），亦非妄執（排除D）。"
+            },
+            {
+                question: "唯識學中，「唯」字的含義是？",
+                options: [
+                    "唯一、獨尊",
+                    "唯心主義",
+                    "遮遣離識獨存的外境",
+                    "強調意識的主導作用"
+                ],
+                answer: 2, // C
+                explanation: "「唯」是遮遣詞，意為否定離識獨存的外境（「遮境有」），非主張唯一之心或意識。"
+            },
+            {
+                question: "唯識學在印度的發展中，誰被譽為「千部論主」？",
+                options: [
+                    "無著",
+                    "世親",
+                    "龍樹",
+                    "彌勒"
+                ],
+                answer: 1, // B
+                explanation: "世親菩薩造《唯識三十頌》等論，廣弘唯識，被譽為「千部論主」；無著為唯識奠基者，龍樹屬空宗，彌勒為唯識初祖。"
+            },
+            {
+                question: "阿賴耶識在八識中被稱為「根本識」，主要是因為？",
+                options: [
+                    "它是一切識中最活躍的",
+                    "它是前七識生起的根本依止",
+                    "它能夠進行複雜的思維分別",
+                    "它是唯一能直接緣取外境的識"
+                ],
+                answer: 1, // B
+                explanation: "阿賴耶識含藏一切種子，是前七識生起和活動的根本依託，故稱根本識。其他選項描述不準確或不全面。"
+            },
+            {
+                question: "以下哪一項是阿賴耶識的「因相」？",
+                options: [
+                    "能夠執持根身不壞",
+                    "含藏一切種子，能生現行法",
+                    "被末那識執為內我",
+                    "恒時了別種子、根身、器界"
+                ],
+                answer: 1, // B
+                explanation: "因相指阿賴耶識能含藏（積集）諸法種子，並能生起現行法的功能。A是執持功能，C是果相（被執藏），D是其恒常緣境的活動。"
+            },
+            {
+                question: "阿賴耶識的「自相」是指？",
+                options: [
+                    "它能緣取自己的見分",
+                    "它的自體能包攝因相和果相",
+                    "它是純粹無漏的識體",
+                    "它獨立於種子而存在"
+                ],
+                answer: 1, // B
+                explanation: "自相指阿賴耶識的自體能統攝、包含因相（能藏）和果相（所藏、執藏）二義，以此顯示其總體特性。"
+            },
+            {
+                question: "阿賴耶識所緣的境不包括以下哪一項？",
+                options: [
+                    "種子",
+                    "有根身",
+                    "器世界",
+                    "他心識的見分"
+                ],
+                answer: 3, // D
+                explanation: "阿賴耶識只緣自身的相分，即種子、有根身（眾生身體）、器世界（物質宇宙），不直接緣取其他識的見分。"
+            },
+            {
+                question: "阿賴耶識與哪一類心所必然相應？",
+                options: [
+                    "五別境心所",
+                    "善十一心所",
+                    "五徧行心所",
+                    "煩惱心所"
+                ],
+                answer: 2, // C
+                explanation: "阿賴耶識唯與觸、作意、受、想、思五個徧行心所相應，因為其行相微細，不與別境、善、煩惱等心所相應。"
+            },
+            {
+                question: "關於阿賴耶識的「果相」，正確的描述是？",
+                options: [
+                    "它能主動熏習新種子",
+                    "它受前七識熏習而成為一切種子的所藏處",
+                    "它是純粹善性的識",
+                    "它能直接緣取真如"
+                ],
+                answer: 1, // B
+                explanation: "果相指阿賴耶識接受前七識熏習，成為所熏、成為一切種子的儲藏處，並作為異熟果報體。A是能熏的功能，C、D描述錯誤。"
+            },
+            {
+                question: "阿賴耶識又被稱為「異熟識」，是因為？",
+                options: [
+                    "它是善惡業的異熟果報體",
+                    "它能直接產生善噁心所",
+                    "它是無覆無記性",
+                    "它恒時審慮思量"
+                ],
+                answer: 0, // A
+                explanation: "異熟識之名，強調阿賴耶識是過去善惡業所招感的異熟果報的主體。C是其性類，但非「異熟識」名稱的直接原因。"
+            },
+            {
+                question: "阿賴耶識與末那識的關係是？",
+                options: [
+                    "阿賴耶識以末那識為所依根",
+                    "末那識是阿賴耶識的相分",
+                    "阿賴耶識是末那識的等無間緣",
+                    "末那識是阿賴耶識的所緣境"
+                ],
+                answer: 0, // A
+                explanation: "阿賴耶識以第七末那識為「俱有依」（所依根），末那識的思量執我活動為阿賴耶識的生起提供了增上緣。B、C、D關係描述錯誤。"
+            },
+            {
+                question: "阿賴耶識又被稱為「阿陀那識」，是因為它具有什麼功能？",
+                options: [
+                    "思量執我",
+                    "執持種子和根身令不壞失",
+                    "了別共相境",
+                    "起善噁心所"
+                ],
+                answer: 1, // B
+                explanation: "阿陀那識義為「執持識」，指其能執持種子和根身（身體），令其相續不散壞。A是末那識的功能。"
+            },
+            {
+                question: "阿賴耶識的性類（倫理屬性）是？",
+                options: [
+                    "善性",
+                    "惡性",
+                    "有覆無記性",
+                    "無覆無記性"
+                ],
+                answer: 3, // D
+                explanation: "無覆無記性意味著阿賴耶識本身非善非惡，且不會覆障聖道，能平等容納各類種子。第七識是有覆無記性。"
+            },
+            {
+                question: "關於阿賴耶識的「恒轉如流」，以下描述正確的是？",
+                options: [
+                    "它是常一不變的實體",
+                    "它刹那生滅，相似相續",
+                    "它永不間斷地緣取外境",
+                    "它只在投胎時起作用"
+                ],
+                answer: 1, // B
+                explanation: "「恒」指相續無斷，「轉」指刹那生滅。阿賴耶識非永恆不變，而是前滅後生、相似相續的流變過程。"
+            },
+            {
+                question: "阿賴耶識含藏的種子中，不包括以下哪一類？",
+                options: [
+                    "有漏善種子",
+                    "無漏善種子",
+                    "惡種子",
+                    "他心識的種子"
+                ],
+                answer: 3, // D
+                explanation: "阿賴耶識只含藏屬於自體的種子，不包含其他眾生的心識種子。A、B、C皆是其所能含藏的種子類型。"
+            },
+            {
+                question: "阿賴耶識轉依成「無垢識」發生在？",
+                options: [
+                    "見道時",
+                    "成佛時",
+                    "證阿羅漢時",
+                    "初地菩薩時"
+                ],
+                answer: 1, // B
+                explanation: "當修行者斷盡一切有漏種子，阿賴耶識中的無漏種子完全顯現，此時有漏阿賴耶識名滅，無漏無垢識生起，此即成佛。"
+            },
+            {
+                question: "阿賴耶識的「相分」包括？",
+                options: [
+                    "前七識的見分",
+                    "種子、根身、器界",
+                    "真如理體",
+                    "無漏種子單獨變現的影像"
+                ],
+                answer: 1, // B
+                explanation: "阿賴耶識的相分即其所緣的境，包括種子、根身、器界這三類。A、C、D皆非其相分。"
+            },
+            {
+                question: "阿賴耶識的「四分」中，哪一分是它能緣的作用？",
+                options: [
+                    "相分",
+                    "見分",
+                    "自證分",
+                    "證自證分"
+                ],
+                answer: 1, // B
+                explanation: "見分是識的了別、認識作用。阿賴耶識的見分即其能緣取、執持種子等相分的功能。"
+            },
+            {
+                question: "阿賴耶識與五徧行心所相應，其中「觸」心所的作用是？",
+                options: [
+                    "警覺應起心種",
+                    "調協心所與境接觸",
+                    "領納順違境相",
+                    "取像構成概念"
+                ],
+                answer: 1, // B
+                explanation: "與阿賴耶識相應的「觸」心所，主要作用是使心、心所與境接觸，調和其關係，令識能緣境。A是作意，C是受，D是想。"
+            },
+            {
+                question: "阿賴耶識被稱為「所知依」，是因為？",
+                options: [
+                    "它是一切有為法的親因",
+                    "它是眾生所知境的依止處",
+                    "它能被意識直接認知",
+                    "它是真如的別名"
+                ],
+                answer: 1, // B
+                explanation: "「所知」指一切認識物件（境），「依」是因、依止。阿賴耶識是宇宙萬法（所知）生起的根本依止，故稱所知依。A過於絕對（親因是各自種子）。"
+            },
+            {
+                question: "阿賴耶識在何種情況下會斷滅？",
+                options: [
+                    "入無想定時",
+                    "熟睡時",
+                    "成佛時",
+                    "入滅盡定時"
+                ],
+                answer: 2, // C
+                explanation: "成佛時，有漏種子永伏或斷盡，有漏阿賴耶識轉為無漏無垢識，此時「阿賴耶識」之名即告斷滅。A、B、D只是暫時伏滅或不現起。"
+            },
+            {
+                question: "關於阿賴耶識的「所緣」與「行相」，《成唯識論》的說法是？",
+                options: [
+                    "俱了分明",
+                    "行相可知，所緣難知",
+                    "俱不可知",
+                    "所緣可知，行相難知"
+                ],
+                answer: 2, // C
+                explanation: "因其行相（見分活動）和所緣（相分，如種子、根身）都極其微細深邃，非凡夫所能了知，故說「俱不可知」。"
+            },
+            {
+                question: "阿賴耶識與第六意識的主要區別在於？",
+                options: [
+                    "阿賴耶識有計度分別，意識沒有",
+                    "意識能記憶過去，阿賴耶識不能",
+                    "阿賴耶識恒現量緣境，意識通三量",
+                    "意識是無覆無記性，阿賴耶識是善性"
+                ],
+                answer: 2, // C
+                explanation: "阿賴耶識緣現在境，唯是現量。第六意識能緣三世法，通現量、比量、非量三量。A、B描述反了，D的性類說反了。"
+            },
+            {
+                question: "下列關於「種子」的定義，最準確的是？",
+                options: [
+                    "一種微細的物質顆粒",
+                    "能生起諸法現行的潛在功能",
+                    "意識思維產生的概念",
+                    "外境事物在心中的影像"
+                ],
+                answer: 1, // B
+                explanation: "種子是第八識自體分中具有的、能生起一切現行法的潛在功能或勢力，非物質、非概念，而是功能。"
+            },
+            {
+                question: "種子六義中，「刹那滅」義主要是為了否定什麼？",
+                options: [
+                    "種子的相續性",
+                    "種子的功能性",
+                    "種子的常一不變性",
+                    "種子的真實性"
+                ],
+                answer: 2, // C
+                explanation: "「刹那滅」義強調種子才生即滅，非常住不變之法，遮破常住法可為種子之執。"
+            },
+            {
+                question: "種子生起現行時，因果的關係是？",
+                options: [
+                    "因先果後",
+                    "果先因後",
+                    "因果同時",
+                    "因果異時"
+                ],
+                answer: 2, // C
+                explanation: "種子生現行時，種子（因）與現行（果）在同一刹那中存在，為因果同時。種子生種子是異時因果。"
+            },
+            {
+                question: "「性決定」義是指？",
+                options: [
+                    "種子本身的性質不會改變",
+                    "善種生善現，惡種生惡現",
+                    "種子必能生起現行",
+                    "種子是真實存在的實體"
+                ],
+                answer: 1, // B
+                explanation: "「性決定」指種子性類（善、惡、無記）決定所生現行果的性類，善種必生善現，惡種必生惡現。"
+            },
+            {
+                question: "下列哪一類種子是「本有」的？",
+                options: [
+                    "讀書後獲得的知識種子",
+                    "聽聞佛法後產生的善根種子",
+                    "無始時來法爾存在的無漏種子",
+                    "練習技能後形成的熟練種子"
+                ],
+                answer: 2, // C
+                explanation: "本有種子是無始以來法爾存在的，非由熏生。A、B、D均是後天熏習而成的新熏種。"
+            },
+            {
+                question: "關於「新熏種子」，正確的是？",
+                options: [
+                    "它不由現行熏習而生",
+                    "它是後天經驗熏習而成",
+                    "它不能增長本有種子",
+                    "它獨立於第八識之外"
+                ],
+                answer: 1, // B
+                explanation: "新熏種子由前七識現行勢力熏習第八識而成，依賴於後天經驗。"
+            },
+            {
+                question: "名言種子分為「表義名言」和「顯境名言」，其主要區別在於？",
+                options: [
+                    "所生現行的善惡性質不同",
+                    "所依的能熏識不同",
+                    "種子本身的體性不同",
+                    "感果的時間長短不同"
+                ],
+                answer: 1, // B
+                explanation: "表義名言依第六意識（緣名句文），顯境名言通前七識（緣境），所依能熏識不同是根本區別。"
+            },
+            {
+                question: "「業種子」的特有功能是？",
+                options: [
+                    "能親生自類的現行",
+                    "能資助名言種子起現",
+                    "能直接被意識所緣",
+                    "能保持根身不壞"
+                ],
+                answer: 1, // B
+                explanation: "業種子（思心所種）除能生自現行外，特有功能是作為增上緣，資助羸劣的無記名言種子生起現行果。"
+            },
+            {
+                question: "能熏必須滿足的條件不包括？",
+                options: [
+                    "有勝用",
+                    "無記性",
+                    "增減性",
+                    "與所熏和合"
+                ],
+                answer: 1, // B
+                explanation: "能熏四義是：有生滅、有勝用、有增減、與所熏和合。所熏需是無記性，能熏則需是強盛勢力（有勝用），非無記性。"
+            },
+            {
+                question: "所熏必須滿足的條件是？",
+                options: [
+                    "有勝用",
+                    "無記性",
+                    "增減性",
+                    "與能熏和合"
+                ],
+                answer: 1, // B
+                explanation: "所熏四義是：堅住性、無記性、可熏性、與能熏和合。無記性指其性中庸，能容受善惡熏習。"
+            },
+            {
+                question: "「三法展轉，因果同時」主要描述了？",
+                options: [
+                    "種子生種子",
+                    "種子生現行",
+                    "現行熏種子",
+                    "本有種、現行、新熏種一刹那中的相互關係"
+                ],
+                answer: 3, // D
+                explanation: "此語描述在一刹那中，本有種子生現行，現行刹那熏生新種，三法（本有種、現行、新熏種）展轉互為因果，同時存在。"
+            },
+            {
+                question: "無漏種子在成佛之前？",
+                options: [
+                    "在第八識中獨立存在",
+                    "是第八識的自體分",
+                    "寄存於有漏第八識中",
+                    "能直接生起無漏現行"
+                ],
+                answer: 2, // C
+                explanation: "成佛前，無漏種子非有漏第八識自體，而是「寄存」於有漏第八識中，待緣而起。"
+            },
+            {
+                question: "種子與第八識的關係是？",
+                options: [
+                    "一體無異",
+                    "截然不同",
+                    "能所對立",
+                    "非一非異"
+                ],
+                answer: 3, // D
+                explanation: "種子是第八識的相分、功能（用），第八識是體，故非一；但用不離體，故非異。是非一非異的體用關係。"
+            },
+            {
+                question: "有漏種子中，能引生一期生命總報果的是？",
+                options: [
+                    "名言種子",
+                    "業種子",
+                    "我執種子",
+                    "無記種子"
+                ],
+                answer: 1, // B
+                explanation: "業種子力量強盛，能作為增上緣，牽引名言種子，招感一期生命的總體果報（總報）。名言種子生起別報。"
+            },
+            {
+                question: "關於「熏習」的正確比喻是？",
+                options: [
+                    "如母生子",
+                    "如花熏苣藤",
+                    "如鏡現像",
+                    "如火燒柴"
+                ],
+                answer: 1, // B
+                explanation: "熏習如香花熏麻，花（能熏現行）的香氣（習氣）滲入麻（所熏第八識）中，成新種子（香油）。此喻能形象說明熏習義。"
+            },
+            {
+                question: "種子與所生現行果的關係是？",
+                options: [
+                    "一物多名",
+                    "體用關係",
+                    "能所對立",
+                    "毫無關聯"
+                ],
+                answer: 1, // B
+                explanation: "種子是體（潛在功能），現行是用（顯現相狀），二者是體用關係，非一非異。"
+            },
+            {
+                question: "經量部所立的「色心互持種子說」最主要的問題是在於？",
+                options: [
+                    "色法有斷滅，不能持種",
+                    "心法有間斷，不能持種",
+                    "無法解釋因果不亂",
+                    "違背了佛說"
+                ],
+                answer: 0, // A
+                explanation: "經量部主張色法（如身體）也能持心法種子。唯識宗破曰：色法有斷滅（如身死），如何能持種傳至後世？"
+            },
+            {
+                question: "護法折衷本有、新熏二說，其立論依據主要是？",
+                options: [
+                    "《般若經》",
+                    "《瑜伽師地論》",
+                    "《大乘起信論》",
+                    "《楞嚴經》"
+                ],
+                answer: 1, // B
+                explanation: "護法依《瑜伽師地論》中「本性住種」和「習所成種」的說法，折衷本有、新熏二說，主張種子有本有、始起二類。"
+            },
+            {
+                question: "下列哪項不屬於「熏長」的作用？",
+                options: [
+                    "令同類本有種子增長活躍",
+                    "新生自類種子",
+                    "令種子勢力增強",
+                    "為生起現行準備條件"
+                ],
+                answer: 1, // B
+                explanation: "「熏長」指現行熏習時，令已有的同類本有種子增長勢力。「新生自類種子」屬於「熏生」的作用。"
+            },
+            {
+                question: "唯識宗安立種子說的最根本目的是？",
+                options: [
+                    "建立多元論的本體論",
+                    "說明因果流轉及修行轉依的道理",
+                    "否定一切法的存在",
+                    "證明上帝的存在"
+                ],
+                answer: 1, // B
+                explanation: "唯識宗建立種子說，最根本的是為瞭解釋現象界（雜染法）的因果流轉何以可能，以及修行（淨法）轉依何以可能，為修行提供理論依據。"
+            },
+            {
+                question: "唯識宗將從發心到成佛的修行歷程總括為「唯識五位」，其正確順序是？",
+                options: [
+                    "資糧位、加行位、通達位、修習位、究竟位",
+                    "加行位、資糧位、通達位、修習位、究竟位",
+                    "資糧位、通達位、加行位、修習位、究竟位",
+                    "加行位、資糧位、修習位、通達位、究竟位"
+                ],
+                answer: 0, // A
+                explanation: "唯識五位是菩薩從凡夫到成佛的必經階次，順序為：資糧位（積集福智）、加行位（修四善根）、通達位（初證真如，見道）、修習位（地上修習）、究竟位（圓滿成佛）。"
+            },
+            {
+                question: "菩薩在「資糧位」的主要修行內容是？",
+                options: [
+                    "修習四尋思、四如實智",
+                    "修習止觀，伏除分別二障",
+                    "初證真如，住於極喜地",
+                    "積集福、智二種資糧"
+                ],
+                answer: 3, // D
+                explanation: "資糧位菩薩以積集福德資糧（六度、四攝等）與智慧資糧（聞思經教）為主要任務，為見道作準備。"
+            },
+            {
+                question: "「加行位」所修的「四善根」不包括以下哪一項？",
+                options: [
+                    "煖位",
+                    "頂位",
+                    "忍位",
+                    "信位"
+                ],
+                answer: 3, // D
+                explanation: "四善根（亦名四加行）是煖、頂、忍、世第一法，是加行位的核心修行。「信位」是十信位，屬資糧位之初，不屬四善根。"
+            },
+            {
+                question: "修行者於「煖位」中，依何定發起何種觀智？",
+                options: [
+                    "依無間定，發上品如實智",
+                    "依明得定，發下品尋思觀",
+                    "依印順定，發下品如實智",
+                    "依明增定，發上品尋思觀"
+                ],
+                answer: 1, // B
+                explanation: "煖位修行者，依「明得定」（第四靜慮所攝），發起「下品尋思觀」，觀察所取境（名、義、自性、差別）空。"
+            },
+            {
+                question: "「通達位」又稱為「見道位」，其主要標誌是？",
+                options: [
+                    "斷盡俱生煩惱障",
+                    "初證唯識實性（真如）",
+                    "圓滿十波羅蜜多",
+                    "能自在現身變土"
+                ],
+                answer: 1, // B
+                explanation: "通達位（見道位）是菩薩初次以無分別智親證唯識實性（真如、圓成實性），是修行過程中的根本轉折點。"
+            },
+            {
+                question: "見道位分為「真見道」與「相見道」，其中「真見道」的特點是？",
+                options: [
+                    "安立名言，說法利他",
+                    "緣四諦十六心觀",
+                    "無分別智實證真如，離戲論相",
+                    "仿效真見道而起分別"
+                ],
+                answer: 2, // C
+                explanation: "真見道是根本無分別智親證真如，離一切名言戲論，能所雙忘。相見道是後得智仿效真見道，安立施設，緣慮觀行。"
+            },
+            {
+                question: "菩薩於「修習位」需經歷「十地」修行，其第一地是？",
+                options: [
+                    "離垢地",
+                    "發光地",
+                    "極喜地",
+                    "難勝地"
+                ],
+                answer: 2, // C
+                explanation: "十地修行從第一「極喜地」（初證真如，生大歡喜）開始，直至第十「法雲地」。"
+            },
+            {
+                question: "在十地修行中，第六「現前地」的菩薩所修習圓滿的波羅蜜多是？",
+                options: [
+                    "般若波羅蜜多",
+                    "方便波羅蜜多",
+                    "願波羅蜜多",
+                    "力波羅蜜多"
+                ],
+                answer: 0, // A
+                explanation: "第六現前地，菩薩觀緣起即空，般若智慧現前，故於此地修習般若波羅蜜多達到圓滿。"
+            },
+            {
+                question: "「五重唯識觀」的第一觀是「遣虛存實觀」，其核心要義是？",
+                options: [
+                    "捨棄境相，唯留存心識",
+                    "觀遍計所執空，觀依他、圓成有",
+                    "攝用歸體，唯觀心王",
+                    "遣相證性，冥合真如"
+                ],
+                answer: 1, // B
+                explanation: "遣虛存實是五重觀之初，觀遍計所執的「我」、「法」是虛妄無體，應遣除；觀依他起（識相）與圓成實（識性）是道理上有，應存留。"
+            },
+            {
+                question: "修行者欲證真如，必須修習的二種觀是？",
+                options: [
+                    "不淨觀與數息觀",
+                    "因緣觀與界分別觀",
+                    "生空無我觀與法空無我觀",
+                    "月輪觀與佛像觀"
+                ],
+                answer: 2, // C
+                explanation: "唯識宗觀修核心在於通達二空（人我空、法我空）之理，以此滅除我法二執，證會二空所顯真如。"
+            },
+            {
+                question: "關於「轉依」，下列描述正確的是？",
+                options: [
+                    "轉變依報環境，令其清淨",
+                    "轉捨煩惱障、所知障，轉得菩提、涅槃",
+                    "轉變身體，成為金剛不壞身",
+                    "轉移業力，令其不受果報"
+                ],
+                answer: 1, // B
+                explanation: "「轉依」是唯識修行果位的總稱，指轉捨煩惱、所知二障之雜染，轉得菩提、涅槃二種勝果。其「所依」即阿賴耶識。"
+            },
+            {
+                question: "唯識修行理論中，「大乘二種種性」是指？",
+                options: [
+                    "聲聞種性與獨覺種性",
+                    "菩薩種性與不定種性",
+                    "本性住種性與習所成種性",
+                    "有種性與無種性"
+                ],
+                answer: 2, // C
+                explanation: "大乘修行者必須具備「本性住種性」（無始以來法爾無漏種）和「習所成種性」（聞思修熏習令無漏種增長）二種條件。"
+            },
+            {
+                question: "菩薩所發的「二十二種發心」中，與「佈施」相應的發心屬於哪一地？",
+                options: [
+                    "初地",
+                    "二地",
+                    "三地",
+                    "四地"
+                ],
+                answer: 0, // A
+                explanation: "二十二種發心中，與「佈施」相應的發心，能滿足眾生願求，猶如寶藏，此為初地（極喜地）菩薩之發心。"
+            },
+            {
+                question: "「究竟位」所證得的「四智」不包括？",
+                options: [
+                    "成所作智",
+                    "大圓鏡智",
+                    "平等性智",
+                    "一切種智"
+                ],
+                answer: 3, // D
+                explanation: "佛果四智為：大圓鏡智（第八識轉）、平等性智（第七識轉）、妙觀察智（第六識轉）、成所作智（前五識轉）。「一切種智」是般若經論中對佛智的總稱，非唯識四智中專名。"
+            },
+            {
+                question: "下列哪一種涅槃是唯佛果獨具的？",
+                options: [
+                    "有餘依涅槃",
+                    "無餘依涅槃",
+                    "本來自性清淨涅槃",
+                    "無住處涅槃"
+                ],
+                answer: 3, // D
+                explanation: "無住處涅槃，謂不住生死、不住涅槃，悲智雙運，盡未來際利樂有情。此唯佛果獨具。前三種涅槃二乘亦可證得。"
+            },
+            {
+                question: "修行者進入「加行位」的標誌是？",
+                options: [
+                    "初發菩提心",
+                    "修習四靜慮成就",
+                    "四善根中煖位生起",
+                    "證得初地歡喜心"
+                ],
+                answer: 2, // C
+                explanation: "資糧位滿心後，四善根中的「煖位」智慧生起，即標誌著進入加行位。"
+            },
+            {
+                question: "「修習位」的菩薩所斷的障礙主要是？",
+                options: [
+                    "分別煩惱障與分別所知障",
+                    "俱生煩惱障與俱生所知障",
+                    "一切煩惱障習氣",
+                    "異熟識中的一切種子"
+                ],
+                answer: 1, // B
+                explanation: "見道時已斷「分別起」二障種子。修習位（十地）菩薩主要任務是漸次斷除微細的「俱生起」煩惱障與所知障種子及習氣。"
+            },
+            {
+                question: "「五重唯識觀」中，「捨濫留純觀」所要捨棄的是？",
+                options: [
+                    "虛妄的遍計所執境",
+                    "心識中所變現的相分境",
+                    "一切心所法",
+                    "阿賴耶識中的種子"
+                ],
+                answer: 1, // B
+                explanation: "捨濫留純觀，謂心識有見分（心體）、相分（境相）。相分易與外境濫雜，故應捨棄對其執著，唯留存純粹的見分心體進行觀察。"
+            },
+            {
+                question: "資糧位菩薩修行所依的「四力」不包括？",
+                options: [
+                    "因力",
+                    "善友力",
+                    "神通力",
+                    "作意力"
+                ],
+                answer: 2, // C
+                explanation: "資糧位菩薩修行所依四力為：因力（具大乘種性）、善友力（逢事諸佛善知識）、作意力（得決定勝解）、資糧力（已集諸善根）。神通力非此四力之一。"
+            },
+            {
+                question: "唯識宗修行理論的終極目標是？",
+                options: [
+                    "證得阿羅漢果",
+                    "往生西方淨土",
+                    "成就佛果（大菩提、大涅槃）",
+                    "成為大菩薩，永度眾生"
+                ],
+                answer: 2, // C
+                explanation: "唯識宗修行最終目標是成就無上正等正覺（阿耨多羅三藐三菩提），即大菩提（圓滿智慧）與大涅槃（究竟寂滅）的佛果。"
+            }
+        ];
+
+        // 初始化應用
+        document.addEventListener('DOMContentLoaded', function() {
+            // 獲取DOM元素
+            const controlPanel = document.getElementById('controlPanel');
+            const examContainer = document.getElementById('examContainer');
+            const resultContainer = document.getElementById('resultContainer');
+            const startExamBtn = document.getElementById('startExam');
+            const submitExamBtn = document.getElementById('submitExam');
+            const prevQuestionBtn = document.getElementById('prevQuestion');
+            const nextQuestionBtn = document.getElementById('nextQuestion');
+            const restartExamBtn = document.getElementById('restartExam');
+            const questionCountInput = document.getElementById('questionCount');
+            const questionText = document.getElementById('questionText');
+            const optionsContainer = document.getElementById('optionsContainer');
+            const questionNumber = document.getElementById('questionNumber');
+            const currentQuestionSpan = document.getElementById('currentQuestion');
+            const progressBar = document.getElementById('progressBar');
+            const scoreText = document.getElementById('scoreText');
+            const resultDetails = document.getElementById('resultDetails');
+            const timerSpan = document.getElementById('timer');
+            
+            // 考試狀態變量
+            let currentExam = {
+                questions: [],
+                userAnswers: [],
+                startTime: null,
+                currentIndex: 0
+            };
+            
+            let timerInterval = null;
+            
+            // 加載答題歷史
+            function loadAnswerHistory() {
+                const history = localStorage.getItem('weishiExamHistory');
+                return history ? JSON.parse(history) : {};
+            }
+            
+            // 保存答題歷史
+            function saveAnswerHistory(history) {
+                localStorage.setItem('weishiExamHistory', JSON.stringify(history));
+            }
+            
+            // 根據答題歷史調整題目權重
+            function getWeightedQuestions(count) {
+                const history = loadAnswerHistory();
+                const weightedQuestions = [];
+                
+                // 為每道題計算權重（答對次數越多，權重越低）
+                for (let i = 0; i < questions.length; i++) {
+                    const questionKey = questions[i].question;
+                    const correctCount = history[questionKey] ? history[questionKey].correct || 0 : 0;
+                    const weight = 1 / (1 + correctCount); // 權重公式：1/(1+答對次數)
+                    
+                    weightedQuestions.push({
+                        index: i,
+                        weight: weight
+                    });
+                }
+                
+                // 按權重排序（權重高的在前）
+                weightedQuestions.sort((a, b) => b.weight - a.weight);
+                
+                // 隨機選擇題目，但考慮權重
+                const selectedIndices = [];
+                const maxAttempts = count * 3; // 最大嘗試次數，防止無限循環
+                
+                for (let i = 0; i < count && i < weightedQuestions.length && selectedIndices.length < count; i++) {
+                    // 使用權重進行概率選擇
+                    const randomValue = Math.random();
+                    let cumulativeWeight = 0;
+                    
+                    for (const item of weightedQuestions) {
+                        cumulativeWeight += item.weight;
+                        if (randomValue <= cumulativeWeight && !selectedIndices.includes(item.index)) {
+                            selectedIndices.push(item.index);
+                            break;
+                        }
+                    }
+                }
+                
+                // 如果選中的題目不足，補充隨機題目
+                while (selectedIndices.length < count && selectedIndices.length < questions.length) {
+                    const randomIndex = Math.floor(Math.random() * questions.length);
+                    if (!selectedIndices.includes(randomIndex)) {
+                        selectedIndices.push(randomIndex);
+                    }
+                }
+                
+                // 返回選中的題目
+                return selectedIndices.map(index => {
+                    return {
+                        ...questions[index],
+                        originalIndex: index
+                    };
+                });
+            }
+            
+            // 開始考試
+            startExamBtn.addEventListener('click', function() {
+                const count = parseInt(questionCountInput.value);
+                if (isNaN(count) || count < 1 || count > 70) {
+                    alert('請輸入有效的題目數量（1-70）');
+                    return;
+                }
+                
+                // 獲取加權題目
+                currentExam.questions = getWeightedQuestions(count);
+                currentExam.userAnswers = new Array(count).fill(null);
+                currentExam.startTime = new Date();
+                currentExam.currentIndex = 0;
+                
+                // 顯示考試界面
+                controlPanel.style.display = 'none';
+                examContainer.style.display = 'block';
+                resultContainer.style.display = 'none';
+                
+                // 開始計時
+                startTimer();
+                
+                // 顯示第一題
+                displayQuestion(0);
+            });
+            
+            // 顯示題目
+            function displayQuestion(index) {
+                if (index < 0 || index >= currentExam.questions.length) return;
+                
+                currentExam.currentIndex = index;
+                const question = currentExam.questions[index];
+                
+                // 更新題目信息
+                questionNumber.textContent = `題目 ${index + 1}`;
+                questionText.textContent = question.question;
+                currentQuestionSpan.textContent = `第 ${index + 1} 題，共 ${currentExam.questions.length} 題`;
+                
+                // 更新進度條
+                progressBar.style.width = `${((index + 1) / currentExam.questions.length) * 100}%`;
+                
+                // 清空選項容器
+                optionsContainer.innerHTML = '';
+                
+                // 添加選項
+                question.options.forEach((option, i) => {
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'option';
+                    if (currentExam.userAnswers[index] === i) {
+                        optionElement.classList.add('selected');
+                    }
+                    
+                    optionElement.innerHTML = `<span>${String.fromCharCode(65 + i)}.</span> ${option}`;
+                    optionElement.dataset.index = i;
+                    
+                    optionElement.addEventListener('click', function() {
+                        // 移除其他選項的選中狀態
+                        document.querySelectorAll('.option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        
+                        // 標記當前選項為選中
+                        this.classList.add('selected');
+                        
+                        // 保存用戶答案
+                        currentExam.userAnswers[index] = parseInt(this.dataset.index);
+                    });
+                    
+                    optionsContainer.appendChild(optionElement);
+                });
+                
+                // 更新導航按鈕狀態
+                prevQuestionBtn.disabled = index === 0;
+                nextQuestionBtn.disabled = index === currentExam.questions.length - 1;
+            }
+            
+            // 上一題
+            prevQuestionBtn.addEventListener('click', function() {
+                if (currentExam.currentIndex > 0) {
+                    displayQuestion(currentExam.currentIndex - 1);
+                }
+            });
+            
+            // 下一題
+            nextQuestionBtn.addEventListener('click', function() {
+                if (currentExam.currentIndex < currentExam.questions.length - 1) {
+                    displayQuestion(currentExam.currentIndex + 1);
+                }
+            });
+            
+            // 提交考試
+            submitExamBtn.addEventListener('click', function() {
+                // 檢查是否所有題目都已回答
+                const unanswered = currentExam.userAnswers.filter(answer => answer === null).length;
+                if (unanswered > 0) {
+                    if (!confirm(`您還有 ${unanswered} 道題未回答，確定要提交嗎？`)) {
+                        return;
+                    }
+                }
+                
+                // 停止計時
+                stopTimer();
+                
+                // 計算成績
+                const score = calculateScore();
+                
+                // 更新答題歷史
+                updateAnswerHistory(score);
+                
+                // 顯示結果
+                displayResults(score);
+            });
+            
+            // 計算成績
+            function calculateScore() {
+                let correctCount = 0;
+                const results = [];
+                
+                currentExam.questions.forEach((question, index) => {
+                    const userAnswer = currentExam.userAnswers[index];
+                    const isCorrect = userAnswer === question.answer;
+                    
+                    if (isCorrect) {
+                        correctCount++;
+                    }
+                    
+                    results.push({
+                        question: question.question,
+                        options: question.options,
+                        correctAnswer: question.answer,
+                        userAnswer: userAnswer,
+                        isCorrect: isCorrect,
+                        explanation: question.explanation
+                    });
+                });
+                
+                return {
+                    correct: correctCount,
+                    total: currentExam.questions.length,
+                    percentage: Math.round((correctCount / currentExam.questions.length) * 100),
+                    results: results,
+                    timeSpent: Math.round((new Date() - currentExam.startTime) / 1000)
+                };
+            }
+            
+            // 更新答題歷史
+            function updateAnswerHistory(score) {
+                const history = loadAnswerHistory();
+                
+                score.results.forEach(result => {
+                    const questionKey = result.question;
+                    
+                    if (!history[questionKey]) {
+                        history[questionKey] = { correct: 0, total: 0 };
+                    }
+                    
+                    history[questionKey].total++;
+                    
+                    if (result.isCorrect) {
+                        history[questionKey].correct++;
+                    }
+                });
+                
+                saveAnswerHistory(history);
+            }
+            
+            // 顯示考試結果
+            function displayResults(score) {
+                examContainer.style.display = 'none';
+                resultContainer.style.display = 'block';
+                
+                // 顯示總分
+                scoreText.textContent = `得分: ${score.correct} / ${score.total} (${score.percentage}%)`;
+                
+                // 顯示詳細結果
+                resultDetails.innerHTML = '';
+                
+                score.results.forEach((result, index) => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = `result-item ${result.isCorrect ? 'correct' : 'incorrect'}`;
+                    
+                    let optionsHtml = '';
+                    result.options.forEach((option, i) => {
+                        let optionClass = '';
+                        if (i === result.correctAnswer) {
+                            optionClass = 'correct';
+                        } else if (i === result.userAnswer && !result.isCorrect) {
+                            optionClass = 'incorrect';
+                        }
+                        
+                        optionsHtml += `<div class="${optionClass}">${String.fromCharCode(65 + i)}. ${option}</div>`;
+                    });
+                    
+                    resultItem.innerHTML = `
+                        <div><strong>題目 ${index + 1}:</strong> ${result.question}</div>
+                        <div>${optionsHtml}</div>
+                        <div class="explanation"><strong>解釋:</strong> ${result.explanation}</div>
+                    `;
+                    
+                    resultDetails.appendChild(resultItem);
+                });
+            }
+            
+            // 重新開始考試
+            restartExamBtn.addEventListener('click', function() {
+                controlPanel.style.display = 'block';
+                examContainer.style.display = 'none';
+                resultContainer.style.display = 'none';
+            });
+            
+            // 計時器功能
+            function startTimer() {
+                let seconds = 0;
+                timerInterval = setInterval(function() {
+                    seconds++;
+                    const minutes = Math.floor(seconds / 60);
+                    const remainingSeconds = seconds % 60;
+                    timerSpan.textContent = `時間: ${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+                }, 1000);
+            }
+            
+            function stopTimer() {
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
