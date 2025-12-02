@@ -285,7 +285,9 @@
                             option.value = subjectId;
                             option.textContent = subjectData.subjectName;
                             subjectSelectEl.appendChild(option);
-                        }
+                        }else {
+break;
+}
                     }
                 } catch (error) {
                      console.warn(`无法加载科目文件 ${subjectId}.json:`, error);
