@@ -1,1 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1506考試系統</title>
+    <style>
+        /* 全域樣式 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+        }
+        
+        /* 科目選擇介面樣式 */
+        #subject-selection {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        /* 考試介面樣式 */
+        #exam-interface {
+            display: none;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .question {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .options label {
+            display: block;
+            padding: 10px;
+            margin-bottom: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: normal;
+        }
+        
+        .options label:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .options input[type="radio"] {
+            margin-right: 10px;
+        }
+        
+        .progress {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .timer {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 15px;
+        }
+        
+        /* 結果介面樣式 */
+        #result-interface {
+            display: none;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .score-summary {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .score {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 10px 0;
+        }
+        
+        .question-review {
+            margin-top: 20px;
+        }
+        
+        .review-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        
+        .correct {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+        
+        .incorrect {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .explanation {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>1506考試系統</h1>
+        </header>
+        
+        <!-- 科目選擇介面 -->
+        <section id="subject-selection">
+            <h2>選擇考試科目</h2>
+            <div class="form-group">
+                <label for="subject-select">科目:</label>
+                <select id="subject-select">
+                    <option value="">載入中...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="question-count">題目數量:</label>
+                <input type="number" id="question-count" min="1" max="50" value="5">
+            </div>
+            <button id="start-exam">開始考試</button>
+        </section>
+        
+        <!-- 考試介面 -->
+        <section id="exam-interface">
+            <div class="progress">題目: <span id="current-question">1</span>/<span id="total-questions">5</span></div>
+            <div class="timer">剩餘時間: <span id="time-remaining">00:00</span></div>
+            <div id="questions-container"></div>
+            <button id="submit-exam">提交答案</button>
+        </section>
+        
+        <!-- 結果介面 -->
+        <section id="result-interface">
+            <div class="score-summary">
+                <h2>考試結果</h2>
+                <div class="score"><span id="score-value">0</span>/<span id="total-score">10</span></div>
+                <p>正確: <span id="correct-count">0</span>題 | 錯誤: <span id="incorrect-count">0</span>題</p>
+            </div>
+            <div id="questions-review" class="question-review"></div>
+            <div class="navigation">
+                <button id="retry-exam">重新考試</button>
+                <button id="new-exam">選擇新科目</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // 全域變數
+        let currentSubject = null;
+        let allQuestions = [];
+        let currentExamQuestions = [];
+        let userAnswers = [];
+        let examStartTime = null;
+        let examTimer = null;
+        let examDuration = 0; // 考試時長（分鐘）
+        let userAnswerHistory = JSON.parse(localStorage.getItem('1202ExamSystemHistory')) || {};
+        
+        // DOM元素
+        const subjectSelectionEl = document.getElementById('subject-selection');
+        const examInterfaceEl = document.getElementById('exam-interface');
+        const resultInterfaceEl = document.getElementById('result-interface');
+        const subjectSelectEl = document.getElementById('subject-select');
+        const questionCountEl = document.getElementById('question-count');
+        const startExamBtn = document.getElementById('start-exam');
+        const questionsContainerEl = document.getElementById('questions-container');
+        const submitExamBtn = document.getElementById('submit-exam');
+        const retryExamBtn = document.getElementById('retry-exam');
+        const newExamBtn = document.getElementById('new-exam');
+
+        // 初始化系統
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSubjectList();
+            setupEventListeners();
+        });
+        
+        // 載入科目列表
+        async function loadSubjectList() {
+            try {
+                // 嘗試載入科目列表檔（這裡簡化處理，實際中可能需要一個索引檔）
+                // 假設我們已知有5個科目檔
+                const subjectCount = 200;
+                subjectSelectEl.innerHTML = '<option value="">選擇科目...</option>';
+                
+                try {
+					for (let i = 1; i <= subjectCount; i++) {
+						const subjectId = i.toString().padStart(4, '0');
+                        const response = await fetch(`subjects/${subjectId}.json`);
+                        if (response.ok) {
+                            const subjectData = await response.json();
+                            const option = document.createElement('option');
+                            option.value = subjectId;
+                            option.textContent = subjectData.subjectName;
+                            subjectSelectEl.appendChild(option);
+                        }else {
+break;
+}
+                    }
+                } catch (error) {
+                     console.warn(`無法載入科目檔 ${subjectId}.json:`, error);
+                }
+                
+                if (subjectSelectEl.options.length <= 1) {
+                    subjectSelectEl.innerHTML = '<option value="">無法載入科目列表</option>';
+                }
+            } catch (error) {
+                console.error('載入科目列表時出錯:', error);
+                subjectSelectEl.innerHTML = '<option value="">載入科目列表失敗</option>';
+            }
+        }
+        
+        // 設置事件監聽器
+        function setupEventListeners() {
+            startExamBtn.addEventListener('click', startExam);
+            submitExamBtn.addEventListener('click', submitExam);
+            retryExamBtn.addEventListener('click', retryExam);
+            newExamBtn.addEventListener('click', newExam);
+        }
+        
+        // 開始考試
+        async function startExam() {
+            const subjectId = subjectSelectEl.value;
+            const questionCount = parseInt(questionCountEl.value);
+            
+            if (!subjectId) {
+                alert('請選擇考試科目');
+                return;
+            }
+            
+            if (isNaN(questionCount) || questionCount < 1) {
+                alert('請輸入有效的題目數量');
+                return;
+            }
+            
+            try {
+                // 載入科目資料
+                const response = await fetch(`subjects/${subjectId}.json`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const subjectData = await response.json();
+                currentSubject = subjectData;
+                allQuestions = subjectData.questions;
+                
+                // 檢查題目數量是否足夠
+                if (questionCount > allQuestions.length) {
+                    alert(`該科目只有 ${allQuestions.length} 道題目，無法抽取 ${questionCount} 道題`);
+                    return;
+                }
+                
+                // 根據答題歷史篩選題目（優先選擇未答對或較少答對的題目）
+                currentExamQuestions = selectExamQuestions(allQuestions, questionCount, subjectId);
+                
+                // 初始化考試狀態
+                userAnswers = new Array(currentExamQuestions.length).fill(null);
+                examDuration = Math.ceil(questionCount * 1.5); // 每道題1.5分鐘
+                
+                // 更新介面
+                subjectSelectionEl.style.display = 'none';
+                examInterfaceEl.style.display = 'block';
+                resultInterfaceEl.style.display = 'none';
+                
+                // 顯示題目
+                displayQuestions();
+                
+                // 開始計時
+                startTimer(examDuration * 60); // 轉換為秒
+                
+            } catch (error) {
+                console.error('開始考試時出錯:', error);
+                alert('載入考試科目失敗，請重試');
+            }
+        }
+        
+        // 根據答題歷史選擇考試題目
+        function selectExamQuestions(allQuestions, questionCount, subjectId) {
+            // 獲取該科目的答題歷史
+            const subjectHistory = userAnswerHistory[subjectId] || {};
+            
+            // 為每道題計算權重（答對次數越少，權重越高）
+            const weightedQuestions = allQuestions.map(q => {
+                const questionHistory = subjectHistory[q.id] || { correct: 0, lastAnswered: null };
+                // 基礎權重 + 答對次數越少權重越高 + 近期答對的權重降低
+                let weight = 100;
+                weight -= questionHistory.correct * 10; // 每答對一次權重降低10
+                
+                // 如果近期答對過，進一步降低權重
+                if (questionHistory.lastAnswered) {
+                    const daysSinceLastAnswer = Math.floor((Date.now() - questionHistory.lastAnswered) / (1000 * 60 * 60 * 24));
+                    if (daysSinceLastAnswer < 7) { // 一周內答對過的題目權重降低
+                        weight -= 20;
+                    }
+                }
+                
+                return { question: q, weight: Math.max(1, weight) };
+            });
+            
+            // 根據權重隨機選擇題目
+            const selectedQuestions = [];
+            const availableQuestions = [...weightedQuestions];
+            
+            while (selectedQuestions.length < questionCount && availableQuestions.length > 0) {
+                // 計算總權重
+                const totalWeight = availableQuestions.reduce((sum, q) => sum + q.weight, 0);
+                
+                // 隨機選擇
+                let randomValue = Math.random() * totalWeight;
+                let selectedIndex = 0;
+                
+                for (let i = 0; i < availableQuestions.length; i++) {
+                    randomValue -= availableQuestions[i].weight;
+                    if (randomValue <= 0) {
+                        selectedIndex = i;
+                        break;
+                    }
+                }
+                
+                // 添加選中的題目
+                selectedQuestions.push(availableQuestions[selectedIndex].question);
+                availableQuestions.splice(selectedIndex, 1);
+            }
+            
+            return selectedQuestions;
+        }
+        
+        // 顯示題目
+        function displayQuestions() {
+            questionsContainerEl.innerHTML = '';
+            
+            currentExamQuestions.forEach((question, index) => {
+                const questionEl = document.createElement('div');
+                questionEl.className = 'question';
+                questionEl.innerHTML = `
+                    <div class="question-text">${index + 1}. ${question.question}</div>
+                    <div class="options">
+                        ${question.options.map((option, optIndex) => `
+                            <label>
+                                <input type="radio" name="question-${index}" value="${optIndex}">
+                                ${option}
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                
+                // 添加選項選擇事件
+                const radioInputs = questionEl.querySelectorAll('input[type="radio"]');
+                radioInputs.forEach(input => {
+                    input.addEventListener('change', function() {
+                        userAnswers[index] = parseInt(this.value);
+                    });
+                });
+                
+                questionsContainerEl.appendChild(questionEl);
+            });
+            
+            // 更新進度顯示
+            document.getElementById('current-question').textContent = '1';
+            document.getElementById('total-questions').textContent = currentExamQuestions.length;
+        }
+        
+        // 開始計時器
+        function startTimer(totalSeconds) {
+            examStartTime = Date.now();
+            const timeRemainingEl = document.getElementById('time-remaining');
+            
+            clearInterval(examTimer);
+            examTimer = setInterval(() => {
+                const elapsedSeconds = Math.floor((Date.now() - examStartTime) / 1000);
+                const remainingSeconds = Math.max(0, totalSeconds - elapsedSeconds);
+                
+                const minutes = Math.floor(remainingSeconds / 60);
+                const seconds = remainingSeconds % 60;
+                
+                timeRemainingEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                // 時間到自動提交
+                if (remainingSeconds <= 0) {
+                    submitExam();
+                }
+            }, 1000);
+        }
+        
+        // 提交考試
+        function submitExam() {
+            clearInterval(examTimer);
+            
+            // 檢查是否有未答題目
+            const unansweredCount = userAnswers.filter(answer => answer === null).length;
+            if (unansweredCount > 0 && !confirm(`您還有 ${unansweredCount} 道題未作答，確定要提交嗎？`)) {
+                startTimer(examDuration * 60 - Math.floor((Date.now() - examStartTime) / 1000));
+                return;
+            }
+            
+            // 計算成績
+            let correctCount = 0;
+            const results = [];
+            
+            currentExamQuestions.forEach((question, index) => {
+                const isCorrect = userAnswers[index] === question.correctAnswer;
+                if (isCorrect) correctCount++;
+                
+                results.push({
+                    question: question,
+                    userAnswer: userAnswers[index],
+                    correctAnswer: question.correctAnswer,
+                    isCorrect: isCorrect
+                });
+            });
+            
+            // 更新答題歷史
+            updateAnswerHistory(results);
+            
+            // 顯示結果
+            displayResults(results, correctCount);
+        }
+        
+        // 更新答題歷史
+        function updateAnswerHistory(results) {
+            const subjectId = subjectSelectEl.value;
+            if (!userAnswerHistory[subjectId]) {
+                userAnswerHistory[subjectId] = {};
+            }
+            
+            results.forEach(result => {
+                const questionId = result.question.id;
+                if (!userAnswerHistory[subjectId][questionId]) {
+                    userAnswerHistory[subjectId][questionId] = { correct: 0, lastAnswered: null };
+                }
+                
+                if (result.isCorrect) {
+                    userAnswerHistory[subjectId][questionId].correct++;
+                }
+                userAnswerHistory[subjectId][questionId].lastAnswered = Date.now();
+            });
+            
+            // 保存到本機存放區
+            localStorage.setItem('1202ExamSystemHistory', JSON.stringify(userAnswerHistory));
+        }
+        
+        // 顯示考試結果
+        function displayResults(results, correctCount) {
+            examInterfaceEl.style.display = 'none';
+            resultInterfaceEl.style.display = 'block';
+            
+            // 更新分數顯示
+            document.getElementById('score-value').textContent = correctCount;
+            document.getElementById('total-score').textContent = results.length;
+            document.getElementById('correct-count').textContent = correctCount;
+            document.getElementById('incorrect-count').textContent = results.length - correctCount;
+            
+            // 顯示題目回顧
+            const questionsReviewEl = document.getElementById('questions-review');
+            questionsReviewEl.innerHTML = '<h3>題目詳解</h3>';
+            
+            results.forEach((result, index) => {
+                const reviewItemEl = document.createElement('div');
+                reviewItemEl.className = `review-item ${result.isCorrect ? 'correct' : 'incorrect'}`;
+                
+                reviewItemEl.innerHTML = `
+                    <div class="question-text">${index + 1}. ${result.question.question}</div>
+                    <div>您的答案: ${result.userAnswer !== null ? result.question.options[result.userAnswer] : '未作答'}</div>
+                    <div>正確答案: ${result.question.options[result.correctAnswer]}</div>
+                    ${result.isCorrect ? 
+                        '<div style="color: #28a745; font-weight: bold;">✓ 回答正確</div>' : 
+                        '<div style="color: #dc3545; font-weight: bold;">✗ 回答錯誤</div>'
+                    }
+                    <div class="explanation">解析: ${result.question.explanation}</div>
+                `;
+                
+                questionsReviewEl.appendChild(reviewItemEl);
+            });
+        }
+        
+        // 重新考試
+        function retryExam() {
+            // 使用相同的科目和題目數量重新考試
+            startExam();
+        }
+        
+        // 選擇新科目
+        function newExam() {
+            // 返回科目選擇介面
+            subjectSelectionEl.style.display = 'block';
+            examInterfaceEl.style.display = 'none';
+            resultInterfaceEl.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
 
