@@ -217,7 +217,7 @@
         
         <!-- 考试界面 -->
         <section id="exam-interface">
-            <div class="progress">题目: <span id="current-question">1</span>/<span id="total-questions">10</span></div>
+            <div class="progress">题目: <span id="current-question">1</span>/<span id="total-questions">5</span></div>
             <div class="timer">剩余时间: <span id="time-remaining">00:00</span></div>
             <div id="questions-container"></div>
             <button id="submit-exam">提交答案</button>
@@ -272,26 +272,23 @@
             try {
                 // 尝试加载科目列表文件（这里简化处理，实际中可能需要一个索引文件）
                 // 假设我们已知有5个科目文件
-                const subjectCount = 20;
+                const subjectCount = 200;
                 subjectSelectEl.innerHTML = '<option value="">选择科目...</option>';
                 
-                for (let i = 1; i <= subjectCount; i++) {
-                    const subjectId = i.toString().padStart(4, '0');
-					console.log(subjectId);
-                    try {
+                try {
+					for (let i = 1; i <= subjectCount; i++) {
+						const subjectId = i.toString().padStart(4, '0');
                         const response = await fetch(`subjects/${subjectId}.json`);
                         if (response.ok) {
-					console.log("ok");
                             const subjectData = await response.json();
-console.log(subjectData);							
                             const option = document.createElement('option');
                             option.value = subjectId;
                             option.textContent = subjectData.subjectName;
                             subjectSelectEl.appendChild(option);
                         }
-                    } catch (error) {
-                        console.warn(`无法加载科目文件 ${subjectId}.json:`, error);
                     }
+                } catch (error) {
+                     console.warn(`无法加载科目文件 ${subjectId}.json:`, error);
                 }
                 
                 if (subjectSelectEl.options.length <= 1) {
