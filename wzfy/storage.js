@@ -1,5 +1,6 @@
 // 加载所有题目数据
 async function loadAllQuestions() {
+	alert("loadAllQuestions");
     const questions = [];
     let index = 1;
     
@@ -7,6 +8,7 @@ async function loadAllQuestions() {
         const filename = `subjects/${index.toString().padStart(4, '0')}.json`;
         try {
             const response = await fetch(filename);
+			alert(filename);
             if (!response.ok) break;
             
             const subject = await response.json();
@@ -16,6 +18,7 @@ async function loadAllQuestions() {
             });
             questions.push(...subject.questions);
             index++;
+			alert(index);
         } catch (error) {
             break;
         }
