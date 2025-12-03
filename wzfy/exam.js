@@ -16,7 +16,7 @@ async function generateExam(questionCount = 10) {
     
     while (selectedQuestions.length < questionCount && questionPool.length > 0) {
         const randomIndex = Math.floor(Math.random() * questionPool.length);
-        selectedQuestions.push(questionPool.splice(randomIndex, 1);
+        selectedQuestions.push(questionPool.splice(randomIndex, 1));
     }
     
     return selectedQuestions;
