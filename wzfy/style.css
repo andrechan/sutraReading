@@ -1,0 +1,94 @@
+/* style.css */
+body {
+  font-family: 'Microsoft YaHei', sans-serif;
+  background-color: #f5f7fa;
+  margin: 0;
+  padding: 20px;
+}
+
+.screen {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.hidden {
+  display: none;
+}
+
+#subject-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.subject-item {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.subject-item.selected {
+  background-color: #e6f7ff;
+  border-color: #1890ff;
+}
+
+.controls {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+button {
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.question {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.options label {
+  display: block;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.options input:checked + span {
+  font-weight: bold;
+  color: #1890ff;
+}
+
+#result-summary {
+  font-size: 1.2em;
+  margin: 20px 0;
+}
+
+.result-item {
+  margin-bottom: 15px;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.result-item.correct {
+  background-color: #f6ffed;
+  border: 1px solid #b7eb8f;
+}
+
+.result-item.incorrect {
+  background-color: #fff1f0;
+  border: 1px solid #ffa39e;
+}
