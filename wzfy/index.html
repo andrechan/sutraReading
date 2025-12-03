@@ -1,6 +1,6 @@
  
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,49 +8,9 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>HaauHei 考试系统</h1>
-        </header>
-        
-        <main>
-            <!-- 开始界面 -->
-            <section id="start-section">
-                <h2>开始新考试</h2>
-                <div class="form-group">
-                    <label for="question-count">题目数量:</label>
-                    <input type="number" id="question-count" min="1" max="50" value="10">
-                </div>
-                <button id="start-exam">开始考试</button>
-            </section>
-            
-            <!-- 考试界面 -->
-            <section id="exam-section" style="display:none;">
-                <div id="question-container"></div>
-                <div class="exam-controls">
-                    <button id="prev-question">上一题</button>
-                    <button id="next-question">下一题</button>
-                    <button id="submit-exam">提交试卷</button>
-                </div>
-                <div id="progress-container">
-                    <div id="progress-bar"></div>
-                </div>
-            </section>
-            
-            <!-- 结果界面 -->
-            <section id="results-section" style="display:none;">
-                <div id="results-container"></div>
-            </section>
-        </main>
-        
-        <footer>
-            <p>© 2025 HaauHei 考试系统 | 随机出题 | 智能记录</p>
-        </footer>
+    <div id="app">
+        <!-- 考试系统界面将通过JavaScript动态渲染 -->
     </div>
-
-    <script src="storage.js"></script>
-    <script src="exam.js"></script>
-    <script src="results.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
