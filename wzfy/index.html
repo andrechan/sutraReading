@@ -1,41 +1,632 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-HK">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>考起考试系统</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HaauHei 考試系統</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6c91bf;
+            --accent-color: #ff6b6b;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft JhengHei', 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .screen {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+            display: none;
+        }
+        
+        .active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a7cad;
+        }
+        
+        .question-container {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .option {
+            display: block;
+            padding: 12px;
+            margin-bottom: 10px;
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .option:hover {
+            background-color: #e9ecef;
+        }
+        
+        .option.selected {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--dark-color);
+            color: white;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .result-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: var(--border-radius);
+            background-color: var(--light-color);
+        }
+        
+        .correct {
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .incorrect {
+            border-left: 4px solid var(--danger-color);
+        }
+        
+        .explanation {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e9f7ef;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .subject-tag {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- 科目选择界面 -->
-  <div id="subject-selection" class="screen">
-    <h1>考起考试系统</h1>
-    <div id="subject-list"></div>
-    <div class="controls">
-      <label>题目数量：<input type="number" id="question-count" min="1" value="5"></label>
-      <button id="select-all">全选</button>
-      <button id="start-exam">开始考试</button>
+    <div class="container">
+        <header>
+            <h1>HaauHei 考試系統</h1>
+            <p>隨機出題 · 智能記錄 · 高效學習</p>
+        </header>
+        
+        <!-- 欢迎界面 -->
+        <div id="welcome-screen" class="screen active">
+            <div class="form-group">
+                <label for="question-count">選擇題目數量 (預設: 10題)</label>
+                <input type="number" id="question-count" min="5" max="50" value="10">
+            </div>
+            <button id="start-exam">開始考試</button>
+        </div>
+        
+        <!-- 考试界面 -->
+        <div id="exam-screen" class="screen">
+            <div class="progress-bar">
+                <div class="progress" id="exam-progress"></div>
+            </div>
+            <div id="question-display"></div>
+            <div class="navigation">
+                <button id="prev-question" class="btn-secondary">上一題</button>
+                <button id="next-question">下一題</button>
+            </div>
+        </div>
+        
+        <!-- 结果界面 -->
+        <div id="result-screen" class="screen">
+            <h2>考試結果</h2>
+            <div class="stats">
+                <div class="stat-card">
+                    <div>答對題數</div>
+                    <div class="stat-value" id="correct-count">0</div>
+                    <div>正確率</div>
+                </div>
+                <div class="stat-card">
+                    <div>答錯題數</div>
+                    <div class="stat-value" id="incorrect-count">0</div>
+                    <div>需加強練習</div>
+                </div>
+                <div class="stat-card">
+                    <div>總分</div>
+                    <div class="stat-value" id="total-score">0</div>
+                    <div>滿分</div>
+                </div>
+            </div>
+            
+            <h3>答題詳情</h3>
+            <div id="results-container"></div>
+            
+            <button id="restart-exam">重新開始考試</button>
+        </div>
     </div>
-  </div>
-  
-  <!-- 考试界面 -->
-  <div id="exam-screen" class="screen hidden">
-    <header>
-      <h2 id="exam-title"></h2>
-      <div id="exam-timer">剩余时间：<span>10:00</span></div>
-    </header>
-    <form id="exam-form"></form>
-    <button id="submit-exam">提交答卷</button>
-  </div>
-  
-  <!-- 结果界面 -->
-  <div id="result-screen" class="screen hidden">
-    <h1>考试结果</h1>
-    <div id="result-summary"></div>
-    <div id="result-details"></div>
-    <button id="retry-exam">再考一次</button>
-  </div>
-  
-  <script src="script.js"></script>
+
+    <script>
+        // 系统状态管理
+        const state = {
+            questions: [],
+            examQuestions: [],
+            currentQuestionIndex: 0,
+            userAnswers: [],
+            questionCount: 10,
+            startTime: null,
+            examDuration: 0
+        };
+
+        // DOM元素引用
+        const elements = {
+            welcomeScreen: document.getElementById('welcome-screen'),
+            examScreen: document.getElementById('exam-screen'),
+            resultScreen: document.getElementById('result-screen'),
+            questionDisplay: document.getElementById('question-display'),
+            examProgress: document.getElementById('exam-progress'),
+            resultsContainer: document.getElementById('results-container'),
+            questionCountInput: document.getElementById('question-count'),
+            correctCount: document.getElementById('correct-count'),
+            incorrectCount: document.getElementById('incorrect-count'),
+            totalScore: document.getElementById('total-score')
+        };
+
+        // 初始化系统
+        async function initSystem() {
+            loadQuestionHistory();
+            await loadQuestions();
+            setupEventListeners();
+        }
+
+        // 从subjects目录顺序加载所有JSON题目文件
+        async function loadQuestions() {
+            try {
+                state.questions = [];
+                let fileIndex = 1;
+                let fileExists = true;
+                
+                // 顺序读取文件，从0001.json开始
+                while (fileExists) {
+                    const filename = `subjects/${fileIndex.toString().padStart(4, '0')}.json`;
+                    
+                    try {
+                        const response = await fetch(filename);
+                        if (response.ok) {
+                            const subject = await response.json();
+                            if (subject && subject.questions) {
+                                // 为每个问题添加科目信息
+                                state.questions.push(...subject.questions.map(q => ({
+                                    ...q,
+                                    subject: subject.subjectName
+                                })));
+                            }
+                            fileIndex++;
+                        } else {
+                            // 文件不存在，停止读取
+                            fileExists = false;
+                        }
+                    } catch (error) {
+                        // 文件读取错误，停止读取
+                        fileExists = false;
+                    }
+                }
+                
+                console.log(`成功加載 ${state.questions.length} 道題目，來自 ${fileIndex-1} 個文件`);
+            } catch (error) {
+                console.error('加載題目失敗:', error);
+                alert('無法加載考試題目，請檢查網絡連接或文件路徑');
+            }
+        }
+
+        // 加载用户答题历史
+        function loadQuestionHistory() {
+            const history = localStorage.getItem('haauhei_question_history');
+            if (history) {
+                try {
+                    return JSON.parse(history);
+                } catch (e) {
+                    console.error('解析答題歷史失敗:', e);
+                }
+            }
+            return {};
+        }
+
+        // 保存用户答题历史
+        function saveQuestionHistory(history) {
+            localStorage.setItem('haauhei_question_history', JSON.stringify(history));
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            document.getElementById('start-exam').addEventListener('click', startExam);
+            document.getElementById('prev-question').addEventListener('click', showPreviousQuestion);
+            document.getElementById('next-question').addEventListener('click', showNextQuestion);
+            document.getElementById('restart-exam').addEventListener('click', restartExam);
+        }
+
+        // 开始考试
+        function startExam() {
+            state.questionCount = parseInt(elements.questionCountInput.value) || 10;
+            state.examQuestions = generateExamQuestions();
+            state.currentQuestionIndex = 0;
+            state.userAnswers = new Array(state.examQuestions.length).fill(null);
+            state.startTime = new Date();
+            
+            elements.welcomeScreen.classList.remove('active');
+            elements.examScreen.classList.add('active');
+            
+            showCurrentQuestion();
+            startTimer();
+        }
+
+        // 生成考试题目（考虑答题历史）
+        function generateExamQuestions() {
+            const history = loadQuestionHistory();
+            const now = new Date();
+            const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            
+            // 过滤题目：排除最近一周内连续答对3次以上的题目
+            const availableQuestions = state.questions.filter(question => {
+                const questionHistory = history[question.id];
+                
+                if (!questionHistory) return true;
+                
+                // 检查最近连续答对次数
+                if (questionHistory.correctCount >= 3 && 
+                    new Date(questionHistory.lastAnswered) > oneWeekAgo) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            // 使用洗牌算法随机选择题目[7](@ref)
+            const shuffled = shuffleArray([...availableQuestions]);
+            return shuffled.slice(0, Math.min(state.questionCount, shuffled.length));
+        }
+
+        // 洗牌算法实现随机排序[7](@ref)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // 显示当前题目
+        function showCurrentQuestion() {
+            if (state.currentQuestionIndex >= state.examQuestions.length) {
+                finishExam();
+                return;
+            }
+            
+            const question = state.examQuestions[state.currentQuestionIndex];
+            let optionsHtml = '';
+            
+            question.options.forEach((option, index) => {
+                const isSelected = state.userAnswers[state.currentQuestionIndex] === index;
+                optionsHtml += `
+                    <div class="option ${isSelected ? 'selected' : ''}" 
+                         data-index="${index}">
+                        ${String.fromCharCode(65 + index)}. ${option}
+                    </div>
+                `;
+            });
+            
+            elements.questionDisplay.innerHTML = `
+                <div class="question-container">
+                    <div class="question-text">
+                        ${state.currentQuestionIndex + 1}. ${question.question}
+                        <span class="subject-tag">${question.subject}</span>
+                    </div>
+                    <div class="options-container">${optionsHtml}</div>
+                </div>
+            `;
+            
+            // 更新进度条
+            const progress = ((state.currentQuestionIndex + 1) / state.examQuestions.length) * 100;
+            elements.examProgress.style.width = `${progress}%`;
+            
+            // 设置选项点击事件
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const selectedIndex = parseInt(option.dataset.index);
+                    state.userAnswers[state.currentQuestionIndex] = selectedIndex;
+                    showCurrentQuestion(); // 刷新显示
+                });
+            });
+            
+            // 更新按钮状态
+            document.getElementById('prev-question').disabled = state.currentQuestionIndex === 0;
+            document.getElementById('next-question').textContent = 
+                state.currentQuestionIndex === state.examQuestions.length - 1 ? 
+                '提交答案' : '下一題';
+        }
+
+        // 显示上一题
+        function showPreviousQuestion() {
+            if (state.currentQuestionIndex > 0) {
+                state.currentQuestionIndex--;
+                showCurrentQuestion();
+            }
+        }
+
+        // 显示下一题
+        function showNextQuestion() {
+            if (state.currentQuestionIndex < state.examQuestions.length - 1) {
+                state.currentQuestionIndex++;
+                showCurrentQuestion();
+            } else {
+                finishExam();
+            }
+        }
+
+        // 开始计时器
+        function startTimer() {
+            const timerElement = document.createElement('div');
+            timerElement.className = 'timer';
+            document.body.appendChild(timerElement);
+            
+            const startTime = new Date();
+            const timerInterval = setInterval(() => {
+                const now = new Date();
+                const elapsed = new Date(now - startTime);
+                
+                const minutes = elapsed.getMinutes().toString().padStart(2, '0');
+                const seconds = elapsed.getSeconds().toString().padStart(2, '0');
+                
+                timerElement.textContent = `考試時間: ${minutes}:${seconds}`;
+                state.examDuration = elapsed;
+                
+                if (!elements.examScreen.classList.contains('active')) {
+                    clearInterval(timerInterval);
+                    timerElement.remove();
+                }
+            }, 1000);
+        }
+
+        // 完成考试
+        function finishExam() {
+            // 计算成绩
+            let correctCount = 0;
+            const results = state.examQuestions.map((question, index) => {
+                const userAnswer = state.userAnswers[index];
+                const isCorrect = userAnswer === question.correctAnswer;
+                
+                if (isCorrect) correctCount++;
+                
+                return {
+                    question: question.question,
+                    options: question.options,
+                    userAnswer,
+                    correctAnswer: question.correctAnswer,
+                    explanation: question.explanation,
+                    subject: question.subject,
+                    isCorrect,
+                    id: question.id
+                };
+            });
+            
+            // 更新答题历史
+            updateQuestionHistory(results);
+            
+            // 显示结果
+            displayResults(results, correctCount);
+            
+            // 切换到结果界面
+            elements.examScreen.classList.remove('active');
+            elements.resultScreen.classList.add('active');
+        }
+
+        // 更新答题历史
+        function updateQuestionHistory(results) {
+            const history = loadQuestionHistory();
+            const now = new Date().toISOString();
+            
+            results.forEach(result => {
+                if (!history[result.id]) {
+                    history[result.id] = {
+                        totalAttempts: 0,
+                        correctCount: 0,
+                        lastAnswered: now
+                    };
+                }
+                
+                history[result.id].totalAttempts++;
+                history[result.id].lastAnswered = now;
+                
+                if (result.isCorrect) {
+                    history[result.id].correctCount++;
+                } else {
+                    history[result.id].correctCount = 0;
+                }
+            });
+            
+            saveQuestionHistory(history);
+        }
+
+        // 显示考试结果
+        function displayResults(results, correctCount) {
+            elements.correctCount.textContent = correctCount;
+            elements.incorrectCount.textContent = results.length - correctCount;
+            elements.totalScore.textContent = `${Math.round((correctCount / results.length) * 100)}分`;
+            
+            let resultsHtml = '';
+            results.forEach((result, index) => {
+                const userAnswerChar = String.fromCharCode(65 + result.userAnswer);
+                const correctAnswerChar = String.fromCharCode(65 + result.correctAnswer);
+                
+                resultsHtml += `
+                    <div class="result-item ${result.isCorrect ? 'correct' : 'incorrect'}">
+                        <div class="question-text">
+                            ${index + 1}. ${result.question}
+                            <span class="subject-tag">${result.subject}</span>
+                        </div>
+                        <div>你的答案: ${userAnswerChar}. ${result.options[result.userAnswer]}</div>
+                        <div>正確答案: ${correctAnswerChar}. ${result.options[result.correctAnswer]}</div>
+                        <div class="explanation">
+                            <strong>解釋:</strong> ${result.explanation}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            elements.resultsContainer.innerHTML = resultsHtml;
+        }
+
+        // 重新开始考试
+        function restartExam() {
+            elements.resultScreen.classList.remove('active');
+            elements.welcomeScreen.classList.add('active');
+        }
+
+        // 初始化系统
+        window.addEventListener('DOMContentLoaded', initSystem);
+    </script>
 </body>
 </html>
