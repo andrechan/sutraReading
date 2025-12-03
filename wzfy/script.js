@@ -1,3 +1,4 @@
+ 
 let currentExam = null;
 let currentQuestionIndex = 0;
 
@@ -72,3 +73,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+ 
