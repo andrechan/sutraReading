@@ -1,3 +1,4 @@
+ 
 // 显示考试结果
 function showResults() {
     const resultsContainer = document.getElementById('results-container');
@@ -44,3 +45,4 @@ function showResults() {
     resultsContainer.prepend(scoreElement);
     document.getElementById('restart-exam').addEventListener('click', initApp);
 }
+ 
