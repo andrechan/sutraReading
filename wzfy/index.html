@@ -336,6 +336,7 @@
                     try {
                         const response = await fetch(filename);
                         if (response.ok) {
+							console.log("Open "+filename);
                             const subject = await response.json();
                             if (subject && subject.questions) {
                                 // 为每个问题添加科目信息
@@ -346,6 +347,7 @@
                             }
                             fileIndex++;
                         } else {
+							console.log(filename+" not exists");
                             // 文件不存在，停止读取
                             fileExists = false;
                         }
