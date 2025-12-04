@@ -37,5 +37,19 @@ class HaauHeiExamSystem {
         }
     }
     
+// 显示指定屏幕
+function showScreen(screenId) {
+    // 隐藏所有屏幕
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+    });
+    
+    // 显示指定的屏幕
+    const targetScreen = document.getElementById(screenId);
+    if (targetScreen) {
+        targetScreen.classList.add('active');
+    }
+}
+
     // 其他协调方法...
 }
