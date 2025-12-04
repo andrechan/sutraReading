@@ -1,9 +1,10 @@
-// history-manager.js
+// 历史记录管理器
 class HistoryManager {
     constructor() {
         this.history = Utils.getFromStorage('haauhei_question_history', {});
     }
     
+    // 更新答题历史
     updateHistory(questions, results) {
         const now = Date.now();
         this.cleanOldRecords(30); // 清理30天前的记录
@@ -31,6 +32,7 @@ class HistoryManager {
         this.saveHistory();
     }
     
+    // 清理过期记录
     cleanOldRecords(days) {
         const cutoffTime = Date.now() - (days * 24 * 60 * 60 * 1000);
         
@@ -41,11 +43,32 @@ class HistoryManager {
         });
     }
     
+    // 保存历史记录
     saveHistory() {
         Utils.setToStorage('haauhei_question_history', this.history);
     }
     
+    // 获取题目统计信息
     getQuestionStats(questionId) {
         return this.history[questionId] || null;
+    }
+    
+    // 获取总体统计信息
+    getOverallStats() {
+        const totalQuestions = Object.keys(this.history).length;
+        let totalAnswers = 0;
+        let totalCorrect = 0;
+        
+        Object.values(this.history).forEach(stats => {
+            totalAnswers += stats.answerCount;
+            totalCorrect += stats.correctCount;
+        });
+        
+        return {
+            totalQuestions,
+            totalAnswers,
+            totalCorrect,
+            overallAccuracy: totalAnswers > 0 ? (totalCorrect / totalAnswers * 100).toFixed(1) : 0
+        };
     }
 }
