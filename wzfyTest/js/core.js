@@ -38,7 +38,7 @@ class HaauHeiExamSystem {
     }
     
 // 显示指定屏幕
-function showScreen(screenId) {
+showScreen(screenId) {
     // 隐藏所有屏幕
     document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
@@ -50,6 +50,6 @@ function showScreen(screenId) {
         targetScreen.classList.add('active');
     }
 }
-
+    
     // 其他协调方法...
 }
