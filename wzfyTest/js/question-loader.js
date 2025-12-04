@@ -21,7 +21,8 @@ class QuestionLoader {
                 break;
             }
         }
-        
+        console.log("subjectIndex="+subjectIndex);
+        console.log("allQuestions:"+allQuestions);
         // 应用权重并选择题目
         return this.selectQuestionsByWeight(allQuestions, requiredCount);
     }
