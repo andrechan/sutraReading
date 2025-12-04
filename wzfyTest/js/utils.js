@@ -61,27 +61,5 @@ const Utils = {
             clearTimeout(timeout);
             timeout = setTimeout(later, wait);
         };
-    },
-    
-    // 安全的动态属性访问（替代eval的场景）
-    getProperty: function(obj, propertyPath) {
-        return propertyPath.split('.').reduce((prev, curr) => prev && prev[curr], obj);
-    },
-    
-    // 安全的表达式计算（替代简单数学表达式eval）
-    safeCalculate: function(expression) {
-        // 只允许数字、基本运算符和空格
-        if (!/^[0-9+\-*/().\s]+$/.test(expression)) {
-            throw new Error("表达式包含不安全字符");
-        }
-        
-        try {
-            // 使用Function构造函数但限制在安全范围内
-            const calculate = new Function('return ' + expression);
-            return calculate();
-        } catch (error) {
-            console.error('计算表达式出错:', error);
-            return null;
-        }
     }
 };
