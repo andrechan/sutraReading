@@ -137,15 +137,21 @@ class HaauHeiExamSystem {
         
         while (selectedQuestions.length < this.questionCount) {
             const random = Math.random() * totalWeight;
+            let selected = false;
             
-            for (let i = 0; i < cumulativeWeights.length; i++) {
+            for (let i = 0; i < cumulativeWeights.length && !selected; i++) {
                 if (random < cumulativeWeights[i]) {
                     // 检查是否已选择此题目
                     if (!selectedQuestions.includes(this.questions[i])) {
                         selectedQuestions.push(this.questions[i]);
-                        break;
+                        selected = true;
                     }
                 }
+            }
+            
+            // 防止无限循环
+            if (!selected && selectedQuestions.length === 0) {
+                selectedQuestions.push(this.questions[0]);
             }
         }
         
@@ -221,6 +227,7 @@ class HaauHeiExamSystem {
         // 如果是最后一题，显示提交按钮
         if (this.currentQuestionIndex === this.questions.length - 1) {
             document.getElementById('submit-exam').style.display = 'inline-block';
+            document.getElementById('next-question').disabled = true;
         }
     }
     
@@ -236,7 +243,9 @@ class HaauHeiExamSystem {
     // 更新导航按钮状态
     updateNavigationButtons() {
         document.getElementById('prev-question').disabled = this.currentQuestionIndex === 0;
-        document.getElementById('next-question').disabled = this.currentQuestionIndex === this.questions.length - 1;
+        document.getElementById('next-question').disabled = 
+            this.currentQuestionIndex === this.questions.length - 1 || 
+            this.userAnswers[this.currentQuestionIndex] === null;
     }
     
     // 开始计时器
@@ -295,12 +304,4 @@ class HaauHeiExamSystem {
                 results.unanswered++;
             }
             
-            results.details.push({
-                question: question.question,
-                options: question.options,
-                correctAnswer: question.correctAnswer,
-                userAnswer: userAnswer,
-                explanation: question.explanation,
-                subjectName: question.subjectName,
-                isCorrect: isCorrect,
-                isAnswered: isAnswered
+            resu
