@@ -227,12 +227,38 @@
             color: #555;
         }
 
-        .result-explanation {
-            margin-top: 10px;
+        .result-options {
+            margin: 10px 0;
             padding: 10px;
             background-color: #f8f9fa;
             border-radius: 5px;
-            color: #666;
+        }
+
+        .option-line {
+            margin: 5px 0;
+        }
+
+        .user-answer {
+            color: #ff9800;
+            font-weight: bold;
+        }
+
+        .correct-answer {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .wrong-answer {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        .result-explanation {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e3f2fd;
+            border-radius: 5px;
+            color: #1976d2;
         }
 
         .loading {
@@ -1048,11 +1074,31 @@
                     
                     const questionDiv = document.createElement('div');
                     questionDiv.className = 'result-question';
-                    questionDiv.innerHTML = `
-                        <strong>題目：</strong>${question.question}<br>
-                        <strong>你的答案：</strong>${userAnswer !== undefined ? String.fromCharCode(65 + userAnswer) : '未作答'}<br>
-                        <strong>正確答案：</strong>${String.fromCharCode(65 + question.correctAnswer)}<br>
-                        <strong>科目：</strong>${question.subjectName}<br>
+                    questionDiv.innerHTML = `<strong>題目：</strong>${question.question}`;
+                    
+                    // 顯示四個選項
+                    const optionsDiv = document.createElement('div');
+                    optionsDiv.className = 'result-options';
+                    optionsDiv.innerHTML = '<strong>選項：</strong><br>';
+                    question.options.forEach((option, optIndex) => {
+                        const optionLetter = String.fromCharCode(65 + optIndex);
+                        const optionClass = userAnswer === optIndex ? 'user-answer' : '';
+                        optionsDiv.innerHTML += `<div class="option-line ${optionClass}">${optionLetter}. ${option}</div>`;
+                    });
+                    
+                    // 顯示用戶答案和正確答案
+                    const answerDiv = document.createElement('div');
+                    answerDiv.innerHTML = `
+                        <strong>你的答案：</strong>
+                        <span class="${userAnswer === question.correctAnswer ? 'correct-answer' : 'wrong-answer'}">
+                            ${userAnswer !== undefined ? String.fromCharCode(65 + userAnswer) : '未作答'}
+                        </span>
+                        <br>
+                        <strong>正確答案：</strong>
+                        <span class="correct-answer">${String.fromCharCode(65 + question.correctAnswer)}</span>
+                        <br>
+                        <strong>科目：</strong>${question.subjectName}
+                        <br>
                         <strong>來源：</strong>${question.fileName}
                     `;
                     
@@ -1062,6 +1108,8 @@
                     
                     resultItem.appendChild(header);
                     resultItem.appendChild(questionDiv);
+                    resultItem.appendChild(optionsDiv);
+                    resultItem.appendChild(answerDiv);
                     resultItem.appendChild(explanationDiv);
                     resultsList.appendChild(resultItem);
                 });
