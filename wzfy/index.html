@@ -281,20 +281,17 @@
             color: #7f8c8d;
         }
 
-        .instructions {
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            border-left: 4px solid #ffc107;
-        }
-
         .import-section {
             background: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             margin-bottom: 20px;
+            display: none; /* 初始隱藏導入區域 */
+        }
+
+        .import-section.visible {
+            display: block; /* 顯示導入區域 */
         }
 
         .file-input-wrapper {
@@ -403,6 +400,21 @@
             word-break: break-all;
         }
 
+        .toggle-import-btn {
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .toggle-import-btn:hover {
+            background-color: #e67e22;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -425,12 +437,27 @@
 </head>
 <body>
     <div class="container">
-                
         <!-- 歡迎介面 -->
         <div id="welcomeScreen" class="screen active">
             <h1>HaauHei考試系統</h1>
             
-            <div class="import-section">
+            <div class="config-section">
+                <div class="config-item">
+                    <label for="questionCount">題目數量：</label>
+                    <input type="number" id="questionCount" min="1" max="100" value="10">
+                </div>
+                <div class="config-item">
+                    <label>載入科目：</label>
+                    <div id="loadedSubjects" class="subject-list"></div>
+                </div>
+                <button id="startExamBtn" class="btn btn-start">開始考試</button>
+            </div>
+            
+            <!-- 顯示/隱藏導入區域的按鈕 -->
+            <button id="toggleImportBtn" class="toggle-import-btn">顯示/隱藏導入區域</button>
+            
+            <!-- 導入區域 -->
+            <div id="importSection" class="import-section">
                 <h3>導入題目</h3>
                 <div class="config-item">
                     <label>上傳題目文件 (JSON格式):</label>
@@ -445,18 +472,6 @@
                     <div class="preview-title">預覽導入的題目:</div>
                     <div id="previewContent" class="preview-content"></div>
                 </div>
-            </div>
-            
-            <div class="config-section">
-                <div class="config-item">
-                    <label for="questionCount">題目數量：</label>
-                    <input type="number" id="questionCount" min="1" max="100" value="10">
-                </div>
-                <div class="config-item">
-                    <label>載入科目：</label>
-                    <div id="loadedSubjects" class="subject-list"></div>
-                </div>
-                <button id="startExamBtn" class="btn btn-start">開始考試</button>
             </div>
         </div>
 
@@ -548,6 +563,7 @@
                         
                         index++;
                     } catch (error) {
+                        // 當讀取JSON文件出錯時，不顯示錯誤信息，繼續嘗試下一個文件
                         break;
                     }
                 }
@@ -863,6 +879,33 @@
                 this.uiManager = new UIManager();
                 
                 this.initializeEventListeners();
+                
+                // 在構造函數中自動加載JSON文件
+                this.loadInitialData();
+            }
+
+            async loadInitialData() {
+                // 顯示載入介面
+                this.uiManager.showScreen('loadingScreen');
+                
+                try {
+                    // 載入題目
+                    const hasQuestions = await this.dataManager.loadAllQuestions();
+                    
+                    // 渲染歡迎介面
+                    this.uiManager.renderWelcomeScreen(this.dataManager);
+                    
+                    // 顯示歡迎介面
+                    this.uiManager.showScreen('welcomeScreen');
+                    
+                    if (!hasQuestions) {
+                        alert('沒有找到題目檔案！\n\n請確保在 subjects 目錄中有有效的題目JSON文件或已導入題目。');
+                    }
+                } catch (error) {
+                    console.error('初始數據載入失敗:', error);
+                    alert('初始數據載入失敗，請確保通過HTTP服務器訪問此頁面。\n\n錯誤: ' + error.message);
+                    this.uiManager.showScreen('welcomeScreen');
+                }
             }
 
             initializeEventListeners() {
@@ -892,6 +935,12 @@
                 // 重新開始按鈕
                 document.getElementById('restartBtn').onclick = () => {
                     this.restartExam();
+                };
+                
+                // 顯示/隱藏導入區域按鈕
+                document.getElementById('toggleImportBtn').onclick = () => {
+                    const importSection = document.getElementById('importSection');
+                    importSection.classList.toggle('visible');
                 };
                 
                 // 導入按鈕
@@ -926,24 +975,10 @@
             }
 
             async startExam() {
-                // 顯示載入介面
-                this.uiManager.showScreen('loadingScreen');
-                
                 try {
-                    // 載入題目
-                    const hasQuestions = await this.dataManager.loadAllQuestions();
-                    if (!hasQuestions) {
-                        alert('沒有找到題目檔案！\n\n請確保在 subjects 目錄中有有效的題目JSON文件或已導入題目。');
-                        this.uiManager.showScreen('welcomeScreen');
-                        return;
-                    }
-                    
                     // 獲取考試設定
                     this.dataManager.questionCount = parseInt(document.getElementById('questionCount').value) || 10;
                     this.dataManager.questionCount = Math.min(this.dataManager.questionCount, this.dataManager.questions.length);
-                    
-                    // 渲染歡迎介面
-                    this.uiManager.renderWelcomeScreen(this.dataManager);
                     
                     // 開始考試
                     this.startNewExamSession();
