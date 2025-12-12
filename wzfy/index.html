@@ -41,71 +41,32 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .welcome-screen h1 {
+        .menu-screen h1 {
             text-align: center;
             color: #2c3e50;
             margin-bottom: 30px;
             font-size: 2em;
         }
 
-        .config-section {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+        .menu-buttons {
+            display: grid;
+            gap: 20px;
         }
 
-        .config-item {
-            margin-bottom: 20px;
-        }
-
-        .config-item label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-        }
-
-        .config-item input, .config-item select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        .btn {
+        .menu-btn {
             background-color: #3498db;
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 20px;
             font-size: 18px;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
             transition: background-color 0.3s;
-            width: 100%;
-            margin-top: 10px;
+            text-align: center;
         }
 
-        .btn:hover {
+        .menu-btn:hover {
             background-color: #2980b9;
-        }
-
-        .btn-start {
-            background-color: #27ae60;
-        }
-
-        .btn-start:hover {
-            background-color: #219a52;
-        }
-
-        .btn-import {
-            background-color: #9b59b6;
-        }
-
-        .btn-import:hover {
-            background-color: #8e44ad;
         }
 
         .exam-screen h2 {
@@ -281,17 +242,136 @@
             color: #7f8c8d;
         }
 
-        .import-section {
+        .stats-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .clear-section {
             background: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            display: none; /* 初始隱藏導入區域 */
+            margin-top: 20px;
         }
 
-        .import-section.visible {
-            display: block; /* 顯示導入區域 */
+        .back-btn {
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .back-btn:hover {
+            background-color: #7f8c8d;
+        }
+
+        .config-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .config-item {
+            margin-bottom: 20px;
+        }
+
+        .config-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .config-item input, .config-item select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-start {
+            background-color: #27ae60;
+        }
+
+        .btn-start:hover {
+            background-color: #219a52;
+        }
+
+        .btn-clear {
+            background-color: #e74c3c;
+        }
+
+        .btn-clear:hover {
+            background-color: #c0392b;
+        }
+
+        .data-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .import-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
         }
 
         .file-input-wrapper {
@@ -338,27 +418,8 @@
             border: 1px solid #f5c6cb;
         }
 
-        .import-preview {
-            margin-top: 20px;
-            max-height: 200px;
-            overflow-y: auto;
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .preview-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .preview-content {
-            font-size: 14px;
-            color: #666;
-        }
-
         .subject-list {
-            max-height: 200px;
+            max-height: 300px;
             overflow-y: auto;
             margin-top: 10px;
             border: 1px solid #ddd;
@@ -371,6 +432,7 @@
             border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
 
         .subject-item:last-child {
@@ -400,19 +462,20 @@
             word-break: break-all;
         }
 
-        .toggle-import-btn {
-            background-color: #f39c12;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin-bottom: 10px;
+        .checkbox-container {
+            display: flex;
+            align-items: center;
         }
 
-        .toggle-import-btn:hover {
-            background-color: #e67e22;
+        .checkbox-container input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
         }
 
         @media (max-width: 768px) {
@@ -420,7 +483,7 @@
                 padding: 10px;
             }
             
-            .config-section, .question-card, .summary-stats, .results-list, .import-section {
+            .config-section, .question-card, .summary-stats, .results-list, .stats-section, .clear-section, .data-section {
                 padding: 15px;
             }
             
@@ -432,51 +495,28 @@
             .btn-nav, .btn-next {
                 width: 100%;
             }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 歡迎介面 -->
-        <div id="welcomeScreen" class="screen active">
+        <!-- 選單介面 -->
+        <div id="menuScreen" class="screen active">
             <h1>HaauHei考試系統</h1>
-            
-            <div class="config-section">
-                <div class="config-item">
-                    <label for="questionCount">題目數量：</label>
-                    <input type="number" id="questionCount" min="1" max="100" value="10">
-                </div>
-                <div class="config-item">
-                    <label>載入科目：</label>
-                    <div id="loadedSubjects" class="subject-list"></div>
-                </div>
-                <button id="startExamBtn" class="btn btn-start">開始考試</button>
-            </div>
-            
-            <!-- 顯示/隱藏導入區域的按鈕 -->
-            <button id="toggleImportBtn" class="toggle-import-btn">顯示/隱藏導入區域</button>
-            
-            <!-- 導入區域 -->
-            <div id="importSection" class="import-section">
-                <h3>導入題目</h3>
-                <div class="config-item">
-                    <label>上傳題目文件 (JSON格式):</label>
-                    <div class="file-input-wrapper">
-                        選擇文件
-                        <input type="file" id="fileInput" accept=".json" multiple>
-                    </div>
-                    <button id="importBtn" class="btn btn-import" style="margin-top: 10px;">導入題目</button>
-                </div>
-                <div id="importStatus" class="import-status"></div>
-                <div id="importPreview" class="import-preview" style="display: none;">
-                    <div class="preview-title">預覽導入的題目:</div>
-                    <div id="previewContent" class="preview-content"></div>
-                </div>
+            <div class="menu-buttons">
+                <button id="examBtn" class="menu-btn">考試</button>
+                <button id="statsBtn" class="menu-btn">統計</button>
+                <button id="dataBtn" class="menu-btn">數據</button>
             </div>
         </div>
 
         <!-- 考試介面 -->
         <div id="examScreen" class="screen">
+            <button id="backToMenuBtn1" class="back-btn">返回主選單</button>
             <h2>考試進行中</h2>
             <div class="progress-container">
                 <div id="progressBar" class="progress-bar"></div>
@@ -494,6 +534,7 @@
 
         <!-- 結果介面 -->
         <div id="resultScreen" class="screen">
+            <button id="backToMenuBtn2" class="back-btn">返回主選單</button>
             <h2>考試結果</h2>
             <div class="summary-stats">
                 <div class="stat-item">
@@ -506,12 +547,84 @@
                     答錯：<span id="wrongAnswers" class="stat-value"></span>
                 </div>
                 <div class="stat-item">
-                    正確率：<span id="accuracyRate" class="stat-value"></span>
+                    正確率：<span id="accuracyRateResult" class="stat-value"></span>
                 </div>
             </div>
             <div id="resultsList" class="results-list"></div>
             <div style="text-align: center; margin-top: 20px;">
                 <button id="restartBtn" class="btn">重新開始</button>
+            </div>
+        </div>
+
+        <!-- 統計介面 -->
+        <div id="statsScreen" class="screen">
+            <button id="backToMenuBtn3" class="back-btn">返回主選單</button>
+            <h2>學習統計</h2>
+            <div class="stats-section">
+                <h3>整體學習狀況</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalAttempted">0</div>
+                        <div class="stat-label">總答題數</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalCorrect">0</div>
+                        <div class="stat-label">答對題數</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalWrong">0</div>
+                        <div class="stat-label">答錯題數</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="accuracyRate">0%</div>
+                        <div class="stat-label">正確率</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-section">
+                <h3>常錯題目</h3>
+                <div id="frequentlyWrongList" class="subject-list">
+                    <div>載入中...</div>
+                </div>
+            </div>
+            
+            <div class="config-section">
+                <div class="config-item">
+                    <label for="questionCount">題目數量：</label>
+                    <input type="number" id="questionCount" min="1" max="100" value="10">
+                </div>
+                <button id="startExamFromStatsBtn" class="btn btn-start">開始考試</button>
+            </div>
+        </div>
+
+        <!-- 數據介面 -->
+        <div id="dataScreen" class="screen">
+            <button id="backToMenuBtn4" class="back-btn">返回主選單</button>
+            <h2>數據管理</h2>
+            
+            <div class="data-section">
+                <h3>導入數據</h3>
+                <div class="import-section">
+                    <div class="config-item">
+                        <label>上傳題目文件 (JSON格式):</label>
+                        <div class="file-input-wrapper">
+                            選擇文件
+                            <input type="file" id="fileInput" accept=".json" multiple>
+                        </div>
+                        <button id="importBtn" class="btn" style="margin-top: 10px;">導入題目</button>
+                    </div>
+                    <div id="importStatus" class="import-status"></div>
+                </div>
+            </div>
+            
+            <div class="data-section">
+                <h3>選擇生效科目</h3>
+                <div id="availableSubjects" class="subject-list"></div>
+            </div>
+            
+            <div class="clear-section">
+                <button id="clearStatsBtn" class="btn btn-clear">清空所有記錄</button>
             </div>
         </div>
 
@@ -529,6 +642,7 @@
                 this.questionCount = 10;
                 this.importedQuestions = []; // 存儲導入的題目
                 this.importedFileNames = []; // 存儲導入文件名
+                this.enabledSubjects = []; // 存儲啟用的科目
             }
 
             async loadAllQuestions() {
@@ -548,7 +662,8 @@
                         this.subjects.push({
                             name: subjectData.subjectName, 
                             source: '本地',
-                            fileName: `subjects/${String(index).padStart(4, '0')}.json`
+                            fileName: `subjects/${String(index).padStart(4, '0')}.json`,
+                            selected: true // 默認選中
                         });
                         
                         subjectData.questions.forEach((q, qIndex) => {
@@ -568,7 +683,7 @@
                     }
                 }
                 
-                // 添加導入的題目（不會清除之前的內容）
+                // 添加導入的題目
                 this.importedQuestions.forEach((subjectData, subjectIndex) => {
                     // 檢查是否已經存在相同的科目名稱
                     const exists = this.subjects.some(s => s.name === subjectData.subjectName);
@@ -576,7 +691,8 @@
                         this.subjects.push({
                             name: subjectData.subjectName, 
                             source: '導入',
-                            fileName: this.importedFileNames[subjectIndex] || '導入文件'
+                            fileName: this.importedFileNames[subjectIndex] || '導入文件',
+                            selected: true // 默認選中
                         });
                     }
                     
@@ -591,7 +707,22 @@
                     });
                 });
                 
+                // 應用科目啟用狀態
+                this.applySubjectSelection();
+                
                 return this.questions.length > 0;
+            }
+
+            applySubjectSelection() {
+                // 如果沒有設置啟用科目，則默認全部啟用
+                if (this.enabledSubjects.length === 0) {
+                    this.enabledSubjects = this.subjects.map(s => s.name);
+                }
+                
+                // 過濾問題，只保留啟用科目的問題
+                this.questions = this.questions.filter(q => 
+                    this.enabledSubjects.includes(q.subjectName)
+                );
             }
 
             getQuestionsForExam(count) {
@@ -666,6 +797,44 @@
                 localStorage.setItem('examHistory', JSON.stringify(history));
             }
             
+            // 獲取統計資訊
+            getStatistics() {
+                const history = JSON.parse(localStorage.getItem('examHistory') || '[]');
+                const totalAttempted = history.length;
+                const totalCorrect = history.filter(record => record.correct).length;
+                const totalWrong = totalAttempted - totalCorrect;
+                const accuracyRate = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
+                
+                // 獲取常錯題目
+                const wrongQuestions = {};
+                history.forEach(record => {
+                    if (!record.correct) {
+                        if (!wrongQuestions[record.questionId]) {
+                            wrongQuestions[record.questionId] = 0;
+                        }
+                        wrongQuestions[record.questionId]++;
+                    }
+                });
+                
+                // 按錯誤次數排序
+                const sortedWrongQuestions = Object.entries(wrongQuestions)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10); // 只顯示前10個
+                
+                return {
+                    totalAttempted,
+                    totalCorrect,
+                    totalWrong,
+                    accuracyRate,
+                    frequentlyWrong: sortedWrongQuestions
+                };
+            }
+            
+            // 清空統計記錄
+            clearStatistics() {
+                localStorage.removeItem('examHistory');
+            }
+            
             // 導入題目文件（累加模式）
             async importQuestions(files) {
                 for (const file of files) {
@@ -687,6 +856,25 @@
                 }
                 
                 return this.importedQuestions.length;
+            }
+            
+            // 更新啟用科目
+            updateEnabledSubjects(selectedSubjects) {
+                this.enabledSubjects = selectedSubjects;
+                // 保存到本地存儲
+                localStorage.setItem('enabledSubjects', JSON.stringify(this.enabledSubjects));
+                // 重新載入題目
+                return this.loadAllQuestions();
+            }
+            
+            // 獲取啟用的科目
+            getEnabledSubjects() {
+                // 從本地存儲恢復
+                const saved = localStorage.getItem('enabledSubjects');
+                if (saved) {
+                    this.enabledSubjects = JSON.parse(saved);
+                }
+                return this.enabledSubjects;
             }
         }
 
@@ -727,24 +915,6 @@
                     screen.classList.remove('active');
                 });
                 document.getElementById(screenId).classList.add('active');
-            }
-
-            renderWelcomeScreen(dataManager) {
-                const loadedSubjects = document.getElementById('loadedSubjects');
-                loadedSubjects.innerHTML = '';
-                
-                dataManager.subjects.forEach(subject => {
-                    const subjectItem = document.createElement('div');
-                    subjectItem.className = 'subject-item';
-                    subjectItem.innerHTML = `
-                        <div>
-                            <span>${subject.name}</span>
-                            <div class="file-name">${subject.fileName}</div>
-                        </div>
-                        <span class="source-tag ${subject.source === '導入' ? 'imported-tag' : 'local-tag'}">${subject.source}</span>
-                    `;
-                    loadedSubjects.appendChild(subjectItem);
-                });
             }
 
             renderQuestion(question, index, total) {
@@ -825,7 +995,7 @@
                         <strong>題目：</strong>${question.question}<br>
                         <strong>你的答案：</strong>${userAnswer !== undefined ? String.fromCharCode(65 + userAnswer) : '未作答'}<br>
                         <strong>正確答案：</strong>${String.fromCharCode(65 + question.correctAnswer)}<br>
-                        <strong>科目：</strong>${question.subjectName} (${question.source})<br>
+                        <strong>科目：</strong>${question.subjectName}<br>
                         <strong>來源：</strong>${question.fileName}
                     `;
                     
@@ -843,7 +1013,68 @@
                 document.getElementById('totalQuestions').textContent = total;
                 document.getElementById('correctAnswers').textContent = correct;
                 document.getElementById('wrongAnswers').textContent = total - correct;
-                document.getElementById('accuracyRate').textContent = `${Math.round((correct / total) * 100)}%`;
+                document.getElementById('accuracyRateResult').textContent = `${Math.round((correct / total) * 100)}%`;
+            }
+            
+            updateStatsDisplay(stats) {
+                document.getElementById('totalAttempted').textContent = stats.totalAttempted;
+                document.getElementById('totalCorrect').textContent = stats.totalCorrect;
+                document.getElementById('totalWrong').textContent = stats.totalWrong;
+                document.getElementById('accuracyRate').textContent = `${stats.accuracyRate}%`;
+            }
+            
+            renderFrequentlyWrongList(frequentlyWrong) {
+                const listElement = document.getElementById('frequentlyWrongList');
+                
+                if (frequentlyWrong.length === 0) {
+                    listElement.innerHTML = '<div>暫無常錯題目</div>';
+                    return;
+                }
+                
+                listElement.innerHTML = '';
+                frequentlyWrong.forEach(([questionId, count]) => {
+                    const item = document.createElement('div');
+                    item.className = 'subject-item';
+                    item.innerHTML = `
+                        <div>題目ID: ${questionId}</div>
+                        <div>錯誤次數: ${count}</div>
+                    `;
+                    listElement.appendChild(item);
+                });
+            }
+            
+            renderAvailableSubjects(subjects, enabledSubjects) {
+                const container = document.getElementById('availableSubjects');
+                container.innerHTML = '';
+                
+                subjects.forEach(subject => {
+                    const item = document.createElement('div');
+                    item.className = 'subject-item';
+                    
+                    const isChecked = enabledSubjects.includes(subject.name);
+                    item.innerHTML = `
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="subject-${subject.name}" ${isChecked ? 'checked' : ''}>
+                            <label for="subject-${subject.name}">
+                                <div>${subject.name}</div>
+                                <div class="file-name">${subject.fileName}</div>
+                            </label>
+                        </div>
+                        <span class="source-tag ${subject.source === '導入' ? 'imported-tag' : 'local-tag'}">${subject.source}</span>
+                    `;
+                    
+                    // 添加事件監聽器
+                    const checkbox = item.querySelector('input[type="checkbox"]');
+                    checkbox.onchange = () => {
+                        const selectedSubjects = Array.from(container.querySelectorAll('input[type="checkbox"]:checked'))
+                            .map(cb => cb.id.replace('subject-', ''));
+                        
+                        // 更新啟用科目
+                        window.examSystem.dataManager.updateEnabledSubjects(selectedSubjects);
+                    };
+                    
+                    container.appendChild(item);
+                });
             }
             
             showImportStatus(message, isSuccess) {
@@ -855,19 +1086,6 @@
                 setTimeout(() => {
                     statusDiv.style.display = 'none';
                 }, 5000);
-            }
-            
-            showImportPreview(questions, fileNames) {
-                const previewDiv = document.getElementById('importPreview');
-                const contentDiv = document.getElementById('previewContent');
-                
-                let previewHtml = '';
-                questions.forEach((subject, index) => {
-                    previewHtml += `<div><strong>科目: ${subject.subjectName}</strong> (${subject.questions.length} 題) - 文件: ${fileNames[fileNames.length - questions.length + index]}</div>`;
-                });
-                
-                contentDiv.innerHTML = previewHtml;
-                previewDiv.style.display = 'block';
             }
         }
 
@@ -892,11 +1110,8 @@
                     // 載入題目
                     const hasQuestions = await this.dataManager.loadAllQuestions();
                     
-                    // 渲染歡迎介面
-                    this.uiManager.renderWelcomeScreen(this.dataManager);
-                    
-                    // 顯示歡迎介面
-                    this.uiManager.showScreen('welcomeScreen');
+                    // 顯示選單介面
+                    this.uiManager.showScreen('menuScreen');
                     
                     if (!hasQuestions) {
                         alert('沒有找到題目檔案！\n\n請確保在 subjects 目錄中有有效的題目JSON文件或已導入題目。');
@@ -904,14 +1119,42 @@
                 } catch (error) {
                     console.error('初始數據載入失敗:', error);
                     alert('初始數據載入失敗，請確保通過HTTP服務器訪問此頁面。\n\n錯誤: ' + error.message);
-                    this.uiManager.showScreen('welcomeScreen');
+                    this.uiManager.showScreen('menuScreen');
                 }
             }
 
             initializeEventListeners() {
-                // 開始考試按鈕
-                document.getElementById('startExamBtn').onclick = () => {
+                // 選單按鈕
+                document.getElementById('examBtn').onclick = () => {
+                    this.uiManager.showScreen('examScreen');
                     this.startExam();
+                };
+                
+                document.getElementById('statsBtn').onclick = () => {
+                    this.uiManager.showScreen('statsScreen');
+                    this.updateStatsDisplay();
+                };
+                
+                document.getElementById('dataBtn').onclick = () => {
+                    this.uiManager.showScreen('dataScreen');
+                    this.renderDataScreen();
+                };
+                
+                // 返回主選單按鈕
+                document.getElementById('backToMenuBtn1').onclick = () => {
+                    this.uiManager.showScreen('menuScreen');
+                };
+                
+                document.getElementById('backToMenuBtn2').onclick = () => {
+                    this.uiManager.showScreen('menuScreen');
+                };
+                
+                document.getElementById('backToMenuBtn3').onclick = () => {
+                    this.uiManager.showScreen('menuScreen');
+                };
+                
+                document.getElementById('backToMenuBtn4').onclick = () => {
+                    this.uiManager.showScreen('menuScreen');
                 };
                 
                 // 下一題按鈕
@@ -934,13 +1177,22 @@
                 
                 // 重新開始按鈕
                 document.getElementById('restartBtn').onclick = () => {
-                    this.restartExam();
+                    this.startExam();
                 };
                 
-                // 顯示/隱藏導入區域按鈕
-                document.getElementById('toggleImportBtn').onclick = () => {
-                    const importSection = document.getElementById('importSection');
-                    importSection.classList.toggle('visible');
+                // 從統計頁面開始考試
+                document.getElementById('startExamFromStatsBtn').onclick = () => {
+                    this.uiManager.showScreen('examScreen');
+                    this.startExam();
+                };
+                
+                // 清空統計按鈕
+                document.getElementById('clearStatsBtn').onclick = () => {
+                    if (confirm('確定要清空所有學習記錄嗎？此操作不可恢復。')) {
+                        this.dataManager.clearStatistics();
+                        this.updateStatsDisplay();
+                        alert('記錄已清空！');
+                    }
                 };
                 
                 // 導入按鈕
@@ -961,14 +1213,9 @@
                     const count = await this.dataManager.importQuestions(files);
                     this.uiManager.showImportStatus(`成功導入 ${files.length} 個文件，總共 ${count} 個科目`, true);
                     
-                    // 只顯示新導入的文件
-                    const newQuestions = this.dataManager.importedQuestions.slice(previousCount);
-                    const newFileNames = this.dataManager.importedFileNames.slice(previousCount);
-                    this.uiManager.showImportPreview(newQuestions, newFileNames);
-                    
-                    // 重新載入並更新科目列表
+                    // 重新載入並更新數據
                     await this.dataManager.loadAllQuestions();
-                    this.uiManager.renderWelcomeScreen(this.dataManager);
+                    this.renderDataScreen();
                 } catch (error) {
                     this.uiManager.showImportStatus(`導入失敗: ${error.message}`, false);
                 }
@@ -985,7 +1232,7 @@
                 } catch (error) {
                     console.error('考試初始化失敗:', error);
                     alert('考試初始化失敗，請確保通過HTTP服務器訪問此頁面。\n\n錯誤: ' + error.message);
-                    this.uiManager.showScreen('welcomeScreen');
+                    this.uiManager.showScreen('menuScreen');
                 }
             }
 
@@ -1019,19 +1266,29 @@
                     this.dataManager.updateHistory(question.id, isCorrect);
                 });
                 
+                // 更新統計顯示
+                this.updateStatsDisplay();
+                
                 // 顯示結果介面
                 this.uiManager.showScreen('resultScreen');
                 this.uiManager.renderResults(this.uiManager.examQuestions, this.uiManager.userAnswers);
             }
-
-            restartExam() {
-                this.uiManager.showScreen('welcomeScreen');
+            
+            updateStatsDisplay() {
+                const stats = this.dataManager.getStatistics();
+                this.uiManager.updateStatsDisplay(stats);
+                this.uiManager.renderFrequentlyWrongList(stats.frequentlyWrong);
+            }
+            
+            renderDataScreen() {
+                const enabledSubjects = this.dataManager.getEnabledSubjects();
+                this.uiManager.renderAvailableSubjects(this.dataManager.subjects, enabledSubjects);
             }
         }
 
         // 初始化應用
         document.addEventListener('DOMContentLoaded', () => {
-            new ExamSystem();
+            window.examSystem = new ExamSystem();
         });
     </script>
 </body>
