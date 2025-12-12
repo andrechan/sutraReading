@@ -478,6 +478,27 @@
             margin-top: 5px;
         }
 
+        .frequent-question-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .frequent-question-item:last-child {
+            border-bottom: none;
+        }
+
+        .frequent-question-text {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .frequent-question-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -509,6 +530,7 @@
             <h1>HaauHei考試系統</h1>
             <div class="menu-buttons">
                 <button id="examBtn" class="menu-btn">考試</button>
+                <button id="settingsBtn" class="menu-btn">設定</button>
                 <button id="statsBtn" class="menu-btn">統計</button>
                 <button id="dataBtn" class="menu-btn">數據</button>
             </div>
@@ -556,9 +578,29 @@
             </div>
         </div>
 
+        <!-- 設定介面 -->
+        <div id="settingsScreen" class="screen">
+            <button id="backToMenuBtn3" class="back-btn">返回主選單</button>
+            <h2>考試設定</h2>
+            
+            <div class="config-section">
+                <div class="config-item">
+                    <label for="questionCountSetting">每次考試題數：</label>
+                    <input type="number" id="questionCountSetting" min="1" max="100" value="10">
+                </div>
+                
+                <div class="config-item">
+                    <label>選擇生效科目：</label>
+                    <div id="availableSubjectsSettings" class="subject-list"></div>
+                </div>
+                
+                <button id="saveSettingsBtn" class="btn btn-start">保存設定</button>
+            </div>
+        </div>
+
         <!-- 統計介面 -->
         <div id="statsScreen" class="screen">
-            <button id="backToMenuBtn3" class="back-btn">返回主選單</button>
+            <button id="backToMenuBtn4" class="back-btn">返回主選單</button>
             <h2>學習統計</h2>
             <div class="stats-section">
                 <h3>整體學習狀況</h3>
@@ -589,18 +631,14 @@
                 </div>
             </div>
             
-            <div class="config-section">
-                <div class="config-item">
-                    <label for="questionCount">題目數量：</label>
-                    <input type="number" id="questionCount" min="1" max="100" value="10">
-                </div>
-                <button id="startExamFromStatsBtn" class="btn btn-start">開始考試</button>
+            <div class="clear-section">
+                <button id="clearStatsBtn" class="btn btn-clear">清空所有記錄</button>
             </div>
         </div>
 
         <!-- 數據介面 -->
         <div id="dataScreen" class="screen">
-            <button id="backToMenuBtn4" class="back-btn">返回主選單</button>
+            <button id="backToMenuBtn5" class="back-btn">返回主選單</button>
             <h2>數據管理</h2>
             
             <div class="data-section">
@@ -616,15 +654,6 @@
                     </div>
                     <div id="importStatus" class="import-status"></div>
                 </div>
-            </div>
-            
-            <div class="data-section">
-                <h3>選擇生效科目</h3>
-                <div id="availableSubjects" class="subject-list"></div>
-            </div>
-            
-            <div class="clear-section">
-                <button id="clearStatsBtn" class="btn btn-clear">清空所有記錄</button>
             </div>
         </div>
 
@@ -821,12 +850,23 @@
                     .sort((a, b) => b[1] - a[1])
                     .slice(0, 10); // 只顯示前10個
                 
+                // 獲取題目詳細信息
+                const detailedWrongQuestions = sortedWrongQuestions.map(([questionId, count]) => {
+                    const question = this.questions.find(q => q.id === questionId);
+                    return {
+                        id: questionId,
+                        question: question ? question.question : '題目未找到',
+                        count: count,
+                        subjectName: question ? question.subjectName : '未知科目'
+                    };
+                });
+                
                 return {
                     totalAttempted,
                     totalCorrect,
                     totalWrong,
                     accuracyRate,
-                    frequentlyWrong: sortedWrongQuestions
+                    frequentlyWrong: detailedWrongQuestions
                 };
             }
             
@@ -875,6 +915,23 @@
                     this.enabledSubjects = JSON.parse(saved);
                 }
                 return this.enabledSubjects;
+            }
+            
+            // 更新考試題數
+            updateQuestionCount(count) {
+                this.questionCount = count;
+                // 保存到本地存儲
+                localStorage.setItem('questionCount', count);
+            }
+            
+            // 獲取考試題數
+            getQuestionCount() {
+                // 從本地存儲恢復
+                const saved = localStorage.getItem('questionCount');
+                if (saved) {
+                    this.questionCount = parseInt(saved);
+                }
+                return this.questionCount;
             }
         }
 
@@ -1032,19 +1089,22 @@
                 }
                 
                 listElement.innerHTML = '';
-                frequentlyWrong.forEach(([questionId, count]) => {
-                    const item = document.createElement('div');
-                    item.className = 'subject-item';
-                    item.innerHTML = `
-                        <div>題目ID: ${questionId}</div>
-                        <div>錯誤次數: ${count}</div>
+                frequentlyWrong.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'frequent-question-item';
+                    itemElement.innerHTML = `
+                        <div class="frequent-question-text">${item.question}</div>
+                        <div class="frequent-question-meta">
+                            <span>科目: ${item.subjectName}</span>
+                            <span>錯誤次數: ${item.count}</span>
+                        </div>
                     `;
-                    listElement.appendChild(item);
+                    listElement.appendChild(itemElement);
                 });
             }
             
-            renderAvailableSubjects(subjects, enabledSubjects) {
-                const container = document.getElementById('availableSubjects');
+            renderAvailableSubjects(subjects, enabledSubjects, containerId) {
+                const container = document.getElementById(containerId);
                 container.innerHTML = '';
                 
                 subjects.forEach(subject => {
@@ -1062,16 +1122,6 @@
                         </div>
                         <span class="source-tag ${subject.source === '導入' ? 'imported-tag' : 'local-tag'}">${subject.source}</span>
                     `;
-                    
-                    // 添加事件監聽器
-                    const checkbox = item.querySelector('input[type="checkbox"]');
-                    checkbox.onchange = () => {
-                        const selectedSubjects = Array.from(container.querySelectorAll('input[type="checkbox"]:checked'))
-                            .map(cb => cb.id.replace('subject-', ''));
-                        
-                        // 更新啟用科目
-                        window.examSystem.dataManager.updateEnabledSubjects(selectedSubjects);
-                    };
                     
                     container.appendChild(item);
                 });
@@ -1130,6 +1180,11 @@
                     this.startExam();
                 };
                 
+                document.getElementById('settingsBtn').onclick = () => {
+                    this.uiManager.showScreen('settingsScreen');
+                    this.renderSettingsScreen();
+                };
+                
                 document.getElementById('statsBtn').onclick = () => {
                     this.uiManager.showScreen('statsScreen');
                     this.updateStatsDisplay();
@@ -1137,7 +1192,6 @@
                 
                 document.getElementById('dataBtn').onclick = () => {
                     this.uiManager.showScreen('dataScreen');
-                    this.renderDataScreen();
                 };
                 
                 // 返回主選單按鈕
@@ -1154,6 +1208,10 @@
                 };
                 
                 document.getElementById('backToMenuBtn4').onclick = () => {
+                    this.uiManager.showScreen('menuScreen');
+                };
+                
+                document.getElementById('backToMenuBtn5').onclick = () => {
                     this.uiManager.showScreen('menuScreen');
                 };
                 
@@ -1180,10 +1238,17 @@
                     this.startExam();
                 };
                 
-                // 從統計頁面開始考試
-                document.getElementById('startExamFromStatsBtn').onclick = () => {
-                    this.uiManager.showScreen('examScreen');
-                    this.startExam();
+                // 保存設定按鈕
+                document.getElementById('saveSettingsBtn').onclick = () => {
+                    const questionCount = parseInt(document.getElementById('questionCountSetting').value) || 10;
+                    this.dataManager.updateQuestionCount(questionCount);
+                    
+                    const selectedSubjects = Array.from(document.querySelectorAll('#availableSubjectsSettings input[type="checkbox"]:checked'))
+                        .map(cb => cb.id.replace('subject-', ''));
+                    
+                    this.dataManager.updateEnabledSubjects(selectedSubjects);
+                    
+                    alert('設定已保存！');
                 };
                 
                 // 清空統計按鈕
@@ -1215,7 +1280,6 @@
                     
                     // 重新載入並更新數據
                     await this.dataManager.loadAllQuestions();
-                    this.renderDataScreen();
                 } catch (error) {
                     this.uiManager.showImportStatus(`導入失敗: ${error.message}`, false);
                 }
@@ -1224,7 +1288,7 @@
             async startExam() {
                 try {
                     // 獲取考試設定
-                    this.dataManager.questionCount = parseInt(document.getElementById('questionCount').value) || 10;
+                    this.dataManager.questionCount = this.dataManager.getQuestionCount();
                     this.dataManager.questionCount = Math.min(this.dataManager.questionCount, this.dataManager.questions.length);
                     
                     // 開始考試
@@ -1280,9 +1344,13 @@
                 this.uiManager.renderFrequentlyWrongList(stats.frequentlyWrong);
             }
             
-            renderDataScreen() {
+            renderSettingsScreen() {
+                // 設置題目數量
+                document.getElementById('questionCountSetting').value = this.dataManager.getQuestionCount();
+                
+                // 設置啟用科目
                 const enabledSubjects = this.dataManager.getEnabledSubjects();
-                this.uiManager.renderAvailableSubjects(this.dataManager.subjects, enabledSubjects);
+                this.uiManager.renderAvailableSubjects(this.dataManager.subjects, enabledSubjects, 'availableSubjectsSettings');
             }
         }
 
