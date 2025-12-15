@@ -1164,8 +1164,7 @@
                         <div class="checkbox-container">
                             <input type="checkbox" id="subject-${subject.name}" ${isChecked ? 'checked' : ''}>
                             <label for="subject-${subject.name}">
-                                <div>${subject.name}</div>
-                                <div class="file-name">${subject.fileName}</div>
+                                <div><font size=1>${subject.name}</font></div>
                             </label>
                         </div>
                         <span class="source-tag ${subject.source === '導入' ? 'imported-tag' : 'local-tag'}">${subject.source}</span>
