@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HaauHei考試系統</title>
+    <title>考試系統</title>
     <style>
         * {
             margin: 0;
@@ -608,7 +608,7 @@
     <div class="container">
         <!-- 選單介面 -->
         <div id="menuScreen" class="screen active">
-            <h1>HaauHei考試系統</h1>
+            <h1>考試系統</h1>
             <div class="menu-buttons">
                 <button id="examBtn" class="menu-btn">考試</button>
                 <button id="settingsBtn" class="menu-btn">設定</button>
@@ -753,9 +753,39 @@
                 this.importedQuestions = []; // 存儲導入的題目
                 this.importedFileNames = []; // 存儲導入文件名
                 this.enabledSubjects = []; // 存儲啟用的科目
+                this.config = null; // 存儲系統配置
+            }
+
+            async loadConfig() {
+                try {
+                    const response = await fetch('subjects/0000.json');
+                    if (response.ok) {
+                        this.config = await response.json();
+                        document.title = this.config.systemConfig.pageTitle;
+                        document.querySelector('.menu-screen h1').textContent = this.config.systemConfig.pageTitle;
+                        this.questionCount = this.config.systemConfig.defaultQuestionCount;
+                    }
+                } catch (error) {
+                    console.warn('未能加載配置文件，使用默認設置:', error);
+                    // 使用默認配置
+                    this.config = {
+                        systemConfig: {
+                            localStorageKeyName: 'haauhei_exam_system',
+                            pageTitle: '考試系統',
+                            defaultQuestionCount: 10,
+                            defaultSelectedSubjectIndex: [1, 2, 3]
+                        }
+                    };
+                    document.title = this.config.systemConfig.pageTitle;
+                    document.querySelector('.menu-screen h1').textContent = this.config.systemConfig.pageTitle;
+                    this.questionCount = this.config.systemConfig.defaultQuestionCount;
+                }
             }
 
             async loadAllQuestions() {
+                // 先載入配置
+                await this.loadConfig();
+                
                 this.questions = [];
                 this.subjects = [];
                 
@@ -824,9 +854,23 @@
             }
 
             applySubjectSelection() {
-                // 如果沒有設置啟用科目，則默認全部啟用
+                // 如果沒有設置啟用科目，根據配置決定是否全選
                 if (this.enabledSubjects.length === 0) {
-                    this.enabledSubjects = this.subjects.map(s => s.name);
+                    if (this.config && this.config.systemConfig.defaultSelectedSubjectIndex.length === 0) {
+                        // 如果配置中指定為全選，則選擇所有科目
+                        this.enabledSubjects = this.subjects.map(s => s.name);
+                    } else if (this.config) {
+                        // 否則根據配置選擇特定科目
+                        this.enabledSubjects = [];
+                        this.config.systemConfig.defaultSelectedSubjectIndex.forEach(index => {
+                            if (index <= this.subjects.length) {
+                                this.enabledSubjects.push(this.subjects[index - 1].name);
+                            }
+                        });
+                    } else {
+                        // 默認情況下選擇所有科目
+                        this.enabledSubjects = this.subjects.map(s => s.name);
+                    }
                 }
                 
                 // 過濾問題，只保留啟用科目的問題
@@ -872,7 +916,8 @@
             }
 
             getRecentCorrectIds() {
-                const history = JSON.parse(localStorage.getItem('examHistory') || '[]');
+                const keyName = this.config ? this.config.systemConfig.localStorageKeyName : 'haauhei_exam_system';
+                const history = JSON.parse(localStorage.getItem(keyName + '_history') || '[]');
                 const now = Date.now();
                 const tenDays = 10 * 24 * 60 * 60 * 1000; // 10天的毫秒數
                 
@@ -884,7 +929,8 @@
             }
 
             updateHistory(questionId, isCorrect) {
-                let history = JSON.parse(localStorage.getItem('examHistory') || '[]');
+                const keyName = this.config ? this.config.systemConfig.localStorageKeyName : 'haauhei_exam_system';
+                let history = JSON.parse(localStorage.getItem(keyName + '_history') || '[]');
                 
                 // 更新或添加記錄
                 const existingRecord = history.find(record => record.questionId === questionId);
@@ -904,12 +950,13 @@
                     history = history.slice(-1000);
                 }
                 
-                localStorage.setItem('examHistory', JSON.stringify(history));
+                localStorage.setItem(keyName + '_history', JSON.stringify(history));
             }
             
             // 獲取統計資訊
             getStatistics() {
-                const history = JSON.parse(localStorage.getItem('examHistory') || '[]');
+                const keyName = this.config ? this.config.systemConfig.localStorageKeyName : 'haauhei_exam_system';
+                const history = JSON.parse(localStorage.getItem(keyName + '_history') || '[]');
                 const totalAttempted = history.length;
                 const totalCorrect = history.filter(record => record.correct).length;
                 const totalWrong = totalAttempted - totalCorrect;
@@ -932,19 +979,22 @@
                     .slice(0, 10); // 只顯示前10個
                 
                 // 獲取題目詳細信息
-                const detailedWrongQuestions = sortedWrongQuestions.map(([questionId, count]) => {
-                    const question = this.questions.find(q => q.id === questionId);
-                    return {
-                        id: questionId,
-                        question: question ? question.question : '題目未找到',
-                        options: question ? question.options : [],
-                        correctAnswer: question ? question.correctAnswer : -1,
-                        explanation: question ? question.explanation : '無',
-                        reference: question ? question.reference || '無' : '無',
-                        count: count,
-                        subjectName: question ? question.subjectName : '未知科目'
-                    };
-                });
+                const detailedWrongQuestions = sortedWrongQuestions
+                    .map(([questionId, count]) => {
+                        const question = this.questions.find(q => q.id === questionId);
+                        if (!question) return null; // 如果找不到題目則跳過
+                        return {
+                            id: questionId,
+                            question: question.question,
+                            options: question.options,
+                            correctAnswer: question.correctAnswer,
+                            explanation: question.explanation,
+                            reference: question.reference || '無',
+                            count: count,
+                            subjectName: question.subjectName
+                        };
+                    })
+                    .filter(item => item !== null); // 過濾掉null項目
                 
                 return {
                     totalAttempted,
@@ -957,7 +1007,8 @@
             
             // 清空統計記錄
             clearStatistics() {
-                localStorage.removeItem('examHistory');
+                const keyName = this.config ? this.config.systemConfig.localStorageKeyName : 'haauhei_exam_system';
+                localStorage.removeItem(keyName + '_history');
             }
             
             // 導入題目文件（累加模式）
@@ -987,15 +1038,17 @@
             updateEnabledSubjects(selectedSubjects) {
                 this.enabledSubjects = selectedSubjects;
                 // 保存到本地存儲
-                localStorage.setItem('enabledSubjects', JSON.stringify(this.enabledSubjects));
+                const keyName = this.config ? this.config.systemConfig.localStorageKeyName : 'haauhei_exam_system';
+                localStorage.setItem(keyName + '_enabledSubjects', JSON.stringify(this.enabledSubjects));
                 // 重新載入題目
                 return this.loadAllQuestions();
             }
             
             // 獲取啟用的科目
             getEnabledSubjects() {
+                const keyName = this.config ? this.config.systemConfig.localStorageKeyName : 'haauhei_exam_system';
                 // 從本地存儲恢復
-                const saved = localStorage.getItem('enabledSubjects');
+                const saved = localStorage.getItem(keyName + '_enabledSubjects');
                 if (saved) {
                     this.enabledSubjects = JSON.parse(saved);
                 }
@@ -1006,13 +1059,15 @@
             updateQuestionCount(count) {
                 this.questionCount = count;
                 // 保存到本地存儲
-                localStorage.setItem('questionCount', count);
+                const keyName = this.config ? this.config.systemConfig.localStorageKeyName : 'haauhei_exam_system';
+                localStorage.setItem(keyName + '_questionCount', count);
             }
             
             // 獲取考試題數
             getQuestionCount() {
+                const keyName = this.config ? this.config.systemConfig.localStorageKeyName : 'haauhei_exam_system';
                 // 從本地存儲恢復
-                const saved = localStorage.getItem('questionCount');
+                const saved = localStorage.getItem(keyName + '_questionCount');
                 if (saved) {
                     this.questionCount = parseInt(saved);
                 }
