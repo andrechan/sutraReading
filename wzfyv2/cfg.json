@@ -14,7 +14,8 @@
       {
         "displayName": "甲二、諸行 乙一、現行", 
         "files": [
-          "subjects/0004.json","subjects/0005.json","subjects/0006.json","subjects/0007.json","subjects/0008.json","subjects/0009.json"
+          "subjects/0004.json","subjects/0005.json","subjects/0006.json","subjects/0007.json",
+          "subjects/0008.json","subjects/0009.json","subjects/0010.json"
         ]
       }
     ]
