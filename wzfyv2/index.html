@@ -772,7 +772,7 @@
 
             async loadConfig() {
                 try {
-                    const response = await fetch('0000.json');
+                    const response = await fetch('cfg.json');
                     if (response.ok) {
                         this.config = await response.json();
                         document.title = this.config.systemConfig.pageTitle;
