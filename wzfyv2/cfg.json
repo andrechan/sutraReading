@@ -6,9 +6,9 @@
     "defaultSelectedSubjectIndex": [0],
     "subjects": [
       {
-        "displayName": "甲一、前導",
+        "displayName": "甲一、前導(三自性與空有,唯識一詞之意義,唯識學之源流)",
         "files": [
-          "subjects/0001.json","subjects/0002.json","subjects/0003.json"
+          "subjects/1.1.三自性與空有.json","subjects/1.2.唯識一詞之意義.json","subjects/1.3.唯識學之源流.json"
         ]
       },
       {
