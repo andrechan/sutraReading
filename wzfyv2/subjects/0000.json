@@ -1,0 +1,8 @@
+{
+  "systemConfig": {
+    "localStorageKeyName": "haauhei_wzfy",
+    "pageTitle": "WZFY Test",
+    "defaultQuestionCount": 6,
+    "defaultSelectedSubjectIndex": [2]
+  }
+}
