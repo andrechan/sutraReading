@@ -459,28 +459,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            align-items: flex-start;
         }
 
         .subject-item:last-child {
             border-bottom: none;
         }
 
-        .subject-info {
-            flex: 1;
-            min-width: 0;
-        }
-
         .subject-name {
             font-weight: bold;
-            margin-bottom: 5px;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-
-        .file-name {
-            font-size: 12px;
-            color: #666;
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
@@ -505,7 +491,7 @@
 
         .checkbox-container {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             margin-right: 10px;
         }
 
@@ -522,8 +508,11 @@
         }
 
         .frequent-question-item {
-            padding: 10px;
+            padding: 15px;
             border-bottom: 1px solid #eee;
+            background: #f8f9fa;
+            margin-bottom: 10px;
+            border-radius: 5px;
         }
 
         .frequent-question-item:last-child {
@@ -531,8 +520,42 @@
         }
 
         .frequent-question-text {
-            font-size: 14px;
-            margin-bottom: 5px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .frequent-question-options {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 3px;
+        }
+
+        .frequent-option {
+            margin: 5px 0;
+            padding: 5px;
+        }
+
+        .frequent-correct-answer {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .frequent-explanation {
+            margin: 10px 0;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 3px;
+            color: #1976d2;
+        }
+
+        .frequent-reference {
+            margin: 10px 0;
+            padding: 5px;
+            background: #fff3cd;
+            border-radius: 3px;
+            color: #856404;
         }
 
         .frequent-question-meta {
@@ -540,6 +563,7 @@
             justify-content: space-between;
             font-size: 12px;
             color: #666;
+            margin-top: 10px;
         }
 
         @media (max-width: 768px) {
@@ -565,21 +589,17 @@
             }
             
             .subject-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
+                flex-direction: row;
+                align-items: center;
             }
             
-            .subject-info {
-                width: 100%;
+            .subject-name {
+                flex: 1;
+                margin-right: 10px;
             }
             
-            .source-tag {
-                align-self: flex-end;
-            }
-            
-            .checkbox-container {
-                align-self: flex-start;
+            .frequent-question-item {
+                padding: 10px;
             }
         }
     </style>
@@ -917,6 +937,10 @@
                     return {
                         id: questionId,
                         question: question ? question.question : '題目未找到',
+                        options: question ? question.options : [],
+                        correctAnswer: question ? question.correctAnswer : -1,
+                        explanation: question ? question.explanation : '無',
+                        reference: question ? question.reference || '無' : '無',
                         count: count,
                         subjectName: question ? question.subjectName : '未知科目'
                     };
@@ -1175,8 +1199,27 @@
                 frequentlyWrong.forEach(item => {
                     const itemElement = document.createElement('div');
                     itemElement.className = 'frequent-question-item';
+                    
+                    // 生成選項列表
+                    let optionsHtml = '';
+                    item.options.forEach((option, idx) => {
+                        const optionLetter = String.fromCharCode(65 + idx);
+                        const isCorrect = idx === item.correctAnswer;
+                        optionsHtml += `<div class="frequent-option">${optionLetter}. ${option} ${isCorrect ? '<span class="frequent-correct-answer">(正確)</span>' : ''}</div>`;
+                    });
+                    
                     itemElement.innerHTML = `
                         <div class="frequent-question-text">${item.question}</div>
+                        <div class="frequent-question-options">
+                            <strong>選項：</strong>
+                            ${optionsHtml}
+                        </div>
+                        <div class="frequent-explanation">
+                            <strong>解釋：</strong>${item.explanation}
+                        </div>
+                        <div class="frequent-reference">
+                            <strong>參考頁：</strong>${item.reference}
+                        </div>
                         <div class="frequent-question-meta">
                             <span>科目: ${item.subjectName}</span>
                             <span>錯誤次數: ${item.count}</span>
@@ -1199,10 +1242,7 @@
                         <div class="checkbox-container">
                             <input type="checkbox" id="subject-${subject.name}" ${isChecked ? 'checked' : ''}>
                         </div>
-                        <div class="subject-info">
-                            <div class="subject-name">${subject.name}</div>
-                            <div class="file-name">${subject.fileName}</div>
-                        </div>
+                        <div class="subject-name">${subject.name}</div>
                         <span class="source-tag ${subject.source === '導入' ? 'imported-tag' : 'local-tag'}">${subject.source}</span>
                     `;
                     
