@@ -41,6 +41,15 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        .header {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2em;
+            padding: 20px 0;
+            border-bottom: 2px solid #3498db;
+        }
+
         .menu-screen h1 {
             text-align: center;
             color: #2c3e50;
@@ -608,7 +617,7 @@
     <div class="container">
         <!-- 選單介面 -->
         <div id="menuScreen" class="screen active">
-            <h1>考試系統</h1>
+            <h1 class="header" id="header-title">載入中...</h1>
             <div class="menu-buttons">
                 <button id="examBtn" class="menu-btn">考試</button>
                 <button id="settingsBtn" class="menu-btn">設定</button>
@@ -619,6 +628,7 @@
 
         <!-- 考試介面 -->
         <div id="examScreen" class="screen">
+            <h1 class="header" id="exam-header">載入中...</h1>
             <button id="backToMenuBtn1" class="back-btn">返回主選單</button>
             <h2>考試進行中</h2>
             <div class="progress-container">
@@ -637,6 +647,7 @@
 
         <!-- 結果介面 -->
         <div id="resultScreen" class="screen">
+            <h1 class="header" id="result-header">載入中...</h1>
             <button id="backToMenuBtn2" class="back-btn">返回主選單</button>
             <h2>考試結果</h2>
             <div class="summary-stats">
@@ -661,6 +672,7 @@
 
         <!-- 設定介面 -->
         <div id="settingsScreen" class="screen">
+            <h1 class="header" id="settings-header">載入中...</h1>
             <button id="backToMenuBtn3" class="back-btn">返回主選單</button>
             <h2>考試設定</h2>
             
@@ -681,6 +693,7 @@
 
         <!-- 統計介面 -->
         <div id="statsScreen" class="screen">
+            <h1 class="header" id="stats-header">載入中...</h1>
             <button id="backToMenuBtn4" class="back-btn">返回主選單</button>
             <h2>學習統計</h2>
             <div class="stats-section">
@@ -719,6 +732,7 @@
 
         <!-- 數據介面 -->
         <div id="dataScreen" class="screen">
+            <h1 class="header" id="data-header">載入中...</h1>
             <button id="backToMenuBtn5" class="back-btn">返回主選單</button>
             <h2>數據管理</h2>
             
@@ -758,16 +772,13 @@
 
             async loadConfig() {
                 try {
-                    const response = await fetch('subjects/0000.json');
+                    const response = await fetch('0000.json');
                     if (response.ok) {
                         this.config = await response.json();
                         document.title = this.config.systemConfig.pageTitle;
                         
-                        // 更新選單介面標題
-                        const menuTitle = document.querySelector('.menu-screen h1');
-                        if (menuTitle) {
-                            menuTitle.textContent = this.config.systemConfig.pageTitle;
-                        }
+                        // 更新各個頁面的標題
+                        this.updatePageHeaders(this.config.systemConfig.pageTitle);
                         
                         this.questionCount = this.config.systemConfig.defaultQuestionCount;
                     }
@@ -784,14 +795,29 @@
                     };
                     document.title = this.config.systemConfig.pageTitle;
                     
-                    // 更新選單介面標題
-                    const menuTitle = document.querySelector('.menu-screen h1');
-                    if (menuTitle) {
-                        menuTitle.textContent = this.config.systemConfig.pageTitle;
-                    }
+                    // 更新各個頁面的標題
+                    this.updatePageHeaders(this.config.systemConfig.pageTitle);
                     
                     this.questionCount = this.config.systemConfig.defaultQuestionCount;
                 }
+            }
+
+            updatePageHeaders(title) {
+                // 更新所有頁面的標題
+                const headerElements = [
+                    document.getElementById('header-title'),
+                    document.getElementById('exam-header'),
+                    document.getElementById('result-header'),
+                    document.getElementById('settings-header'),
+                    document.getElementById('stats-header'),
+                    document.getElementById('data-header')
+                ];
+                
+                headerElements.forEach(element => {
+                    if (element) {
+                        element.textContent = title;
+                    }
+                });
             }
 
             async loadAllQuestions() {
@@ -804,49 +830,64 @@
                 // 載入本地JSON文件 - 支持一個科目多個文件
                 if (this.config && this.config.systemConfig.subjects) {
                     // 使用配置文件中的科目列表
-                    for (const subjectConfig of this.config.systemConfig.subjects) {
-                        try {
-                            const response = await fetch(subjectConfig.fileName);
-                            if (response.ok) {
-                                const subjectData = await response.json();
-                                
-                                // 檢查是否已有相同科目名稱的條目
-                                const existingSubject = this.subjects.find(s => s.name === subjectData.subjectName);
-                                
-                                if (existingSubject) {
-                                    // 如果已有相同科目名稱，則擴展該科目的題目
-                                    subjectData.questions.forEach((q, qIndex) => {
-                                        this.questions.push({
-                                            ...q,
-                                            id: `${subjectConfig.fileName}-${qIndex}`,
-                                            subjectName: subjectData.subjectName,
-                                            source: '本地',
-                                            fileName: subjectConfig.fileName
+                    for (let subjectIndex = 0; subjectIndex < this.config.systemConfig.subjects.length; subjectIndex++) {
+                        const subjectConfig = this.config.systemConfig.subjects[subjectIndex];
+                        
+                        // 檢查是否已有相同科目名稱的條目
+                        const existingSubject = this.subjects.find(s => s.name === subjectConfig.displayName);
+                        
+                        if (existingSubject) {
+                            // 如果已有相同科目名稱，則擴展該科目的題目
+                            for (const fileName of subjectConfig.files) {
+                                try {
+                                    const response = await fetch(fileName);
+                                    if (response.ok) {
+                                        const subjectData = await response.json();
+                                        
+                                        subjectData.questions.forEach((q, qIndex) => {
+                                            this.questions.push({
+                                                ...q,
+                                                id: `${fileName}-${qIndex}`,
+                                                subjectName: subjectData.subjectName,
+                                                source: '本地',
+                                                fileName: fileName
+                                            });
                                         });
-                                    });
-                                } else {
-                                    // 如果是新科目，則添加到科目列表
-                                    this.subjects.push({
-                                        name: subjectData.subjectName, 
-                                        source: '本地',
-                                        fileName: subjectConfig.fileName,
-                                        selected: true // 默認選中
-                                    });
-                                    
-                                    // 添加題目
-                                    subjectData.questions.forEach((q, qIndex) => {
-                                        this.questions.push({
-                                            ...q,
-                                            id: `${subjectConfig.fileName}-${qIndex}`,
-                                            subjectName: subjectData.subjectName,
-                                            source: '本地',
-                                            fileName: subjectConfig.fileName
-                                        });
-                                    });
+                                    }
+                                } catch (error) {
+                                    console.warn(`載入科目文件 ${fileName} 時出錯:`, error);
                                 }
                             }
-                        } catch (error) {
-                            console.warn(`載入科目文件 ${subjectConfig.fileName} 時出錯:`, error);
+                        } else {
+                            // 如果是新科目，則添加到科目列表
+                            this.subjects.push({
+                                name: subjectConfig.displayName, 
+                                source: '本地',
+                                fileName: subjectConfig.files.join(', '),
+                                selected: true // 默認選中
+                            });
+                            
+                            // 加載該科目包含的所有文件
+                            for (const fileName of subjectConfig.files) {
+                                try {
+                                    const response = await fetch(fileName);
+                                    if (response.ok) {
+                                        const subjectData = await response.json();
+                                        
+                                        subjectData.questions.forEach((q, qIndex) => {
+                                            this.questions.push({
+                                                ...q,
+                                                id: `${fileName}-${qIndex}`,
+                                                subjectName: subjectData.subjectName,
+                                                source: '本地',
+                                                fileName: fileName
+                                            });
+                                        });
+                                    }
+                                } catch (error) {
+                                    console.warn(`載入科目文件 ${fileName} 時出錯:`, error);
+                                }
+                            }
                         }
                     }
                 } else {
@@ -925,8 +966,8 @@
                         // 否則根據配置選擇特定科目
                         this.enabledSubjects = [];
                         this.config.systemConfig.defaultSelectedSubjectIndex.forEach(index => {
-                            if (index <= this.subjects.length) {
-                                this.enabledSubjects.push(this.subjects[index - 1].name);
+                            if (index >= 0 && index < this.subjects.length) {
+                                this.enabledSubjects.push(this.subjects[index].name);
                             }
                         });
                     } else {
@@ -1577,26 +1618,26 @@
                 this.uiManager.showScreen('resultScreen');
                 this.uiManager.renderResults(this.uiManager.examQuestions, this.uiManager.userAnswers);
             }
-            
+
+            renderSettingsScreen() {
+                // 設定考試題數
+                document.getElementById('questionCountSetting').value = this.dataManager.questionCount;
+                
+                // 渲染科目選擇
+                const enabledSubjects = this.dataManager.getEnabledSubjects();
+                this.uiManager.renderAvailableSubjects(this.dataManager.subjects, enabledSubjects, 'availableSubjectsSettings');
+            }
+
             updateStatsDisplay() {
                 const stats = this.dataManager.getStatistics();
                 this.uiManager.updateStatsDisplay(stats);
                 this.uiManager.renderFrequentlyWrongList(stats.frequentlyWrong);
             }
-            
-            renderSettingsScreen() {
-                // 設置題目數量
-                document.getElementById('questionCountSetting').value = this.dataManager.getQuestionCount();
-                
-                // 設置啟用科目
-                const enabledSubjects = this.dataManager.getEnabledSubjects();
-                this.uiManager.renderAvailableSubjects(this.dataManager.subjects, enabledSubjects, 'availableSubjectsSettings');
-            }
         }
 
         // 初始化應用
-        document.addEventListener('DOMContentLoaded', () => {
-            window.examSystem = new ExamSystem();
+        window.addEventListener('DOMContentLoaded', () => {
+            new ExamSystem();
         });
     </script>
 </body>
