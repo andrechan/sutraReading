@@ -3,6 +3,20 @@
     "localStorageKeyName": "haauhei_wzfy",
     "pageTitle": "WZFY Test",
     "defaultQuestionCount": 6,
-    "defaultSelectedSubjectIndex": [2]
+    "defaultSelectedSubjectIndex": [1,2],
+    "subjects": [
+      {
+        "name": "科目一",
+        "fileName": "subjects/0001.json"
+      },
+      {
+        "name": "科目二", 
+        "fileName": "subjects/0002.json"
+      },
+      {
+        "name": "科目三",
+        "fileName": "subjects/0003.json"
+      }
+    ]
   }
 }
