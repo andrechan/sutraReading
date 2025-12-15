@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HaauHei</title>
+    <title>HaauHei考試系統</title>
     <style>
         * {
             margin: 0;
@@ -445,7 +445,7 @@
         }
 
         .subject-list {
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
             margin-top: 10px;
             border: 1px solid #ddd;
@@ -454,23 +454,45 @@
         }
 
         .subject-item {
-            padding: 8px;
+            padding: 12px;
             border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            align-items: flex-start;
         }
 
         .subject-item:last-child {
             border-bottom: none;
         }
 
+        .subject-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .subject-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .file-name {
+            font-size: 12px;
+            color: #666;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
         .source-tag {
             background: #3498db;
             color: white;
-            padding: 2px 6px;
+            padding: 4px 8px;
             border-radius: 3px;
             font-size: 12px;
+            margin-left: 10px;
+            flex-shrink: 0;
         }
 
         .imported-tag {
@@ -481,21 +503,16 @@
             background: #27ae60;
         }
 
-        .file-name {
-            font-size: 14px;
-            color: #666;
-            margin-top: 5px;
-            word-break: break-all;
-        }
-
         .checkbox-container {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
+            margin-right: 10px;
         }
 
         .checkbox-container input[type="checkbox"] {
             margin-right: 10px;
             transform: scale(1.2);
+            flex-shrink: 0;
         }
 
         .error-message {
@@ -546,6 +563,24 @@
             .stats-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .subject-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .subject-info {
+                width: 100%;
+            }
+            
+            .source-tag {
+                align-self: flex-end;
+            }
+            
+            .checkbox-container {
+                align-self: flex-start;
+            }
         }
     </style>
 </head>
@@ -553,7 +588,7 @@
     <div class="container">
         <!-- 選單介面 -->
         <div id="menuScreen" class="screen active">
-            <h1><center>HaauHei</center></h1>
+            <h1>HaauHei考試系統</h1>
             <div class="menu-buttons">
                 <button id="examBtn" class="menu-btn">考試</button>
                 <button id="settingsBtn" class="menu-btn">設定</button>
@@ -1163,9 +1198,10 @@
                     item.innerHTML = `
                         <div class="checkbox-container">
                             <input type="checkbox" id="subject-${subject.name}" ${isChecked ? 'checked' : ''}>
-                            <label for="subject-${subject.name}">
-                                <div><font size=1>${subject.name}</font></div>
-                            </label>
+                        </div>
+                        <div class="subject-info">
+                            <div class="subject-name">${subject.name}</div>
+                            <div class="file-name">${subject.fileName}</div>
                         </div>
                         <span class="source-tag ${subject.source === '導入' ? 'imported-tag' : 'local-tag'}">${subject.source}</span>
                     `;
