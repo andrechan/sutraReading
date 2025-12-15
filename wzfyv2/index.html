@@ -830,63 +830,40 @@
                 // 載入本地JSON文件 - 支持一個科目多個文件
                 if (this.config && this.config.systemConfig.subjects) {
                     // 使用配置文件中的科目列表
-                    for (let subjectIndex = 0; subjectIndex < this.config.systemConfig.subjects.length; subjectIndex++) {
-                        const subjectConfig = this.config.systemConfig.subjects[subjectIndex];
+                    for (const subjectConfig of this.config.systemConfig.subjects) {
+                        // 檢查是否已有相同 displayName 的科目
+                        let existingSubject = this.subjects.find(s => s.name === subjectConfig.displayName);
                         
-                        // 檢查是否已有相同科目名稱的條目
-                        const existingSubject = this.subjects.find(s => s.name === subjectConfig.displayName);
-                        
-                        if (existingSubject) {
-                            // 如果已有相同科目名稱，則擴展該科目的題目
-                            for (const fileName of subjectConfig.files) {
-                                try {
-                                    const response = await fetch(fileName);
-                                    if (response.ok) {
-                                        const subjectData = await response.json();
-                                        
-                                        subjectData.questions.forEach((q, qIndex) => {
-                                            this.questions.push({
-                                                ...q,
-                                                id: `${fileName}-${qIndex}`,
-                                                subjectName: subjectData.subjectName,
-                                                source: '本地',
-                                                fileName: fileName
-                                            });
-                                        });
-                                    }
-                                } catch (error) {
-                                    console.warn(`載入科目文件 ${fileName} 時出錯:`, error);
-                                }
-                            }
-                        } else {
-                            // 如果是新科目，則添加到科目列表
-                            this.subjects.push({
-                                name: subjectConfig.displayName, 
+                        if (!existingSubject) {
+                            // 如果不存在，創建新的科目條目
+                            existingSubject = {
+                                name: subjectConfig.displayName,
                                 source: '本地',
                                 fileName: subjectConfig.files.join(', '),
                                 selected: true // 默認選中
-                            });
-                            
-                            // 加載該科目包含的所有文件
-                            for (const fileName of subjectConfig.files) {
-                                try {
-                                    const response = await fetch(fileName);
-                                    if (response.ok) {
-                                        const subjectData = await response.json();
-                                        
-                                        subjectData.questions.forEach((q, qIndex) => {
-                                            this.questions.push({
-                                                ...q,
-                                                id: `${fileName}-${qIndex}`,
-                                                subjectName: subjectData.subjectName,
-                                                source: '本地',
-                                                fileName: fileName
-                                            });
+                            };
+                            this.subjects.push(existingSubject);
+                        }
+                        
+                        // 加載該科目包含的所有文件
+                        for (const fileName of subjectConfig.files) {
+                            try {
+                                const response = await fetch(fileName);
+                                if (response.ok) {
+                                    const subjectData = await response.json();
+                                    
+                                    subjectData.questions.forEach((q, qIndex) => {
+                                        this.questions.push({
+                                            ...q,
+                                            id: `${fileName}-${qIndex}`,
+                                            subjectName: subjectConfig.displayName, // 使用配置文件中的displayName
+                                            source: '本地',
+                                            fileName: fileName
                                         });
-                                    }
-                                } catch (error) {
-                                    console.warn(`載入科目文件 ${fileName} 時出錯:`, error);
+                                    });
                                 }
+                            } catch (error) {
+                                console.warn(`載入科目文件 ${fileName} 時出錯:`, error);
                             }
                         }
                     }
