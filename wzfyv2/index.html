@@ -801,37 +801,87 @@
                 this.questions = [];
                 this.subjects = [];
                 
-                // 先載入本地JSON文件
-                let index = 1;
-                while (true) {
-                    try {
-                        const response = await fetch(`subjects/${String(index).padStart(4, '0')}.json`);
-                        if (!response.ok) {
+                // 載入本地JSON文件 - 支持一個科目多個文件
+                if (this.config && this.config.systemConfig.subjects) {
+                    // 使用配置文件中的科目列表
+                    for (const subjectConfig of this.config.systemConfig.subjects) {
+                        try {
+                            const response = await fetch(subjectConfig.fileName);
+                            if (response.ok) {
+                                const subjectData = await response.json();
+                                
+                                // 檢查是否已有相同科目名稱的條目
+                                const existingSubject = this.subjects.find(s => s.name === subjectData.subjectName);
+                                
+                                if (existingSubject) {
+                                    // 如果已有相同科目名稱，則擴展該科目的題目
+                                    subjectData.questions.forEach((q, qIndex) => {
+                                        this.questions.push({
+                                            ...q,
+                                            id: `${subjectConfig.fileName}-${qIndex}`,
+                                            subjectName: subjectData.subjectName,
+                                            source: '本地',
+                                            fileName: subjectConfig.fileName
+                                        });
+                                    });
+                                } else {
+                                    // 如果是新科目，則添加到科目列表
+                                    this.subjects.push({
+                                        name: subjectData.subjectName, 
+                                        source: '本地',
+                                        fileName: subjectConfig.fileName,
+                                        selected: true // 默認選中
+                                    });
+                                    
+                                    // 添加題目
+                                    subjectData.questions.forEach((q, qIndex) => {
+                                        this.questions.push({
+                                            ...q,
+                                            id: `${subjectConfig.fileName}-${qIndex}`,
+                                            subjectName: subjectData.subjectName,
+                                            source: '本地',
+                                            fileName: subjectConfig.fileName
+                                        });
+                                    });
+                                }
+                            }
+                        } catch (error) {
+                            console.warn(`載入科目文件 ${subjectConfig.fileName} 時出錯:`, error);
+                        }
+                    }
+                } else {
+                    // 如果沒有配置文件或配置文件中沒有科目列表，則按原有方式載入
+                    let index = 1;
+                    while (true) {
+                        try {
+                            const response = await fetch(`subjects/${String(index).padStart(4, '0')}.json`);
+                            if (!response.ok) {
+                                break;
+                            }
+                            
+                            const subjectData = await response.json();
+                            this.subjects.push({
+                                name: subjectData.subjectName, 
+                                source: '本地',
+                                fileName: `subjects/${String(index).padStart(4, '0')}.json`,
+                                selected: true // 默認選中
+                            });
+                            
+                            subjectData.questions.forEach((q, qIndex) => {
+                                this.questions.push({
+                                    ...q,
+                                    id: `${index}-${qIndex}`,
+                                    subjectName: subjectData.subjectName,
+                                    source: '本地',
+                                    fileName: `subjects/${String(index).padStart(4, '0')}.json`
+                                });
+                            });
+                            
+                            index++;
+                        } catch (error) {
+                            // 當讀取JSON文件出錯時，不顯示錯誤信息，繼續嘗試下一個文件
                             break;
                         }
-                        
-                        const subjectData = await response.json();
-                        this.subjects.push({
-                            name: subjectData.subjectName, 
-                            source: '本地',
-                            fileName: `subjects/${String(index).padStart(4, '0')}.json`,
-                            selected: true // 默認選中
-                        });
-                        
-                        subjectData.questions.forEach((q, qIndex) => {
-                            this.questions.push({
-                                ...q,
-                                id: `${index}-${qIndex}`,
-                                subjectName: subjectData.subjectName,
-                                source: '本地',
-                                fileName: `subjects/${String(index).padStart(4, '0')}.json`
-                            });
-                        });
-                        
-                        index++;
-                    } catch (error) {
-                        // 當讀取JSON文件出錯時，不顯示錯誤信息，繼續嘗試下一個文件
-                        break;
                     }
                 }
                 
