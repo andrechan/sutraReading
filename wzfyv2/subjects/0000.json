@@ -1,21 +1,21 @@
 {
   "systemConfig": {
     "localStorageKeyName": "haauhei_wzfy",
-    "pageTitle": "WZFY Test",
+    "pageTitle": "WZFY",
     "defaultQuestionCount": 6,
-    "defaultSelectedSubjectIndex": [1,2],
+    "defaultSelectedSubjectIndex": [0],
     "subjects": [
       {
-        "name": "科目一",
-        "fileName": "subjects/0001.json"
+        "displayName": "甲一、前導",
+        "files": [
+          "subjects/0001.json","subjects/0002.json","subjects/0003.json"
+        ]
       },
       {
-        "name": "科目二", 
-        "fileName": "subjects/0002.json"
-      },
-      {
-        "name": "科目三",
-        "fileName": "subjects/0003.json"
+        "displayName": "甲二、諸行 乙一、現行", 
+        "files": [
+          "subjects/0004.json","subjects/0005.json","subjects/0006.json","subjects/0007.json","subjects/0008.json","subjects/0009.json"
+        ]
       }
     ]
   }
