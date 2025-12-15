@@ -762,7 +762,13 @@
                     if (response.ok) {
                         this.config = await response.json();
                         document.title = this.config.systemConfig.pageTitle;
-                        document.querySelector('.menu-screen h1').textContent = this.config.systemConfig.pageTitle;
+                        
+                        // 更新選單介面標題
+                        const menuTitle = document.querySelector('.menu-screen h1');
+                        if (menuTitle) {
+                            menuTitle.textContent = this.config.systemConfig.pageTitle;
+                        }
+                        
                         this.questionCount = this.config.systemConfig.defaultQuestionCount;
                     }
                 } catch (error) {
@@ -777,7 +783,13 @@
                         }
                     };
                     document.title = this.config.systemConfig.pageTitle;
-                    document.querySelector('.menu-screen h1').textContent = this.config.systemConfig.pageTitle;
+                    
+                    // 更新選單介面標題
+                    const menuTitle = document.querySelector('.menu-screen h1');
+                    if (menuTitle) {
+                        menuTitle.textContent = this.config.systemConfig.pageTitle;
+                    }
+                    
                     this.questionCount = this.config.systemConfig.defaultQuestionCount;
                 }
             }
