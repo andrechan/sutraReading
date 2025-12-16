@@ -51,9 +51,10 @@
         ]
       },
       {
-        "displayName":"甲二、諸行 乙三、緣生 丙一、辨緣",
+        "displayName":"甲二、諸行 乙三、緣生",
         "files":[
-            "subjects/2.3.1.甲二諸行 乙三緣生 丙一辨緣.json"
+            "subjects/2.3.1.甲二諸行 乙三緣生 丙一辨緣.json",
+            "subjects/2.3.2.甲二諸行 乙三緣生 丙二辨生.json"
         ]
       }
     ]
