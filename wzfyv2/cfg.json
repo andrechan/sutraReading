@@ -56,6 +56,24 @@
             "subjects/2.3.1.甲二諸行 乙三緣生 丙一辨緣.json",
             "subjects/2.3.2.甲二諸行 乙三緣生 丙二辨生.json"
         ]
+      },
+      {
+        "displayName":"甲三、真如",
+        "files":[
+            "subjects/3.甲三真如.json"
+        ]
+      },
+      {
+        "displayName":"甲四、解行 乙一、量論",
+        "files":[
+            "subjects/4.1.甲四解行 乙一量論.json"
+        ]
+      },
+      {
+        "displayName":"甲四、解行 乙二、修行方法",
+        "files":[
+            "subjects/4.2.甲四解行 乙二修行方法.json"
+        ]
       }
     ]
   }
