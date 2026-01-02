@@ -1,0 +1,99 @@
+/* styles.css */
+/* Define styles for the main text elements */
+.D1, .D2, .D3, .D4, .D5 {
+  font-size: 1.2em;
+  margin: 15px 0;
+  padding: 10px;
+  border-left: 3px solid #007bff;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+}
+
+.Q1, .Q2, .Q3, .Q4, .Q5 {
+  color: #007bff;
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-bottom: 5px;
+}
+
+.in_index {
+  background-color: #e9ecef;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 0.95em;
+  color: #495057;
+  margin-top: 5px;
+}
+
+/* Level-based visibility system */
+.level-1 { display: block; }
+.level-2 { display: block; }
+.level-3 { display: block; }
+.level-4 { display: block; }
+.level-5 { display: block; }
+
+/* Hide levels by default - can be toggled with JavaScript */
+.hide-level-2 .level-2,
+.hide-level-3 .level-3,
+.hide-level-4 .level-4,
+.hide-level-5 .level-5 {
+  display: none;
+}
+
+/* Alternative approach using opacity for smoother transitions */
+.fade-level-2 .level-2,
+.fade-level-3 .level-3,
+.fade-level-4 .level-4,
+.fade-level-5 .level-5 {
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Different styling for different levels */
+.D1 { border-left-color: #007bff; }
+.D2 { border-left-color: #28a745; }
+.D3 { border-left-color: #ffc107; }
+.D4 { border-left-color: #dc3545; }
+.D5 { border-left-color: #6f42c1; }
+
+/* Collapsible sections */
+.collapsible-content {
+  max-height: 500px;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.collapsible-content.collapsed {
+  max-height: 0;
+}
+
+/* Toggle button styling */
+.level-toggle-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.8em;
+  margin: 5px;
+}
+
+.level-toggle-btn:hover {
+  background-color: #0056b3;
+}
+
+.level-toggle-btn.level-2 { background-color: #28a745; }
+.level-toggle-btn.level-2:hover { background-color: #1e7e34; }
+
+.level-toggle-btn.level-3 { background-color: #ffc107; }
+.level-toggle-btn.level-3:hover { background-color: #d39e00; }
+
+.level-toggle-btn.level-4 { background-color: #dc3545; }
+.level-toggle-btn.level-4:hover { background-color: #c82333; }
+
+.level-toggle-btn.level-5 { background-color: #6f42c1; }
+.level-toggle-btn.level-5:hover { background-color: #5a32a3; }
