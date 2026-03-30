@@ -1,0 +1,223 @@
+/* Basic styles for Diamond Sutra project */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+h1, h2, h3 {
+    color: #333;
+    text-align: center;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.nav-links {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.nav-links a {
+    display: inline-block;
+    margin: 0 10px;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+}
+
+.content {
+    line-height: 1.6;
+    color: #444;
+}
+
+.sutra-text {
+    font-size: 18px;
+    line-height: 2;
+    text-align: center;
+    margin: 20px 0;
+    padding: 20px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+}
+
+.translation {
+    font-size: 16px;
+    line-height: 1.8;
+    margin: 15px 0;
+    padding: 15px;
+    background-color: #f0f8ff;
+    border-left: 4px solid #007bff;
+}
+
+.annotation {
+    font-size: 14px;
+    color: #666;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.chapter-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin: 20px 0;
+    text-align: center;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #34495e;
+    margin: 15px 0;
+    text-align: center;
+}
+
+.verse {
+    font-style: italic;
+    text-align: center;
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #fff8dc;
+    border: 1px dashed #ccc;
+}
+
+.note {
+    font-size: 14px;
+    color: #888;
+    margin: 10px 0;
+    padding: 10px;
+    border-left: 3px solid #ccc;
+}
+
+.highlight {
+    background-color: #ffffcc;
+    padding: 2px 4px;
+}
+
+.quote {
+    font-style: italic;
+    margin: 15px 0;
+    padding: 15px;
+    border-left: 3px solid #007bff;
+    background-color: #f8f9fa;
+}
+
+.back-to-top {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.back-to-top a {
+    font-size: 14px;
+    color: #666;
+}
+
+/* Collapsible outline: 天干→地支→千字文 層級（desc-levels.js） */
+body.sutra-outline-enabled .sutra-outline-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    margin: 0 0 0.75rem 0;
+    background: linear-gradient(to bottom, #faf8f5 90%, transparent);
+    border-bottom: 1px solid #e8e4dc;
+}
+
+body.sutra-outline-enabled .sutra-outline-toolbar-btn {
+    font: inherit;
+    font-size: 0.875rem;
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+    border: 1px solid #c4bdb0;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+}
+
+body.sutra-outline-enabled .sutra-outline-toolbar-btn:hover {
+    background: #f3f0ea;
+    border-color: #a69f8f;
+}
+
+body.sutra-outline-enabled .sutra-outline-toolbar-btn:focus-visible {
+    outline: 2px solid #6b6348;
+    outline-offset: 2px;
+}
+
+body.sutra-outline-enabled .sutra-outline-block {
+    margin-left: calc(var(--sutra-depth, 0) * 0.65rem);
+    border-left: 2px solid #e8e4dc;
+    padding-left: 0.5rem;
+    margin-bottom: 0.35rem;
+}
+
+body.sutra-outline-enabled .sutra-outline-block.sutra-outline-hidden {
+    display: none;
+}
+
+body.sutra-outline-enabled .in_index.sutra-level-toggle {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    padding: 0.2rem 0 0.2rem 1.15rem;
+    margin: 0 -0.25rem;
+    border-radius: 4px;
+    transition: background-color 0.15s ease;
+}
+
+body.sutra-outline-enabled .in_index.sutra-level-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+body.sutra-outline-enabled .in_index.sutra-level-toggle::before {
+    content: '\25bc';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.55rem;
+    color: #666;
+    line-height: 1;
+}
+
+body.sutra-outline-enabled .in_index.sutra-level-toggle.sutra-level-collapsed::before {
+    content: '\25b6';
+}
+
+body.sutra-outline-enabled .in_index .subIndex {
+    font-weight: normal;
+    opacity: 0.88;
+    font-size: 0.92em;
+}
+
+/* Fold 經、纂釋 under the same heading (incl. leaf blocks with no sub-levels) */
+body.sutra-outline-enabled .sutra-outline-block.sutra-outline-body-collapsed > .in_sutra,
+body.sutra-outline-enabled .sutra-outline-block.sutra-outline-body-collapsed > .in_commentary {
+    display: none;
+}
