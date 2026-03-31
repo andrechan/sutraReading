@@ -1,3 +1,17 @@
+/* 【…】 emphasis in desc_2 / desc_3 (desc-bracket-emphasis.js) */
+.desc-bracket-em {
+    font-weight: bold;
+    font-size: 1.08em;
+    color: #b71c1c;
+    line-height: inherit;
+}
+
+body.desc-source-page .desc-bracket-em a {
+    color: #c62828;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
 /* Basic styles for Diamond Sutra project */
 body {
     font-family: Arial, sans-serif;
@@ -135,18 +149,75 @@ a:hover {
 }
 
 /* Collapsible outline: 天干→地支→千字文 層級（desc-levels.js） */
-body.sutra-outline-enabled .sutra-outline-toolbar {
+body.sutra-outline-enabled .sutra-outline-sticky-head {
     position: sticky;
     top: 0;
     z-index: 200;
+    margin: 0 0 0.75rem 0;
+    background: linear-gradient(to bottom, #faf8f5 92%, rgba(250, 248, 245, 0.97));
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+body.sutra-outline-enabled .sutra-outline-toolbar {
+    position: static;
+    z-index: auto;
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     align-items: center;
     padding: 0.5rem 0.75rem;
-    margin: 0 0 0.75rem 0;
-    background: linear-gradient(to bottom, #faf8f5 90%, transparent);
+    margin: 0;
+    background: transparent;
     border-bottom: 1px solid #e8e4dc;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+body.sutra-outline-enabled .sutra-outline-breadcrumb {
+    padding: 0.35rem 0.75rem 0.5rem;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: #4a453c;
+    border-bottom: 1px solid #e8e4dc;
+    min-height: 1.35em;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0;
+    row-gap: 0.2rem;
+    overflow-x: visible;
+    overflow-y: visible;
+}
+
+body.sutra-outline-enabled .sutra-outline-breadcrumb--inactive {
+    display: none;
+}
+
+body.sutra-outline-enabled .sutra-outline-breadcrumb-seg {
+    flex: 0 1 auto;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+body.sutra-outline-enabled .sutra-outline-breadcrumb-seg:not(:last-child)::after {
+    content: '、';
 }
 
 body.sutra-outline-enabled .sutra-outline-toolbar-btn {
@@ -168,6 +239,37 @@ body.sutra-outline-enabled .sutra-outline-toolbar-btn:hover {
 body.sutra-outline-enabled .sutra-outline-toolbar-btn:focus-visible {
     outline: 2px solid #6b6348;
     outline-offset: 2px;
+}
+
+body.sutra-outline-enabled .sutra-outline-toolbar-mode {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+}
+
+body.sutra-outline-enabled .sutra-outline-toolbar-mode .sutra-outline-toolbar-btn[aria-pressed="true"] {
+    background: #e8e3da;
+    border-color: #a69f8f;
+}
+
+body.sutra-outline-enabled .in_sutra {
+    font-weight: bold;
+    font-size: 1.08em;
+    color: #b71c1c;
+    line-height: 1.65;
+}
+
+body.sutra-outline-enabled .in_sutra a {
+    color: #c62828;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+body.sutra-outline-enabled .in_sutra a:hover {
+    color: #8e0000;
 }
 
 body.sutra-outline-enabled .sutra-outline-block {
@@ -216,8 +318,293 @@ body.sutra-outline-enabled .in_index .subIndex {
     font-size: 0.92em;
 }
 
-/* Fold 經、纂釋 under the same heading (incl. leaf blocks with no sub-levels) */
+/* Default: show 【經】, hide 【纂釋】; click 【經】 toggles .sutra-show-commentary (desc-levels.js) */
+body.sutra-outline-enabled .sutra-outline-block.sutra-has-commentary > .in_commentary {
+    display: none;
+}
+
+body.sutra-outline-enabled .sutra-outline-block.sutra-has-commentary.sutra-show-commentary > .in_commentary {
+    display: block;
+}
+
+body.sutra-outline-enabled .sutra-outline-block.sutra-has-commentary > .in_sutra.sutra-sutra-click-toggle {
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 0.15rem 0.25rem;
+    margin: 0 -0.25rem;
+    transition: background-color 0.12s ease;
+}
+
+body.sutra-outline-enabled .sutra-outline-block.sutra-has-commentary > .in_sutra.sutra-sutra-click-toggle:hover {
+    background-color: rgba(183, 28, 28, 0.08);
+}
+
+/* Fold 經、纂釋 under the same heading (outline heading click) */
 body.sutra-outline-enabled .sutra-outline-block.sutra-outline-body-collapsed > .in_sutra,
 body.sutra-outline-enabled .sutra-outline-block.sutra-outline-body-collapsed > .in_commentary {
-    display: none;
+    display: none !important;
+}
+
+/* Merged remark files (desc_2–4 → desc_1), see desc-remarks.js */
+body.sutra-remarks-merged .sutra-remarks {
+    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed #d8d0c4;
+    clear: both;
+}
+
+body.sutra-remarks-merged .sutra-remarks-toggle {
+    font: inherit;
+    font-size: 0.8125rem;
+    padding: 0.25rem 0.6rem;
+    cursor: pointer;
+    border: 1px solid #c4bdb0;
+    border-radius: 4px;
+    background: #f7f4ee;
+    color: #4a453a;
+}
+
+body.sutra-remarks-merged .sutra-remarks-toggle:hover {
+    background: #ede8de;
+}
+
+body.sutra-remarks-merged .sutra-remarks-toggle::before {
+    content: '\25b6\00a0';
+    font-size: 0.65rem;
+    vertical-align: middle;
+}
+
+body.sutra-remarks-merged .sutra-remarks-toggle.sutra-remarks-toggle-open::before {
+    content: '\25bc\00a0';
+}
+
+body.sutra-remarks-merged .sutra-remarks-panel {
+    margin-top: 0.65rem;
+    padding: 0.5rem 0.65rem 0.75rem;
+    background: #faf8f4;
+    border: 1px solid #e5dfd3;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: #3d3a33;
+}
+
+body.sutra-remarks-merged .sutra-remark-section + .sutra-remark-section {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e8e2d6;
+}
+
+body.sutra-remarks-merged .sutra-remark-heading {
+    margin: 0 0 0.4rem 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #5c5648;
+}
+
+body.sutra-remarks-merged .sutra-remark-body .sutraLine {
+    font-weight: 600;
+    margin: 0.5rem 0;
+}
+
+a.sutra-outline-toolbar-btn.sutra-remarks-toolbar-link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    box-sizing: border-box;
+}
+
+a.sutra-outline-toolbar-btn.sutra-remarks-toolbar-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* reader.html: load failure hint (reader-remarks.js) */
+body .reader-remarks-fail-hint {
+    margin: 0 0 0.75rem 0;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: #5c3d2e;
+    background: #fff3e0;
+    border: 1px solid #e0a96c;
+    border-radius: 6px;
+}
+
+body .reader-remarks-fail-hint code {
+    font-size: 0.9em;
+    padding: 0.1em 0.35em;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 3px;
+}
+
+/* reader.html: merged desc_2–4 notes (reader-remarks.js) */
+body.reader-cross-remarks .reader-extra-notes {
+    margin-top: 0.65rem;
+    padding-top: 0.45rem;
+    border-top: 1px dashed #d0c8bc;
+    clear: both;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.5rem;
+    align-items: center;
+}
+
+/* One row of toggles; panels span full width below (order + display:contents). */
+body.reader-cross-remarks .reader-source-note {
+    display: contents;
+}
+
+body.reader-cross-remarks .reader-note-toggle {
+    order: 1;
+    flex: 0 0 auto;
+    font: inherit;
+    font-size: 0.8125rem;
+    padding: 0.25rem 0.55rem;
+    cursor: pointer;
+    border: 1px solid #b8b0a2;
+    border-radius: 4px;
+    background: #f2efe8;
+    color: #3d392f;
+}
+
+body.reader-cross-remarks .reader-note-toggle:hover {
+    background: #e8e3da;
+}
+
+body.reader-cross-remarks .reader-note-toggle::before {
+    content: '\25b6\00a0';
+    font-size: 0.65rem;
+    vertical-align: middle;
+}
+
+body.reader-cross-remarks .reader-source-note.reader-note-open .reader-note-toggle::before {
+    content: '\25bc\00a0';
+}
+
+body.reader-cross-remarks .reader-note-panel {
+    order: 2;
+    flex: 1 1 100%;
+    min-width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-top: 0;
+    padding: 0.5rem 0.65rem 0.75rem;
+    background: #f9f7f2;
+    border: 1px solid #e0d9ce;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: #3a3630;
+    max-height: 70vh;
+    overflow: auto;
+}
+
+body.reader-cross-remarks .reader-note-panel--zanshu {
+    background: #fffbeb;
+    border-color: #e8d9a0;
+}
+
+body.reader-cross-remarks .reader-note-panel--shuolun {
+    background: #ecfdf3;
+    border-color: #b5d4bf;
+}
+
+body.reader-cross-remarks .reader-note-panel--lunshi {
+    background: #eff6ff;
+    border-color: #a8c4e8;
+}
+
+body.reader-cross-remarks.reader-hide-ref-note-toggles .reader-note-toggle {
+    display: none !important;
+}
+
+body.sutra-outline-enabled .reader-ref-toolbar-sep {
+    color: #a69f8f;
+    font-size: 0.875rem;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+body.reader-cross-remarks .reader-ref-master-toolbar-fallback {
+    position: sticky;
+    top: 0;
+    z-index: 199;
+    padding: 0.45rem 0.75rem;
+    margin: 0 0 0.5rem 0;
+    background: #faf8f5;
+    border-bottom: 1px solid #e8e4dc;
+}
+
+body.reader-cross-remarks .reader-note-panel .sutraLine,
+body.reader-cross-remarks .reader-note-panel div.lines {
+    font-weight: 600;
+    margin: 0.45rem 0;
+}
+
+body.reader-cross-remarks hr.reader-note-part-sep {
+    border: none;
+    border-top: 1px dashed #d8d0c4;
+    margin: 0.75rem 0;
+}
+
+/* Mobile: tighter page margins and chrome (reader + outline) */
+@media (max-width: 768px) {
+    body.sutra-outline-enabled {
+        padding-top: max(2px, env(safe-area-inset-top, 0px));
+        padding-right: max(4px, env(safe-area-inset-right, 0px));
+        padding-bottom: 12px;
+        padding-left: max(4px, env(safe-area-inset-left, 0px));
+    }
+
+    body.sutra-outline-enabled .sutra-outline-sticky-head {
+        margin-bottom: 0.5rem;
+    }
+
+    body.sutra-outline-enabled .sutra-outline-toolbar {
+        padding: 0.35rem 0.4rem;
+        gap: 0.35rem;
+    }
+
+    body.sutra-outline-enabled .sutra-outline-toolbar-mode {
+        gap: 0.35rem;
+    }
+
+    body.sutra-outline-enabled .sutra-outline-toolbar-btn {
+        padding: 0.3rem 0.45rem;
+        font-size: 0.8125rem;
+    }
+
+    body.sutra-outline-enabled .sutra-outline-breadcrumb {
+        padding: 0.28rem 0.4rem 0.38rem;
+        font-size: 0.8rem;
+    }
+
+    body.sutra-outline-enabled .sutra-outline-block {
+        margin-left: calc(var(--sutra-depth, 0) * 0.42rem);
+        padding-left: 0.35rem;
+    }
+
+    body.sutra-outline-enabled .in_index.sutra-level-toggle {
+        padding: 0.18rem 0 0.18rem 0.75rem;
+    }
+
+    body.sutra-outline-enabled .reader-remarks-fail-hint {
+        padding: 0.4rem 0.45rem;
+        margin-bottom: 0.5rem;
+    }
+
+    body.reader-cross-remarks .reader-extra-notes {
+        margin-top: 0.45rem;
+        padding-top: 0.35rem;
+    }
+
+    body.reader-cross-remarks .reader-note-panel {
+        padding: 0.4rem 0.45rem 0.55rem;
+    }
+
+    body.reader-cross-remarks .reader-ref-master-toolbar-fallback {
+        padding: 0.35rem 0.4rem;
+    }
 }
