@@ -1,7 +1,10 @@
 /**
  * Outline levels from (甲一)(乙一)… 天干 → 地支 → 千字文 順序。
  * Click .in_index: solo 大綱（收合其他支線），並強制保留該節與所有上層之經文／纂釋可見；
- * 頂端單鍵「全部收合／全部展開」切換可重置此模式。
+ * 有下屆科判（子區塊）之節：再次點擊同一索引列可隱藏或顯示其下全部子節（如丙、丁諸節）。
+ * 含 .subIndex 之節（且無子區塊時）：再次點擊可隱藏或顯示細目與本節經／纂釋。
+ * 僅有經／纂釋無細目、無子區塊者：再次點擊僅切換正文顯示。
+ * 頂端單鍵「收合／展開」切換可重置此模式。
  */
 (function () {
   'use strict';
@@ -172,6 +175,12 @@
     var nextPeer = computeNextPeer(depths);
     var collapsed = {};
     var toggleMeta = new Array(blocks.length);
+    /** 使用者對該節「經／纂釋」按索引收起後為 true（僅用於無 .subIndex 之列）。 */
+    var userBodyHidden = {};
+    /** 含 subIndex 之列：再次點擊為 true 時隱藏細目與本節經／纂釋。 */
+    var userOutlineCompact = {};
+    /** 有子區塊之列：再次點擊為 true 時隱藏 nextPeer 範圍內所有下層區塊。 */
+    var userBranchCollapsed = {};
     /** Last block focused via 大綱點選；用於強制保留該路徑上所有上層的經文／纂釋與區塊可見。 */
     var lastOutlineFocusIdx = -1;
 
@@ -240,7 +249,20 @@
         'aria-pressed',
         allC ? 'true' : 'false'
       );
-      outlineMasterToggleBtn.textContent = allC ? '全部展開' : '全部收合';
+      outlineMasterToggleBtn.textContent = allC ? '展開' : '收合';
+    }
+
+    function refreshBranchChildClasses() {
+      for (var i = 0; i < blocks.length; i++) {
+        blocks[i].classList.remove('sutra-outline-branch-child-hidden');
+      }
+      for (var p = 0; p < blocks.length; p++) {
+        if (!userBranchCollapsed[p]) continue;
+        var end = nextPeer[p];
+        for (var j = p + 1; j < end; j++) {
+          blocks[j].classList.add('sutra-outline-branch-child-hidden');
+        }
+      }
     }
 
     function refreshOutlineUi() {
@@ -250,20 +272,50 @@
         var meta = toggleMeta[t];
         if (!meta) continue;
         var on = !!collapsed[t];
-        var expanded = !on || isOnOutlineFocusPath(t);
-        meta.indexNode.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-        meta.indexNode.classList.toggle('sutra-level-collapsed', !expanded);
+        var treeOpen = !on || isOnOutlineFocusPath(t);
+        var rowSelfExpanded;
+        if (meta.hasSubIndex) {
+          rowSelfExpanded = !userOutlineCompact[t];
+        } else {
+          rowSelfExpanded = !(meta.hasBody && userBodyHidden[t]);
+        }
+        var childrenExpanded =
+          !meta.hasDescendants || !userBranchCollapsed[t];
+        var treeRowOpen = treeOpen && rowSelfExpanded;
+        var ariaExpanded = treeRowOpen && childrenExpanded;
+        blocks[t].classList.toggle(
+          'sutra-outline-user-compact',
+          !!userOutlineCompact[t]
+        );
+        meta.indexNode.setAttribute(
+          'aria-expanded',
+          ariaExpanded ? 'true' : 'false'
+        );
+        meta.indexNode.classList.toggle('sutra-level-collapsed', !treeOpen);
+        meta.indexNode.classList.toggle(
+          'sutra-branch-children-collapsed',
+          !!(meta.hasDescendants && userBranchCollapsed[t])
+        );
         if (meta.hasBody) {
-          blocks[t].classList.toggle('sutra-outline-body-collapsed', !expanded);
+          blocks[t].classList.toggle(
+            'sutra-outline-body-collapsed',
+            !treeRowOpen
+          );
         }
       }
+      refreshBranchChildClasses();
       syncOutlineMasterToggle();
     }
 
     function setAllCollapsed(wantCollapsed) {
       lastOutlineFocusIdx = -1;
       for (var u = 0; u < blocks.length; u++) {
-        if (toggleMeta[u]) collapsed[u] = wantCollapsed;
+        if (toggleMeta[u]) {
+          collapsed[u] = wantCollapsed;
+          delete userBodyHidden[u];
+          delete userOutlineCompact[u];
+          delete userBranchCollapsed[u];
+        }
       }
       refreshOutlineUi();
     }
@@ -298,7 +350,13 @@
       var body = blockHasBodyContent(blocks[k]);
       if (!sub && !body) continue;
 
-      toggleMeta[k] = { indexNode: indexEl, hasBody: body };
+      var hasSubIndex = !!indexEl.querySelector('.subIndex');
+      toggleMeta[k] = {
+        indexNode: indexEl,
+        hasBody: body,
+        hasSubIndex: hasSubIndex,
+        hasDescendants: sub,
+      };
       indexEl.classList.add('sutra-level-toggle');
       indexEl.setAttribute('role', 'button');
       indexEl.setAttribute('tabindex', '0');
@@ -306,7 +364,14 @@
       indexEl.dataset.sutraOutlineIndex = String(k);
       indexEl.title =
         (indexEl.title ? indexEl.title + ' ' : '') +
-        '點擊後僅展開此支大綱，其餘自動收合；頂端按鈕可一次全部展開或收合。';
+        '點擊後僅展開此支大綱，其餘自動收合；頂端按鈕可一次展開或收合。' +
+        (sub
+          ? ' 有下屆科判之節：再次點擊本列可隱藏或顯示其下全部子節。'
+          : hasSubIndex
+            ? ' 含細目之節：再次點擊本列可隱藏或顯示細目與本節正文。'
+            : body
+              ? ' 有經／纂釋之節：再次點擊本列可隱藏或顯示該節正文。'
+              : '');
     }
 
     for (var c = 0; c < blocks.length; c++) {
@@ -322,19 +387,57 @@
       sutra.setAttribute('tabindex', '0');
       sutra.setAttribute('aria-expanded', 'false');
       sutra.setAttribute('aria-controls', commentary.id);
-      sutra.title = '點擊顯示或隱藏【纂釋】';
+      sutra.title =
+        typeof window.applySutraRemarkCycle === 'function'
+          ? '點擊循序：【纂釋】→參考文→全部關閉'
+          : '點擊顯示或隱藏【纂釋】';
+    }
 
-      (function (blockEl, sutraNode) {
-        function toggleCommentary(ev) {
-          if (ev.type === 'click' && ev.target && ev.target.closest && ev.target.closest('a')) return;
-          if (ev.type === 'keydown' && ev.key !== 'Enter' && ev.key !== ' ') return;
-          if (ev.type === 'keydown') ev.preventDefault();
-          var open = blockEl.classList.toggle('sutra-show-commentary');
-          sutraNode.setAttribute('aria-expanded', open ? 'true' : 'false');
-        }
-        sutraNode.addEventListener('click', toggleCommentary);
-        sutraNode.addEventListener('keydown', toggleCommentary);
-      })(blk, sutra);
+    if (!document.documentElement.dataset.sutraRemarkDelegate) {
+      document.documentElement.dataset.sutraRemarkDelegate = '1';
+      function sutraTargetFromEvent(ev) {
+        var t = ev.target;
+        if (!t || !t.closest) return null;
+        if (t.closest('a')) return null;
+        var sutra = t.closest('.sutra-sutra-click-toggle');
+        if (!sutra) return null;
+        var block = sutra.closest('.sutra-has-commentary');
+        if (!block) return null;
+        return { sutra: sutra, block: block };
+      }
+      document.addEventListener(
+        'click',
+        function (ev) {
+          var pair = sutraTargetFromEvent(ev);
+          if (!pair) return;
+          if (typeof window.applySutraRemarkCycle === 'function') {
+            ev.preventDefault();
+            window.applySutraRemarkCycle(pair.block, pair.sutra);
+            return;
+          }
+          var open = pair.block.classList.toggle('sutra-show-commentary');
+          pair.sutra.setAttribute('aria-expanded', open ? 'true' : 'false');
+        },
+        true
+      );
+      document.addEventListener(
+        'keydown',
+        function (ev) {
+          if (ev.key !== 'Enter' && ev.key !== ' ') return;
+          var ae = document.activeElement;
+          if (!ae || !ae.classList.contains('sutra-sutra-click-toggle')) return;
+          var block = ae.closest('.sutra-has-commentary');
+          if (!block) return;
+          ev.preventDefault();
+          if (typeof window.applySutraRemarkCycle === 'function') {
+            window.applySutraRemarkCycle(block, ae);
+            return;
+          }
+          var open = block.classList.toggle('sutra-show-commentary');
+          ae.setAttribute('aria-expanded', open ? 'true' : 'false');
+        },
+        true
+      );
     }
 
     function indexTitlePlain(block) {
@@ -459,6 +562,41 @@
       });
     }
 
+    function activateOutlineIndexFromPointer(idx) {
+      if (idx < 0) return;
+      var meta = toggleMeta[idx];
+      if (!meta) return;
+      var hadFocus = lastOutlineFocusIdx === idx;
+      if (!hadFocus) {
+        if (meta.hasDescendants) {
+          userBranchCollapsed[idx] = false;
+        }
+        if (meta.hasSubIndex) {
+          userOutlineCompact[idx] = false;
+        }
+        if (meta.hasSubIndex) {
+          delete userBodyHidden[idx];
+        } else if (meta.hasBody) {
+          userBodyHidden[idx] = false;
+        }
+      }
+      setOutlineBreadcrumbIndex(idx);
+      applyFocusOutlineCollapse(idx);
+      if (!hadFocus) {
+        return;
+      }
+      if (meta.hasDescendants) {
+        userBranchCollapsed[idx] = !userBranchCollapsed[idx];
+        refreshOutlineUi();
+      } else if (meta.hasSubIndex) {
+        userOutlineCompact[idx] = !userOutlineCompact[idx];
+        refreshOutlineUi();
+      } else if (meta.hasBody) {
+        userBodyHidden[idx] = !userBodyHidden[idx];
+        refreshOutlineUi();
+      }
+    }
+
     function onOutlineIndexActivate(ev) {
       var t = ev.target;
       if (!t || !t.closest) return;
@@ -467,10 +605,14 @@
       var block = idxEl.closest('.sutra-outline-block');
       if (!block) return;
       var idx = blocks.indexOf(block);
-      if (idx >= 0) {
-        setOutlineBreadcrumbIndex(idx);
-        applyFocusOutlineCollapse(idx);
+      if (idx < 0) return;
+      if (ev.type === 'click') {
+        if (t.closest && t.closest('a')) return;
+        activateOutlineIndexFromPointer(idx);
+        return;
       }
+      setOutlineBreadcrumbIndex(idx);
+      applyFocusOutlineCollapse(idx);
     }
 
     document.addEventListener('focusin', onOutlineIndexActivate);
@@ -486,8 +628,7 @@
         var ix = blocks.indexOf(blk);
         if (ix < 0) return;
         e.preventDefault();
-        applyFocusOutlineCollapse(ix);
-        setOutlineBreadcrumbIndex(ix);
+        activateOutlineIndexFromPointer(ix);
       },
       true
     );
@@ -507,7 +648,7 @@
     var modeGroup = document.createElement('div');
     modeGroup.className = 'sutra-outline-toolbar-mode';
     modeGroup.setAttribute('role', 'group');
-    modeGroup.setAttribute('aria-label', '全部展開或全部收合');
+    modeGroup.setAttribute('aria-label', '展開或收合');
 
     var btnToggle = document.createElement('button');
     btnToggle.type = 'button';
@@ -516,7 +657,7 @@
     btnToggle.setAttribute('aria-pressed', 'false');
     btnToggle.setAttribute(
       'title',
-      '在「一次全部收合」與「一次全部展開」之間切換'
+      '在「一次收合」與「一次展開」之間切換'
     );
     outlineMasterToggleBtn = btnToggle;
     syncOutlineMasterToggle();

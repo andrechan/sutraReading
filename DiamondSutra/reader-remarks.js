@@ -128,14 +128,6 @@
       window.wrapDescBrackets(panel);
     }
 
-    btn.addEventListener('click', function () {
-      var open = !wrap.classList.contains('reader-note-open');
-      wrap.classList.toggle('reader-note-open', open);
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      if (open) panel.removeAttribute('hidden');
-      else panel.setAttribute('hidden', '');
-    });
-
     wrap.appendChild(btn);
     wrap.appendChild(panel);
     return wrap;
@@ -188,22 +180,99 @@
 
     if (attached) {
       document.body.classList.add('reader-cross-remarks');
-      installReaderRefMasterToggle();
+    }
+    installSutraRemarkCycleAndToolbar();
+  }
+
+  function commentaryHasContent(el) {
+    if (!el) return false;
+    return String(el.textContent || '').replace(/\s+/g, '').length > 0;
+  }
+
+  function buildRemarkSteps(block) {
+    var steps = [];
+    var comm = block.querySelector(':scope > .in_commentary');
+    if (commentaryHasContent(comm)) {
+      steps.push({ type: 'zhuanshi' });
+    }
+    var extras = block.querySelectorAll(
+      ':scope > .reader-extra-notes .reader-source-note'
+    );
+    for (var i = 0; i < extras.length; i++) {
+      steps.push({ type: 'extra', wrap: extras[i] });
+    }
+    return steps;
+  }
+
+  function hideAllRemarksInBlock(block) {
+    block.classList.remove('sutra-show-commentary');
+    var sutra = block.querySelector(':scope > .in_sutra.sutra-sutra-click-toggle');
+    if (sutra) sutra.setAttribute('aria-expanded', 'false');
+    var notes = block.querySelectorAll(
+      ':scope > .reader-extra-notes .reader-source-note'
+    );
+    for (var i = 0; i < notes.length; i++) {
+      notes[i].classList.remove('reader-note-open');
+      var b = notes[i].querySelector('.reader-note-toggle');
+      var p = notes[i].querySelector('.reader-note-panel');
+      if (b) b.setAttribute('aria-expanded', 'false');
+      if (p) p.setAttribute('hidden', '');
     }
   }
 
-  function closeAllReaderRefPanels() {
-    var open = document.querySelectorAll(
-      '.reader-source-note.reader-note-open'
-    );
-    for (var i = 0; i < open.length; i++) {
-      var wrap = open[i];
-      wrap.classList.remove('reader-note-open');
-      var btn = wrap.querySelector('.reader-note-toggle');
-      var panel = wrap.querySelector('.reader-note-panel');
-      if (btn) btn.setAttribute('aria-expanded', 'false');
-      if (panel) panel.setAttribute('hidden', '');
+  function applyRemarkPhase(block, phase) {
+    var steps = buildRemarkSteps(block);
+    var m = steps.length;
+    if (m === 0) return;
+    hideAllRemarksInBlock(block);
+    var maxPhase = m;
+    phase = ((phase % (maxPhase + 1)) + (maxPhase + 1)) % (maxPhase + 1);
+    if (phase === 0) return;
+    var st = steps[phase - 1];
+    var sutra = block.querySelector(':scope > .in_sutra.sutra-sutra-click-toggle');
+    if (st.type === 'zhuanshi') {
+      block.classList.add('sutra-show-commentary');
+      if (sutra) sutra.setAttribute('aria-expanded', 'true');
+    } else if (st.type === 'extra') {
+      var w = st.wrap;
+      w.classList.add('reader-note-open');
+      var btn = w.querySelector('.reader-note-toggle');
+      var panel = w.querySelector('.reader-note-panel');
+      if (btn) btn.setAttribute('aria-expanded', 'true');
+      if (panel) panel.removeAttribute('hidden');
+      if (sutra) sutra.setAttribute('aria-expanded', 'true');
     }
+  }
+
+  function installSutraRemarkCycleAndToolbar() {
+    document.body.classList.add('reader-sutra-remark-cycle');
+
+    window.applySutraRemarkCycle = function (block, sutraNode) {
+      var steps = buildRemarkSteps(block);
+      if (steps.length === 0) {
+        var open = block.classList.toggle('sutra-show-commentary');
+        sutraNode.setAttribute('aria-expanded', open ? 'true' : 'false');
+        block.removeAttribute('data-remark-cycle-phase');
+        return;
+      }
+      var cur = parseInt(block.getAttribute('data-remark-cycle-phase') || '0', 10);
+      if (isNaN(cur)) cur = 0;
+      var next = (cur + 1) % (steps.length + 1);
+      block.setAttribute('data-remark-cycle-phase', String(next));
+      applyRemarkPhase(block, next);
+      var anyOn =
+        next > 0 ||
+        block.classList.contains('sutra-show-commentary');
+      sutraNode.setAttribute('aria-expanded', anyOn ? 'true' : 'false');
+    };
+
+    var toggles = document.querySelectorAll('.sutra-sutra-click-toggle');
+    for (var ti = 0; ti < toggles.length; ti++) {
+      toggles[ti].title =
+        '點擊循序：【纂釋】→【贊述】→【疏論纂要】→【論釋】（若有）→全部關閉';
+    }
+
+    installReaderRefMasterToggle();
   }
 
   function installReaderRefMasterToggle() {
@@ -217,42 +286,39 @@
     btn.setAttribute('aria-pressed', 'false');
     btn.setAttribute(
       'title',
-      '隱藏或顯示各段下方的【贊述】、【疏論纂要】、【論釋】按鈕'
+      '隱藏或顯示大綱列中的細目（subIndex）；【經】點擊可循序開啟【纂釋】與參考文'
     );
 
     function labelFor(hidden) {
-      return hidden ? '顯示參考按鈕' : '隱藏參考按鈕';
+      return hidden ? '顯示細目' : '隱藏細目';
     }
 
     function apply(hidden) {
-      document.body.classList.toggle(
-        'reader-hide-ref-note-toggles',
-        hidden
-      );
+      document.body.classList.toggle('reader-hide-outline-subindex', hidden);
       btn.setAttribute('aria-pressed', hidden ? 'true' : 'false');
       btn.textContent = labelFor(hidden);
-      if (hidden) closeAllReaderRefPanels();
     }
 
     btn.addEventListener('click', function () {
-      apply(!document.body.classList.contains('reader-hide-ref-note-toggles'));
+      apply(
+        !document.body.classList.contains('reader-hide-outline-subindex')
+      );
     });
 
-    apply(false);
+    apply(true);
 
     var toolbar = document.querySelector('.sutra-outline-toolbar');
     if (toolbar) {
       var sep = document.createElement('span');
       sep.className = 'reader-ref-toolbar-sep';
       sep.setAttribute('aria-hidden', 'true');
-      sep.textContent = '\u00a0|\u00a0';
       toolbar.appendChild(sep);
       toolbar.appendChild(btn);
     } else {
       var bar = document.createElement('div');
       bar.className = 'reader-ref-master-toolbar-fallback';
       bar.setAttribute('role', 'toolbar');
-      bar.setAttribute('aria-label', '參考文按鈕');
+      bar.setAttribute('aria-label', '大綱細目');
       bar.appendChild(btn);
       document.body.insertBefore(bar, document.body.firstChild);
     }
