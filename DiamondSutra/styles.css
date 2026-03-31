@@ -148,6 +148,26 @@ a:hover {
     color: #666;
 }
 
+/* Dxx badge on 【經】 when 科判列 subIndex 在前（desc-levels.js） */
+body.sutra-outline-enabled .in_sutra > .reader-sutra-d-loc {
+    display: inline-block;
+    margin: 0 0.45rem 0 0;
+    padding: 0.06rem 0.38rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    vertical-align: 0.12em;
+    color: #5c5648;
+    background: #e8e4dc;
+    border: 1px solid #cfc7bb;
+    border-radius: 3px;
+    font-family: ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    -webkit-user-select: all;
+    user-select: all;
+}
+
 /* Collapsible outline: 天干→地支→千字文 層級（desc-levels.js） */
 body.sutra-outline-enabled .sutra-outline-sticky-head {
     position: sticky;
@@ -418,6 +438,91 @@ a.sutra-outline-toolbar-btn.sutra-remarks-toolbar-link {
 a.sutra-outline-toolbar-btn.sutra-remarks-toolbar-link:hover {
     text-decoration: none;
     color: inherit;
+}
+
+/* reader.html: compact search in outline toolbar (reader-search.js) */
+body.sutra-outline-enabled .reader-search-inline {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+    margin-left: auto;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.reader-search-input--compact {
+    width: 6.5rem;
+    min-width: 0;
+    max-width: 28vw;
+    padding: 0.28rem 0.4rem;
+    font: inherit;
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    color: #2c2820;
+    background: #fff;
+    border: 1px solid #c4bdb0;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+@media (min-width: 520px) {
+    .reader-search-input--compact {
+        width: 8.5rem;
+        max-width: none;
+    }
+}
+
+.reader-search-input--compact:focus {
+    outline: none;
+    border-color: #8a7a68;
+    box-shadow: 0 0 0 2px rgba(138, 122, 104, 0.2);
+}
+
+.reader-search-meta {
+    font-size: 0.75rem;
+    color: #6b6356;
+    min-width: 1.75rem;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    flex: 0 0 auto;
+}
+
+body.sutra-outline-enabled .reader-search-nav-btn {
+    padding: 0.28rem 0.45rem;
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    min-width: 0;
+}
+
+/* No outline toolbar (fallback) */
+.reader-search-fallback {
+    position: fixed;
+    top: max(0.35rem, env(safe-area-inset-top, 0px));
+    right: max(0.35rem, env(safe-area-inset-right, 0px));
+    z-index: 220;
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+    padding: 0.25rem 0.35rem;
+    background: rgba(250, 248, 245, 0.97);
+    border: 1px solid #d8d0c4;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(45, 36, 28, 0.12);
+}
+
+.in_index.reader-search-current,
+.in_sutra.reader-search-current,
+.in_commentary.reader-search-current,
+.subIndex.reader-search-current,
+span.subIndex.reader-search-current {
+    outline: 3px solid #b71c1c;
+    outline-offset: 3px;
+    border-radius: 4px;
+    scroll-margin-top: 5.5rem;
+    scroll-margin-bottom: 2rem;
 }
 
 /* reader.html: load failure hint (reader-remarks.js) */

@@ -1,7 +1,7 @@
 /**
  * Outline levels from (甲一)(乙一)… 天干 → 地支 → 千字文 順序。
  * Click .in_index: solo 大綱（收合其他支線），並強制保留該節與所有上層之經文／纂釋可見；
- * 「全部展開／全部收合」重置此模式。
+ * 頂端單鍵「全部收合／全部展開」切換可重置此模式。
  */
 (function () {
   'use strict';
@@ -107,9 +107,56 @@
     }
   }
 
+  /** e.g. "D57" from class "D57" or "D57 extra" */
+  function dClassFromBlock(block) {
+    var cn = block.className && String(block.className).trim();
+    if (!cn) return null;
+    var parts = cn.split(/\s+/);
+    for (var p = 0; p < parts.length; p++) {
+      if (/^D\d+$/.test(parts[p])) return parts[p];
+    }
+    return null;
+  }
+
+  /**
+   * When .in_sutra follows (as sibling) an .in_index that contains .subIndex,
+   * show the parent block id (Dxx) at the start of the sutra row (reader.html 等).
+   */
+  function labelSutraWhenAfterSubIndexOutline(blocks) {
+    for (var i = 0; i < blocks.length; i++) {
+      var block = blocks[i];
+      var dName = dClassFromBlock(block);
+      if (!dName) continue;
+      var ch = block.children;
+      var lastSubIdxBeforeSutra = -1;
+      var sutraIdx = -1;
+      for (var c = 0; c < ch.length; c++) {
+        var el = ch[c];
+        if (el.classList.contains('in_index') && el.querySelector('.subIndex')) {
+          lastSubIdxBeforeSutra = c;
+        }
+        if (el.classList.contains('in_sutra')) {
+          sutraIdx = c;
+          break;
+        }
+      }
+      if (lastSubIdxBeforeSutra < 0 || sutraIdx < 0) continue;
+      if (sutraIdx <= lastSubIdxBeforeSutra) continue;
+      var sutraEl = ch[sutraIdx];
+      if (sutraEl.querySelector(':scope > .reader-sutra-d-loc')) continue;
+      var badge = document.createElement('span');
+      badge.className = 'reader-sutra-d-loc';
+      badge.setAttribute('title', '區塊編號 ' + dName);
+      badge.textContent = dName;
+      sutraEl.insertBefore(badge, sutraEl.firstChild);
+    }
+  }
+
   function init() {
     var blocks = collectOutlineBlocks();
     if (!blocks.length) return;
+
+    labelSutraWhenAfterSubIndexOutline(blocks);
 
     var depths = [];
     var lastDepth = 0;
@@ -174,6 +221,28 @@
       }
     }
 
+    var outlineMasterToggleBtn = null;
+
+    function isAllCollapsedGlobally() {
+      var any = false;
+      for (var u = 0; u < blocks.length; u++) {
+        if (!toggleMeta[u]) continue;
+        any = true;
+        if (!collapsed[u]) return false;
+      }
+      return any;
+    }
+
+    function syncOutlineMasterToggle() {
+      if (!outlineMasterToggleBtn) return;
+      var allC = isAllCollapsedGlobally();
+      outlineMasterToggleBtn.setAttribute(
+        'aria-pressed',
+        allC ? 'true' : 'false'
+      );
+      outlineMasterToggleBtn.textContent = allC ? '全部展開' : '全部收合';
+    }
+
     function refreshOutlineUi() {
       applyVisibility(blocks, depths, nextPeer, collapsed);
       forceFocusPathVisible();
@@ -188,6 +257,7 @@
           blocks[t].classList.toggle('sutra-outline-body-collapsed', !expanded);
         }
       }
+      syncOutlineMasterToggle();
     }
 
     function setAllCollapsed(wantCollapsed) {
@@ -236,7 +306,7 @@
       indexEl.dataset.sutraOutlineIndex = String(k);
       indexEl.title =
         (indexEl.title ? indexEl.title + ' ' : '') +
-        '點擊後僅展開此支大綱，其餘自動收合；頂端可用「全部展開／全部收合」。';
+        '點擊後僅展開此支大綱，其餘自動收合；頂端按鈕可一次全部展開或收合。';
     }
 
     for (var c = 0; c < blocks.length; c++) {
@@ -439,34 +509,23 @@
     modeGroup.setAttribute('role', 'group');
     modeGroup.setAttribute('aria-label', '全部展開或全部收合');
 
-    var btnExpand = document.createElement('button');
-    btnExpand.type = 'button';
-    btnExpand.className = 'sutra-outline-toolbar-btn';
-    btnExpand.textContent = '全部展開';
-    btnExpand.setAttribute('aria-pressed', 'true');
+    var btnToggle = document.createElement('button');
+    btnToggle.type = 'button';
+    btnToggle.className =
+      'sutra-outline-toolbar-btn sutra-outline-master-toggle-btn';
+    btnToggle.setAttribute('aria-pressed', 'false');
+    btnToggle.setAttribute(
+      'title',
+      '在「一次全部收合」與「一次全部展開」之間切換'
+    );
+    outlineMasterToggleBtn = btnToggle;
+    syncOutlineMasterToggle();
 
-    var btnCollapse = document.createElement('button');
-    btnCollapse.type = 'button';
-    btnCollapse.className = 'sutra-outline-toolbar-btn';
-    btnCollapse.textContent = '全部收合';
-    btnCollapse.setAttribute('aria-pressed', 'false');
-
-    function syncExpandCollapsePressed(expanded) {
-      btnExpand.setAttribute('aria-pressed', expanded ? 'true' : 'false');
-      btnCollapse.setAttribute('aria-pressed', expanded ? 'false' : 'true');
-    }
-
-    btnExpand.addEventListener('click', function () {
-      setAllCollapsed(false);
-      syncExpandCollapsePressed(true);
-    });
-    btnCollapse.addEventListener('click', function () {
-      setAllCollapsed(true);
-      syncExpandCollapsePressed(false);
+    btnToggle.addEventListener('click', function () {
+      setAllCollapsed(!isAllCollapsedGlobally());
     });
 
-    modeGroup.appendChild(btnExpand);
-    modeGroup.appendChild(btnCollapse);
+    modeGroup.appendChild(btnToggle);
     toolbar.appendChild(modeGroup);
     stickyHead.appendChild(toolbar);
     stickyHead.appendChild(breadcrumbEl);
