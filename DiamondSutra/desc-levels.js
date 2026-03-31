@@ -1,7 +1,7 @@
 /**
  * Outline levels from (甲一)(乙一)… 天干 → 地支 → 千字文 順序。
- * Click .in_index: collapse/expand descendant D* blocks and/or this block’s
- * .in_sutra / .in_commentary (leaf levels with no sub-levels still toggle body).
+ * Click .in_index: solo 大綱（收合其他支線），並強制保留該節與所有上層之經文／纂釋可見；
+ * 「全部展開／全部收合」重置此模式。
  */
 (function () {
   'use strict';
@@ -81,6 +81,19 @@
     return false;
   }
 
+  /** Direct child .in_sutra and .in_commentary (toggle 纂釋 on 【經】 click). */
+  function findDirectSutraCommentary(block) {
+    var sutraEl = null;
+    var commentaryEl = null;
+    var ch = block.children;
+    for (var i = 0; i < ch.length; i++) {
+      var c = ch[i];
+      if (c.classList.contains('in_sutra')) sutraEl = c;
+      if (c.classList.contains('in_commentary')) commentaryEl = c;
+    }
+    return sutraEl && commentaryEl ? { sutra: sutraEl, commentary: commentaryEl } : null;
+  }
+
   function applyVisibility(blocks, depths, nextPeer, collapsed) {
     var n = blocks.length;
     for (var j = 0; j < n; j++) {
@@ -112,24 +125,94 @@
     var nextPeer = computeNextPeer(depths);
     var collapsed = {};
     var toggleMeta = new Array(blocks.length);
+    /** Last block focused via 大綱點選；用於強制保留該路徑上所有上層的經文／纂釋與區塊可見。 */
+    var lastOutlineFocusIdx = -1;
+
+    function parentOutlineIndex(i) {
+      if (i <= 0) return -1;
+      var myD = depths[i];
+      for (var j = i - 1; j >= 0; j--) {
+        if (depths[j] < myD) return j;
+      }
+      return -1;
+    }
+
+    function isOutlineAncestor(ancIdx, descIdx) {
+      var p = parentOutlineIndex(descIdx);
+      while (p >= 0) {
+        if (p === ancIdx) return true;
+        p = parentOutlineIndex(p);
+      }
+      return false;
+    }
+
+    function isOutlineStrictDescendantOf(d, f) {
+      return d > f && d < nextPeer[f];
+    }
+
+    function isOnOutlineFocusPath(t) {
+      if (lastOutlineFocusIdx < 0) return false;
+      if (t === lastOutlineFocusIdx) return true;
+      if (isOutlineAncestor(t, lastOutlineFocusIdx)) return true;
+      if (isOutlineStrictDescendantOf(t, lastOutlineFocusIdx)) return true;
+      return false;
+    }
+
+    /** Undo mistaken hiding of the focused branch (上層 + 本節子樹仍須可見). */
+    function forceFocusPathVisible() {
+      if (lastOutlineFocusIdx < 0) return;
+      var f = lastOutlineFocusIdx;
+      var a = f;
+      while (a >= 0) {
+        blocks[a].classList.remove('sutra-outline-hidden');
+        blocks[a].classList.remove('sutra-outline-body-collapsed');
+        a = parentOutlineIndex(a);
+      }
+      for (var d = f + 1; d < nextPeer[f]; d++) {
+        blocks[d].classList.remove('sutra-outline-hidden');
+        blocks[d].classList.remove('sutra-outline-body-collapsed');
+      }
+    }
 
     function refreshOutlineUi() {
       applyVisibility(blocks, depths, nextPeer, collapsed);
+      forceFocusPathVisible();
       for (var t = 0; t < blocks.length; t++) {
         var meta = toggleMeta[t];
         if (!meta) continue;
         var on = !!collapsed[t];
-        meta.indexNode.setAttribute('aria-expanded', on ? 'false' : 'true');
-        meta.indexNode.classList.toggle('sutra-level-collapsed', on);
+        var expanded = !on || isOnOutlineFocusPath(t);
+        meta.indexNode.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        meta.indexNode.classList.toggle('sutra-level-collapsed', !expanded);
         if (meta.hasBody) {
-          blocks[t].classList.toggle('sutra-outline-body-collapsed', on);
+          blocks[t].classList.toggle('sutra-outline-body-collapsed', !expanded);
         }
       }
     }
 
     function setAllCollapsed(wantCollapsed) {
+      lastOutlineFocusIdx = -1;
       for (var u = 0; u < blocks.length; u++) {
         if (toggleMeta[u]) collapsed[u] = wantCollapsed;
+      }
+      refreshOutlineUi();
+    }
+
+    /** Expand ancestors + this node + its subtree; collapse all other branches. */
+    function applyFocusOutlineCollapse(fIdx) {
+      if (fIdx < 0 || fIdx >= blocks.length) return;
+      lastOutlineFocusIdx = fIdx;
+      for (var k = 0; k < blocks.length; k++) {
+        if (!toggleMeta[k]) continue;
+        if (
+          k === fIdx ||
+          isOutlineAncestor(k, fIdx) ||
+          isOutlineStrictDescendantOf(k, fIdx)
+        ) {
+          collapsed[k] = false;
+        } else {
+          collapsed[k] = true;
+        }
       }
       refreshOutlineUi();
     }
@@ -151,49 +234,247 @@
       indexEl.setAttribute('tabindex', '0');
       indexEl.setAttribute('aria-expanded', 'true');
       indexEl.dataset.sutraOutlineIndex = String(k);
-
-      (function (blockIndex) {
-        function toggle(e) {
-          if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-          }
-          collapsed[blockIndex] = !collapsed[blockIndex];
-          refreshOutlineUi();
-        }
-        indexEl.addEventListener('click', toggle);
-        indexEl.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter' || e.key === ' ') toggle(e);
-        });
-      })(k);
+      indexEl.title =
+        (indexEl.title ? indexEl.title + ' ' : '') +
+        '點擊後僅展開此支大綱，其餘自動收合；頂端可用「全部展開／全部收合」。';
     }
 
+    for (var c = 0; c < blocks.length; c++) {
+      var pair = findDirectSutraCommentary(blocks[c]);
+      if (!pair) continue;
+      var blk = blocks[c];
+      var sutra = pair.sutra;
+      var commentary = pair.commentary;
+      blk.classList.add('sutra-has-commentary');
+      sutra.classList.add('sutra-sutra-click-toggle');
+      if (!commentary.id) commentary.id = 'sutra-commentary-' + c;
+      sutra.setAttribute('role', 'button');
+      sutra.setAttribute('tabindex', '0');
+      sutra.setAttribute('aria-expanded', 'false');
+      sutra.setAttribute('aria-controls', commentary.id);
+      sutra.title = '點擊顯示或隱藏【纂釋】';
+
+      (function (blockEl, sutraNode) {
+        function toggleCommentary(ev) {
+          if (ev.type === 'click' && ev.target && ev.target.closest && ev.target.closest('a')) return;
+          if (ev.type === 'keydown' && ev.key !== 'Enter' && ev.key !== ' ') return;
+          if (ev.type === 'keydown') ev.preventDefault();
+          var open = blockEl.classList.toggle('sutra-show-commentary');
+          sutraNode.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+        sutraNode.addEventListener('click', toggleCommentary);
+        sutraNode.addEventListener('keydown', toggleCommentary);
+      })(blk, sutra);
+    }
+
+    function indexTitlePlain(block) {
+      var el = block.querySelector('.in_index');
+      if (!el) return '';
+      var clone = el.cloneNode(true);
+      var subs = clone.querySelectorAll('.subIndex');
+      for (var si = 0; si < subs.length; si++) subs[si].remove();
+      return (clone.textContent || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function getAncestorChainIndices(blockIndex) {
+      var myD = depths[blockIndex];
+      if (myD <= 0) return [];
+      var chain = [];
+      var threshold = myD;
+      for (var j = blockIndex - 1; j >= 0; j--) {
+        if (depths[j] < threshold) {
+          chain.unshift(j);
+          threshold = depths[j];
+          if (threshold === 0) break;
+        }
+      }
+      return chain;
+    }
+
+    function formatOutlineBreadcrumbAncestors(blockIndex) {
+      if (blockIndex < 0 || blockIndex >= blocks.length) return '';
+      var anc = getAncestorChainIndices(blockIndex);
+      if (!anc.length) return '';
+      var parts = [];
+      for (var p = 0; p < anc.length; p++) {
+        var t = indexTitlePlain(blocks[anc[p]]);
+        if (t) parts.push(t);
+      }
+      return parts.join('、');
+    }
+
+    function formatOutlineBreadcrumbFull(blockIndex) {
+      if (blockIndex < 0 || blockIndex >= blocks.length) return '';
+      var anc = getAncestorChainIndices(blockIndex);
+      var parts = [];
+      for (var p = 0; p < anc.length; p++) {
+        var t = indexTitlePlain(blocks[anc[p]]);
+        if (t) parts.push(t);
+      }
+      var cur = indexTitlePlain(blocks[blockIndex]);
+      if (cur) parts.push(cur);
+      return parts.join('、');
+    }
+
+    var breadcrumbEl = document.createElement('div');
+    breadcrumbEl.className =
+      'sutra-outline-breadcrumb sutra-outline-breadcrumb--inactive';
+    breadcrumbEl.setAttribute('role', 'navigation');
+
+    var lastBreadcrumbIdx = -999;
+
+    function renderOutlineBreadcrumbText(text) {
+      breadcrumbEl.replaceChildren();
+      var t = String(text || '').trim();
+      if (!t) {
+        breadcrumbEl.classList.add('sutra-outline-breadcrumb--inactive');
+        breadcrumbEl.removeAttribute('aria-label');
+        return;
+      }
+      breadcrumbEl.classList.remove('sutra-outline-breadcrumb--inactive');
+      breadcrumbEl.setAttribute('aria-label', t);
+      var parts = t.split('、');
+      for (var pi = 0; pi < parts.length; pi++) {
+        var chunk = String(parts[pi] || '').trim();
+        if (!chunk.length) continue;
+        var span = document.createElement('span');
+        span.className = 'sutra-outline-breadcrumb-seg';
+        span.textContent = chunk;
+        breadcrumbEl.appendChild(span);
+      }
+      if (!breadcrumbEl.firstChild) {
+        breadcrumbEl.classList.add('sutra-outline-breadcrumb--inactive');
+        breadcrumbEl.removeAttribute('aria-label');
+      }
+    }
+
+    function stickyHeadBottom() {
+      var head = document.querySelector('.sutra-outline-sticky-head');
+      if (!head) return 0;
+      return head.getBoundingClientRect().bottom;
+    }
+
+    function blockIndexFromReadingPoint() {
+      var y = stickyHeadBottom() + 10;
+      var x = Math.min(window.innerWidth - 8, Math.max(8, window.innerWidth / 2));
+      if (y >= window.innerHeight - 4) return -1;
+      var el = document.elementFromPoint(x, y);
+      if (!el) return -1;
+      var block = el.closest('.sutra-outline-block');
+      if (!block) return -1;
+      return blocks.indexOf(block);
+    }
+
+    function setOutlineBreadcrumbIndex(idx) {
+      if (idx === lastBreadcrumbIdx) return;
+      lastBreadcrumbIdx = idx;
+      var text = idx >= 0 ? formatOutlineBreadcrumbAncestors(idx) : '';
+      renderOutlineBreadcrumbText(text);
+      breadcrumbEl.title =
+        idx >= 0 ? formatOutlineBreadcrumbFull(idx) : '';
+    }
+
+    function updateOutlineBreadcrumbFromScroll() {
+      var idx = blockIndexFromReadingPoint();
+      if (idx >= 0) setOutlineBreadcrumbIndex(idx);
+    }
+
+    var scrollBreadcrumbScheduled = false;
+    function scheduleScrollBreadcrumb() {
+      if (scrollBreadcrumbScheduled) return;
+      scrollBreadcrumbScheduled = true;
+      requestAnimationFrame(function () {
+        scrollBreadcrumbScheduled = false;
+        updateOutlineBreadcrumbFromScroll();
+      });
+    }
+
+    function onOutlineIndexActivate(ev) {
+      var t = ev.target;
+      if (!t || !t.closest) return;
+      var idxEl = t.closest('.in_index');
+      if (!idxEl) return;
+      var block = idxEl.closest('.sutra-outline-block');
+      if (!block) return;
+      var idx = blocks.indexOf(block);
+      if (idx >= 0) {
+        setOutlineBreadcrumbIndex(idx);
+        applyFocusOutlineCollapse(idx);
+      }
+    }
+
+    document.addEventListener('focusin', onOutlineIndexActivate);
+    document.addEventListener('click', onOutlineIndexActivate, true);
+    document.addEventListener(
+      'keydown',
+      function (e) {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        var ae = document.activeElement;
+        if (!ae || !ae.classList.contains('sutra-level-toggle')) return;
+        var blk = ae.closest('.sutra-outline-block');
+        if (!blk) return;
+        var ix = blocks.indexOf(blk);
+        if (ix < 0) return;
+        e.preventDefault();
+        applyFocusOutlineCollapse(ix);
+        setOutlineBreadcrumbIndex(ix);
+      },
+      true
+    );
+    window.addEventListener('scroll', scheduleScrollBreadcrumb, { passive: true });
+    window.addEventListener('resize', scheduleScrollBreadcrumb);
+
     document.body.classList.add('sutra-outline-enabled');
+
+    var stickyHead = document.createElement('div');
+    stickyHead.className = 'sutra-outline-sticky-head';
 
     var toolbar = document.createElement('div');
     toolbar.className = 'sutra-outline-toolbar';
     toolbar.setAttribute('role', 'toolbar');
     toolbar.setAttribute('aria-label', '大綱收合');
 
-    var btnCollapse = document.createElement('button');
-    btnCollapse.type = 'button';
-    btnCollapse.className = 'sutra-outline-toolbar-btn';
-    btnCollapse.textContent = '全部收合';
-    btnCollapse.addEventListener('click', function () {
-      setAllCollapsed(true);
-    });
+    var modeGroup = document.createElement('div');
+    modeGroup.className = 'sutra-outline-toolbar-mode';
+    modeGroup.setAttribute('role', 'group');
+    modeGroup.setAttribute('aria-label', '全部展開或全部收合');
 
     var btnExpand = document.createElement('button');
     btnExpand.type = 'button';
     btnExpand.className = 'sutra-outline-toolbar-btn';
     btnExpand.textContent = '全部展開';
+    btnExpand.setAttribute('aria-pressed', 'true');
+
+    var btnCollapse = document.createElement('button');
+    btnCollapse.type = 'button';
+    btnCollapse.className = 'sutra-outline-toolbar-btn';
+    btnCollapse.textContent = '全部收合';
+    btnCollapse.setAttribute('aria-pressed', 'false');
+
+    function syncExpandCollapsePressed(expanded) {
+      btnExpand.setAttribute('aria-pressed', expanded ? 'true' : 'false');
+      btnCollapse.setAttribute('aria-pressed', expanded ? 'false' : 'true');
+    }
+
     btnExpand.addEventListener('click', function () {
       setAllCollapsed(false);
+      syncExpandCollapsePressed(true);
+    });
+    btnCollapse.addEventListener('click', function () {
+      setAllCollapsed(true);
+      syncExpandCollapsePressed(false);
     });
 
-    toolbar.appendChild(btnCollapse);
-    toolbar.appendChild(btnExpand);
-    document.body.insertBefore(toolbar, document.body.firstChild);
+    modeGroup.appendChild(btnExpand);
+    modeGroup.appendChild(btnCollapse);
+    toolbar.appendChild(modeGroup);
+    stickyHead.appendChild(toolbar);
+    stickyHead.appendChild(breadcrumbEl);
+    document.body.insertBefore(stickyHead, document.body.firstChild);
+
+    requestAnimationFrame(function () {
+      updateOutlineBreadcrumbFromScroll();
+    });
   }
 
   if (document.readyState === 'loading') {
