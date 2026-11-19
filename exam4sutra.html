@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>字符選擇練習</title>
+<style>
+  :root {
+    --bg: #f4f6fa;
+    --card: #ffffff;
+    --ink: #1f2937;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --accent-soft: #dbeafe;
+    --danger: #dc2626;
+    --danger-soft: #fee2e2;
+    --border: #e5e7eb;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    width: 100%;
+    max-width: 720px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+
+  /* ---------- 上傳區 ---------- */
+  #setup h2 { font-size: 16px; margin-bottom: 12px; }
+  .upload-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--ink);
+    font-size: 14px;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  .btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  #fileName { color: var(--muted); font-size: 13px; }
+  .or { color: var(--muted); font-size: 13px; margin: 14px 0 8px; }
+  textarea {
+    width: 100%; min-height: 90px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+  }
+  textarea:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+  .setup-actions { margin-top: 14px; text-align: right; }
+
+  /* ---------- 練習區 ---------- */
+  #practice { display: none; flex-direction: column; gap: 16px; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); }
+
+  /* 歷史框區域：隨進度向上滾動 */
+  #historyWrap {
+    height: 120px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: #fafbfc;
+    padding: 10px;
+  }
+  #historyRows { display: flex; flex-direction: column; gap: 8px; justify-content: flex-end; min-height: 100%; }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .cbox {
+    width: 42px; height: 48px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .cbox.correct { color: #16a34a; border-color: #86efac; }
+  .cbox.wrong {
+    color: var(--danger);
+    border-color: #fca5a5;
+    background: var(--danger-soft);
+    cursor: help;
+  }
+  /* 懸停錯誤框顯示正確字符 */
+  .cbox.wrong .reveal { display: none; }
+  .cbox.wrong:hover .reveal {
+    display: flex;
+    position: absolute;
+    inset: 0;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 7px;
+    z-index: 2;
+  }
+  .cbox.current {
+    border: 2px dashed var(--accent);
+    background: #fff;
+  }
+  .cbox.current .ph { color: #cbd5e1; font-size: 14px; }
+  .cbox.pending { color: #d1d5db; }
+
+  /* 候選清單 */
+  .choices-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  #choices { display: flex; flex-wrap: wrap; gap: 10px; }
+  .choice {
+    min-width: 56px; height: 56px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
+    font-size: 26px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform .1s, border-color .15s, background .15s;
+  }
+  .choice:hover { transform: translateY(-2px); border-color: var(--accent); background: var(--accent-soft); }
+  .choice:active { transform: translateY(0); }
+
+  /* ---------- 完成區 ---------- */
+  #result { display: none; }
+  #result h2 { font-size: 16px; margin-bottom: 4px; }
+  #summary { color: var(--muted); font-size: 13px; margin-bottom: 14px; }
+  #fullText {
+    font-size: 20px;
+    line-height: 2;
+    word-break: break-all;
+  }
+  #fullText .err {
+    color: var(--danger);
+    background: var(--danger-soft);
+    border-radius: 4px;
+    padding: 0 2px;
+    cursor: help;
+    position: relative;
+  }
+  #fullText .err:hover::after {
+    content: attr(data-correct);
+    position: absolute;
+    top: -30px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    z-index: 5;
+  }
+  .result-actions { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .result-actions .btn { flex: 1; min-width: 140px; justify-content: center; }
+
+  /* ---------- 移动端适配 ---------- */
+  @media (max-width: 600px) {
+    body { padding: 14px 10px; }
+    h1 { font-size: 19px; }
+    .card { padding: 14px 12px; }
+    /* 字符框与行间距缩小，一行放更多字 */
+    .cbox { width: 30px; height: 36px; font-size: 17px; border-radius: 6px; }
+    .row { gap: 4px; }
+    #historyWrap { height: 100px; padding: 8px; }
+    /* 候选按钮缩小，保证一屏能容纳 10 个 */
+    .choice { min-width: 44px; height: 48px; font-size: 20px; padding: 0 8px; }
+    #choices { gap: 8px; }
+    /* 按钮加大点击区域，占满整行 */
+    .btn { padding: 12px 16px; font-size: 15px; }
+    .upload-row { flex-direction: column; align-items: stretch; }
+    .upload-row .btn { justify-content: center; }
+    #fullText { font-size: 17px; line-height: 1.9; }
+    #fullText .err:hover::after { font-size: 12px; }
+    .topbar { font-size: 12px; }
+  }
+  /* 小屏手机（≤380px）进一步压缩 */
+  @media (max-width: 380px) {
+    .cbox { width: 26px; height: 32px; font-size: 15px; }
+    .row { gap: 3px; }
+    .choice { min-width: 40px; height: 44px; font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>字符選擇練習</h1>
+<p class="subtitle">上傳或貼上一段文字，從候選清單中選出每個字符（空格與標點自動跳過，作為換行）</p>
+
+<!-- 上傳區 -->
+<div class="card" id="setup">
+  <h2>1. 提供文字</h2>
+  <div class="upload-row">
+    <button class="btn" id="uploadBtn">選擇文字檔案</button>
+    <input type="file" id="fileInput" accept=".txt,.md,.csv,text/*" hidden>
+    <span id="fileName"></span>
+  </div>
+  <p class="or">或使用內建文字：</p>
+  <div class="upload-row">
+    <button class="btn" id="defaultTextBtn">《唯識三十頌》（玄奘譯）</button>
+  </div>
+
+  <p class="or">或者直接貼上文字：</p>
+  <textarea id="pasteArea" placeholder="在此貼上或輸入文字..."></textarea>
+  <div class="setup-actions">
+    <button class="btn btn-primary" id="startBtn">開始練習</button>
+  </div>
+</div>
+
+<!-- 練習區 -->
+<div class="card" id="practice">
+  <div class="topbar">
+    <span id="progressText">0 / 0</span>
+    <button class="btn" id="quitBtn" style="padding:6px 12px;font-size:13px;">放棄重來</button>
+  </div>
+
+  <!-- 歷史框：新框出現後整體向上滾動 -->
+  <div id="historyWrap">
+    <div id="historyRows"></div>
+  </div>
+
+  <div>
+    <p class="choices-label" id="choicesLabel">請選出下一個字符：</p>
+    <div id="choices"></div>
+  </div>
+</div>
+
+<!-- 完成区 -->
+<div class="card" id="result">
+  <h2>練習完成</h2>
+  <p id="summary"></p>
+  <div id="fullText"></div>
+  <div class="result-actions">
+    <button class="btn btn-primary" id="againBtn">再來一次</button>
+    <button class="btn" id="newTextBtn">換一段文字</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- 相似字符表（用于干扰项） ----------
+  var SIMILAR = {
+    "l": ["I", "1", "|", "j"], "I": ["l", "1", "|"], "1": ["l", "I", "7"],
+    "O": ["0", "Q", "o", "D"], "0": ["O", "o", "Q"], "o": ["O", "0", "c"],
+    "S": ["5", "s", "8"], "5": ["S", "s", "6"], "B": ["8", "b", "R"],
+    "8": ["B", "3", "S"], "Z": ["2", "z"], "2": ["Z", "z"],
+    "g": ["9", "q"], "9": ["g", "q", "6"], "q": ["g", "9"],
+    "m": ["n"], "n": ["m", "u"], "u": ["v", "n"],
+    "c": ["e", "o"], "e": ["c", "a"], "a": ["e", "s"],
+    "b": ["d", "p", "6"], "d": ["b", "p"], "p": ["b", "d", "q"],
+    "v": ["u", "w"], "w": ["v", "m"], "M": ["W"], "W": ["M"]
+  };
+
+  // 練習條目列表：{ t: "word"|"brk", c: 字符(僅 word) }
+  var items = [];
+  var boxes = [];   // 每個 word 條目對應的 DOM 框
+  var picks = [];   // 每個 word 條目用戶選擇的字符
+  var idx = 0;      // 當前 word 條目下標
+  var total = 0;
+  var wrongCount = 0;
+  var pendingChoice = null;
+  var ROW_LEN = 14;
+
+  var DEFAULT_TEXT = "\u7531\u5047\u8aaa\u6211\u6cd5\u3000\u6709\u7a2e\u7a2e\u76f8\u8f49\u3000\u5f7c\u4f9d\u8b58\u6240\u8b8a\u3000\u6b64\u80fd\u8b8a\u552f\u4e09\n\u8b02\u7570\u719f\u601d\u91cf\u3000\u53ca\u4e86\u5225\u5883\u8b58\n\n\u521d\u963f\u8cf4\u8036\u8b58\u3000\u7570\u719f\u4e00\u5207\u7a2e\u3000\u4e0d\u53ef\u77e5\u57f7\u53d7\u3000\u8655\u4e86\u5e38\u8207\u89f8\n\u4f5c\u610f\u53d7\u60f3\u601d\u3000\u76f8\u61c9\u552f\u6368\u53d7\u3000\u662f\u7121\u8986\u7121\u8a18\u3000\u89f8\u7b49\u4ea6\u5982\u662f\n\u6046\u8f49\u5982\u7011\u6d41\u3000\u963f\u7f85\u6f22\u4f4d\u6368\n\n\u6b21\u7b2c\u4e8c\u80fd\u8b8a\u3000\u662f\u8b58\u540d\u672b\u90a3\u3000\u4f9d\u5f7c\u8f49\u7de3\u5f7c\u3000\u601d\u91cf\u70ba\u6027\u76f8\n\u56db\u7169\u60f1\u5e38\u4ff1\u3000\u8b02\u6211\u7661\u6211\u898b\u3000\u4e26\u6211\u6162\u6211\u611b\u3000\u53ca\u9918\u89f8\u7b49\u4ff1\n\u6709\u8986\u7121\u8a18\u651d\u3000\u96a8\u6240\u751f\u6240\u7e6b\u3000\u963f\u7f85\u6f22\u6ec5\u5b9a\u3000\u51fa\u4e16\u9053\u7121\u6709\n\n\u6b21\u7b2c\u4e09\u80fd\u8b8a\u3000\u5dee\u5225\u6709\u516d\u7a2e\u3000\u4e86\u5883\u70ba\u6027\u76f8\u3000\u5584\u4e0d\u5584\u4ff1\u975e\n\u6b64\u5fc3\u6240\u904d\u884c\u3000\u5225\u5883\u5584\u7169\u60f1\u3000\u96a8\u7169\u60f1\u4e0d\u5b9a\u3000\u7686\u4e09\u53d7\u76f8\u61c9\n\u521d\u904d\u884c\u89f8\u7b49\u3000\u6b21\u5225\u5883\u8b02\u6b32\u3000\u52dd\u89e3\u5ff5\u5b9a\u6167\u3000\u6240\u7de3\u4e8b\u4e0d\u540c\n\u5584\u8b02\u4fe1\u615a\u6127\u3000\u7121\u8caa\u7b49\u4e09\u6839\u3000\u52e4\u5b89\u4e0d\u653e\u9038\u3000\u884c\u6368\u53ca\u4e0d\u5bb3\n\u7169\u60f1\u8b02\u8caa\u778b\u3000\u7661\u6162\u7591\u60e1\u898b\u3000\u96a8\u7169\u60f1\u8b02\u5fff\u3000\u6068\u8986\u60f1\u5ac9\u6173\n\u8a91\u8ac2\u8207\u5bb3\u618d\u3000\u7121\u615a\u53ca\u7121\u6127\u3000\u6389\u8209\u8207\u660f\u6c88\u3000\u4e0d\u4fe1\u4e26\u61c8\u6020\n\u653e\u9038\u53ca\u5931\u5ff5\u3000\u6563\u4e82\u4e0d\u6b63\u77e5\u3000\u4e0d\u5b9a\u8b02\u6094\u7720\u3000\u5c0b\u4f3a\u4e8c\u5404\u4e8c\n\n\u4f9d\u6b62\u6839\u672c\u8b58\u3000\u4e94\u8b58\u96a8\u7de3\u73fe\u3000\u6216\u4ff1\u6216\u4e0d\u4ff1\u3000\u5982\u6ce2\u6fe4\u4f9d\u6c34\n\u610f\u8b58\u5e38\u73fe\u8d77\u3000\u9664\u751f\u7121\u60f3\u5929\u3000\u53ca\u7121\u5fc3\u4e8c\u5b9a\u3000\u7761\u7720\u8207\u60b6\u7d55\n\n\u662f\u8af8\u8b58\u8f49\u8b8a\u3000\u5206\u5225\u6240\u5206\u5225\u3000\u7531\u6b64\u5f7c\u7686\u7121\u3000\u6545\u4e00\u5207\u552f\u8b58\n\n\u7531\u4e00\u5207\u7a2e\u8b58\u3000\u5982\u662f\u5982\u662f\u8b8a\u3000\u4ee5\u5c55\u8f49\u529b\u6545\u3000\u5f7c\u5f7c\u5206\u5225\u751f\n\u7531\u8af8\u696d\u7fd2\u6c23\u3000\u4e8c\u53d6\u7fd2\u6c23\u4ff1\u3000\u524d\u7570\u719f\u65e2\u76e1\u3000\u5fa9\u751f\u9918\u7570\u719f\n\n\u7531\u5f7c\u5f7c\u904d\u8a08\u3000\u904d\u8a08\u7a2e\u7a2e\u7269\u3000\u6b64\u904d\u8a08\u6240\u57f7\u3000\u81ea\u6027\u7121\u6240\u6709\n\u4f9d\u4ed6\u8d77\u81ea\u6027\u3000\u5206\u5225\u7de3\u6240\u751f\u3000\u5713\u6210\u5be6\u65bc\u5f7c\u3000\u5e38\u9060\u96e2\u524d\u6027\n\u6545\u6b64\u8207\u4f9d\u4ed6\u3000\u975e\u7570\u975e\u4e0d\u7570\u3000\u5982\u7121\u5e38\u7b49\u6027\u3000\u975e\u4e0d\u898b\u6b64\u5f7c\n\n\u5373\u4f9d\u6b64\u4e09\u6027\u3000\u7acb\u5f7c\u4e09\u7121\u6027\u3000\u6545\u4f5b\u5bc6\u610f\u8aaa\u3000\u4e00\u5207\u6cd5\u7121\u6027\n\u521d\u5373\u76f8\u7121\u6027\u3000\u6b21\u7121\u81ea\u7136\u6027\u3000\u5f8c\u7531\u9060\u96e2\u524d\u3000\u6240\u57f7\u6211\u6cd5\u6027\n\u6b64\u8af8\u6cd5\u52dd\u7fa9\u3000\u4ea6\u5373\u662f\u771f\u5982\u3000\u5e38\u5982\u5176\u6027\u6545\u3000\u5373\u552f\u8b58\u5be6\u6027\n\n\u4e43\u81f3\u672a\u8d77\u8b58\u3000\u6c42\u4f4f\u552f\u8b58\u6027\u3000\u65bc\u4e8c\u53d6\u96a8\u7720\u3000\u7336\u672a\u80fd\u4f0f\u6ec5\n\u73fe\u524d\u7acb\u5c11\u7269\u3000\u8b02\u662f\u552f\u8b58\u6027\u3000\u4ee5\u6709\u6240\u5f97\u6545\u3000\u975e\u5be6\u4f4f\u552f\u8b58\n\u82e5\u6642\u65bc\u6240\u7de3\u3000\u667a\u90fd\u7121\u6240\u5f97\u3000\u723e\u6642\u4f4f\u552f\u8b58\u3000\u96e2\u4e8c\u53d6\u76f8\u6545\n\u7121\u5f97\u4e0d\u601d\u8b70\u3000\u662f\u51fa\u4e16\u9593\u667a\u3000\u6368\u4e8c\u7c97\u91cd\u6545\u3000\u4fbf\u8b49\u5f97\u8f49\u4f9d\n\n\u6b64\u5373\u7121\u6f0f\u754c\u3000\u4e0d\u601d\u8b70\u5584\u5e38\u3000\u5b89\u6a02\u89e3\u812b\u8eab\u3000\u5927\u725f\u5c3c\u540d\u6cd5";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var setupEl = $("setup"), practiceEl = $("practice"), resultEl = $("result");
+  var historyRows = $("historyRows"), choicesEl = $("choices"), historyWrap = $("historyWrap");
+
+  // ---------- 工具 ----------
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  // 是否為漢字（含擴展A區常用範圍）
+  function isHan(c) {
+    var code = c.charCodeAt(0);
+    return (code >= 0x4e00 && code <= 0x9fff) || (code >= 0x3400 && code <= 0x4dbf);
+  }
+
+  // 只允許文字字符（字母/數字/漢字），空格、標點、符號都不算
+  function isWordChar(c) {
+    return /[A-Za-z0-9]/.test(c) || (c.charCodeAt(0) >= 0x4e00 && c.charCodeAt(0) <= 0x9fff);
+  }
+
+  // 把原始文字拆成練習條目：文字字符逐一練習；連續的空格/標點等合併為一個換行
+  function parseText(text) {
+    items = [];
+    var inBreak = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text.charAt(i);
+      if (isWordChar(c)) {
+        items.push({ t: "word", c: c });
+        inBreak = false;
+      } else if (!inBreak) {
+        items.push({ t: "brk" });
+        inBreak = true;
+      }
+    }
+    // 去掉開頭和結尾的換行條目
+    while (items.length && items[0].t === "brk") items.shift();
+    while (items.length && items[items.length - 1].t === "brk") items.pop();
+  }
+
+  function wordList() {
+    var arr = [];
+    for (var i = 0; i < items.length; i++) if (items[i].t === "word") arr.push(items[i].c);
+    return arr;
+  }
+
+  // 生成 9 個干擾字符：只使用漢字，來自相似表 / 文字中其他漢字 / 漢字兜底字集
+  function distractors(correct) {
+    var pool = [];
+    var sim = (SIMILAR[correct] || []).filter(isHan);
+    pool = pool.concat(sim);
+    var hanFromText = wordList().filter(function (c) { return isHan(c) && c !== correct; });
+    for (var i = 0; i < 8 && hanFromText.length; i++) pool.push(pick(hanFromText));
+    var fallback = "的一是了我不人在他有這上們來到時大地為子中你說生國年著就那和要她出也得裡後自以會家可下而過天去能對小多然於心學麼之都好看起發當沒成只如事把還用第樣道想作種開美總從無情己面最女但現前些所同日手又行意動方期它頭經長兒回位分愛老因很給名法間斯知世什兩次使身者被高已親其進此話常與活正感識性相變所說空法故無自體義門行位深度海藏塵想觀照真如淨染熏習種子現量分別執持含藏異熟末那賴耶遍計依他圓成實苦集滅道菩提涅槃觸作意受捨貪瞋癡慢疑慚愧不放逸掉舉惛沈懈怠失念散亂不正知尋伺悔眠惡見憍慳誑諂忿恨覆惱嫉害";
+
+    while (pool.length < 15) pool.push(pick(fallback));
+    pool = pool.filter(isHan);
+    var uniq = pool.filter(function (c, k) { return c !== correct && pool.indexOf(c) === k; });
+    return shuffle(uniq).slice(0, 9);
+  }
+
+  // ---------- 构建历史区 ----------
+  // 所有 word 條目各佔一個框；換行條目不佔框，只強制新起一行
+  function buildBoard() {
+    historyRows.innerHTML = "";
+    boxes = [];
+    picks = [];
+    var row = null, col = 0;
+    function newRow() {
+      row = document.createElement("div");
+      row.className = "row";
+      historyRows.appendChild(row);
+      col = 0;
+    }
+    newRow();
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].t === "brk") {
+        newRow();
+        continue;
+      }
+      if (col >= ROW_LEN) newRow();
+      var box = document.createElement("div");
+      box.className = "cbox pending";
+      box.textContent = "?";
+      row.appendChild(box);
+      boxes.push(box);
+      picks.push(null);
+      col++;
+    }
+    total = boxes.length;
+    idx = 0;
+    wrongCount = 0;
+    pendingChoice = null;
+    if (total) renderCurrent();
+  }
+
+  function renderCurrent() {
+    var box = boxes[idx];
+    box.className = "cbox current";
+    box.innerHTML = "";
+    var ph = document.createElement("span");
+    ph.className = "ph";
+    ph.textContent = "?";
+    box.appendChild(ph);
+    // 滾動讓當前框可見
+    box.scrollIntoView({ block: "center", behavior: "smooth" });
+    $("progressText").textContent = idx + " / " + total;
+    showChoices();
+  }
+
+  // ---------- 候選清單 ----------
+  function showChoices() {
+    choicesEl.innerHTML = "";
+    var correct = items[wordIndexOf(idx)].c;
+    var opts = shuffle([correct].concat(distractors(correct)));
+    opts.forEach(function (ch) {
+      var btn = document.createElement("button");
+      btn.className = "choice";
+      btn.textContent = ch;
+      btn.addEventListener("click", function () { choose(btn, ch, correct); });
+      choicesEl.appendChild(btn);
+    });
+  }
+
+  // 第 idx 個框對應 items 中的下標（框與 word 條目一一對應，跳過 brk）
+  function wordIndexOf(boxIdx) {
+    var count = -1;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].t === "word") count++;
+      if (count === boxIdx) return i;
+    }
+    return items.length - 1;
+  }
+
+  function choose(btn, picked, correct) {
+    if (pendingChoice) return; // 等待確認，防連點
+    var box = boxes[idx];
+    picks[idx] = picked;
+    box.innerHTML = "";
+    box.textContent = picked;
+    var isWrong = picked !== correct;
+    if (isWrong) {
+      box.classList.add("wrong");
+      wrongCount++;
+      var reveal = document.createElement("span");
+      reveal.className = "reveal";
+      reveal.textContent = correct; // 懸停顯示正確字符
+      box.appendChild(reveal);
+    } else {
+      box.classList.add("correct");
+    }
+    pendingChoice = true;
+    choicesEl.innerHTML = "";
+    setTimeout(function () {
+      box.classList.remove("current");
+      pendingChoice = null;
+      idx++;
+      if (idx < total) {
+        renderCurrent();
+      } else {
+        finish();
+      }
+    }, isWrong ? 900 : 350);
+  }
+
+  // ---------- 完成 ----------
+  function finish() {
+    practiceEl.style.display = "none";
+    resultEl.style.display = "block";
+    var pct = total ? Math.round((total - wrongCount) * 100 / total) : 100;
+    $("summary").textContent = "共 " + total + " 個字符，答錯 " + wrongCount + " 個，正確率 " + pct + "%。紅色為答錯的字，懸停可查看正確字符。空格與標點已跳過並以換行顯示。";
+    var ft = $("fullText");
+    ft.innerHTML = "";
+    var boxIdx = 0;
+    items.forEach(function (it) {
+      if (it.t === "brk") {
+        ft.appendChild(document.createElement("br"));
+        return;
+      }
+      var correct = it.c;
+      var picked = picks[boxIdx];
+      boxIdx++;
+      if (picked !== correct) {
+        var span = document.createElement("span");
+        span.className = "err";
+        span.textContent = picked;
+        span.setAttribute("data-correct", "正確: " + correct);
+        ft.appendChild(span);
+      } else {
+        ft.appendChild(document.createTextNode(correct));
+      }
+    });
+  }
+
+  // ---------- 開始 / 重來 ----------
+  function startPractice(t) {
+    text = t.replace(/\r\n/g, "\n").trim();
+    if (!text) { alert("請先提供文字內容"); return; }
+    parseText(text);
+    if (!wordList().length) { alert("文字中沒有可練習的文字字符"); return; }
+    setupEl.style.display = "none";
+    resultEl.style.display = "none";
+    practiceEl.style.display = "flex";
+    buildBoard();
+  }
+
+  var text = "";
+
+  // ---------- 事件綁定 ----------
+  $("uploadBtn").addEventListener("click", function () { $("fileInput").click(); });
+  $("fileInput").addEventListener("change", function () {
+    var f = this.files[0];
+    if (!f) return;
+    $("fileName").textContent = f.name;
+    var reader = new FileReader();
+    reader.onload = function () { $("pasteArea").value = reader.result; };
+    reader.readAsText(f);
+  });
+  $("defaultTextBtn").addEventListener("click", function () {
+    $("pasteArea").value = DEFAULT_TEXT;
+    $("fileName").textContent = "內建文字《唯識三十頌》";
+  });
+  $("startBtn").addEventListener("click", function () { startPractice($("pasteArea").value); });
+  $("quitBtn").addEventListener("click", function () {
+    setupEl.style.display = "block";
+    practiceEl.style.display = "none";
+    resultEl.style.display = "none";
+  });
+  $("againBtn").addEventListener("click", function () { startPractice(text); });
+  $("newTextBtn").addEventListener("click", function () {
+    resultEl.style.display = "none";
+    setupEl.style.display = "block";
+    $("pasteArea").value = "";
+    $("fileName").textContent = "";
+  });
+})();
+</script>
+</body>
+</html>
