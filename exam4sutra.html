@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>字符選擇練習</title>
+<title>經文、頌文背記</title>
 <style>
   :root {
     --bg: #f4f6fa;
@@ -120,7 +120,13 @@
     border: 2px dashed var(--accent);
     background: #fff;
   }
+  .cbox.current { cursor: pointer; }
   .cbox.current .ph { color: #cbd5e1; font-size: 14px; }
+  .cbox.revealed {
+    color: #dc2626;
+    border-color: #fca5a5;
+    background: #fff5f5;
+  }
   .cbox.pending { color: #d1d5db; }
   .cbox.skipped {
     color: #2563eb;
@@ -132,10 +138,11 @@
 
   /* 候選清單 */
   .choices-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
-  #choices { display: flex; flex-wrap: wrap; gap: 10px; }
+  /* 候選區：每行固定 7 個 */
+  #choices { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; }
   .choice {
-    min-width: 56px; height: 56px;
-    padding: 0 12px;
+    min-width: 0; width: 100%; height: 56px;
+    padding: 0 4px;
     border: 1px solid var(--border);
     border-radius: 10px;
     background: #fff;
@@ -190,7 +197,7 @@
     .row { gap: 4px; }
     #historyWrap { height: 280px; padding: 8px; }
     /* 候选按钮缩小，保证一屏能容纳 10 个 */
-    .choice { min-width: 44px; height: 48px; font-size: 20px; padding: 0 8px; }
+    .choice { height: 48px; font-size: 20px; }
     #choices { gap: 8px; }
     /* 按钮加大点击区域，占满整行 */
     .btn { padding: 12px 16px; font-size: 15px; }
@@ -204,14 +211,13 @@
   @media (max-width: 380px) {
     .cbox { width: 26px; height: 32px; font-size: 15px; }
     .row { gap: 3px; }
-    .choice { min-width: 40px; height: 44px; font-size: 18px; }
+    .choice { height: 44px; font-size: 18px; }
   }
 </style>
 </head>
 <body>
 
-<h1>字符選擇練習</h1>
-<p class="subtitle">上傳或貼上一段文字，從候選清單中選出每個字符（空格與標點自動跳過，作為換行）</p>
+<h1>經文、頌文背記</h1>
 
 <!-- 上傳區 -->
 <div class="card" id="setup">
@@ -224,6 +230,9 @@
   <p class="or">或使用內建文字：</p>
   <div class="upload-row">
     <button class="btn" id="defaultTextBtn">《唯識三十頌》（玄奘譯）</button>
+    <button class="btn" id="heartSutraBtn">《般若波羅蜜多心經》（玄奘譯）</button>
+    <button class="btn" id="eightVijnanasBtn">《八識規矩頌》（玄奘作）</button>
+    <button class="btn" id="yogaSilaBtn">《瑜伽菩薩戒略攝頌》</button>
   </div>
 
   <p class="or">或者直接貼上文字：</p>
@@ -238,8 +247,8 @@
   <div class="topbar">
     <span id="progressText">0 / 0</span>
     <div style="display:flex; gap:8px;">
-      <button class="btn" id="skipBtn" style="padding:6px 12px;font-size:13px;">跳過此句</button>
-      <button class="btn" id="quitBtn" style="padding:6px 12px;font-size:13px;">放棄重來</button>
+      <button class="btn" id="skipBtn" style="padding:6px 12px;font-size:13px;color:#2563eb;border-color:#93c5fd;">跳過此句</button>
+      <button class="btn" id="quitBtn" style="padding:6px 12px;font-size:13px;color:#dc2626;border-color:#fca5a5;">放棄重來</button>
     </div>
   </div>
 
@@ -290,10 +299,16 @@
   var total = 0;
   var wrongCount = 0;
   var skippedCount = 0;
+  var revealed = []; // 被點擊揭示（未作答）的字符下標
   var pendingChoice = null;
-  var ROW_LEN = 7; // 每行 7 個字符，顯示區同時可見兩行
 
-  var DEFAULT_TEXT = "\u7531\u5047\u8aaa\u6211\u6cd5\u3000\u6709\u7a2e\u7a2e\u76f8\u8f49\u3000\u5f7c\u4f9d\u8b58\u6240\u8b8a\u3000\u6b64\u80fd\u8b8a\u552f\u4e09\n\u8b02\u7570\u719f\u601d\u91cf\u3000\u53ca\u4e86\u5225\u5883\u8b58\n\n\u521d\u963f\u8cf4\u8036\u8b58\u3000\u7570\u719f\u4e00\u5207\u7a2e\u3000\u4e0d\u53ef\u77e5\u57f7\u53d7\u3000\u8655\u4e86\u5e38\u8207\u89f8\n\u4f5c\u610f\u53d7\u60f3\u601d\u3000\u76f8\u61c9\u552f\u6368\u53d7\u3000\u662f\u7121\u8986\u7121\u8a18\u3000\u89f8\u7b49\u4ea6\u5982\u662f\n\u6046\u8f49\u5982\u7011\u6d41\u3000\u963f\u7f85\u6f22\u4f4d\u6368\n\n\u6b21\u7b2c\u4e8c\u80fd\u8b8a\u3000\u662f\u8b58\u540d\u672b\u90a3\u3000\u4f9d\u5f7c\u8f49\u7de3\u5f7c\u3000\u601d\u91cf\u70ba\u6027\u76f8\n\u56db\u7169\u60f1\u5e38\u4ff1\u3000\u8b02\u6211\u7661\u6211\u898b\u3000\u4e26\u6211\u6162\u6211\u611b\u3000\u53ca\u9918\u89f8\u7b49\u4ff1\n\u6709\u8986\u7121\u8a18\u651d\u3000\u96a8\u6240\u751f\u6240\u7e6b\u3000\u963f\u7f85\u6f22\u6ec5\u5b9a\u3000\u51fa\u4e16\u9053\u7121\u6709\n\n\u6b21\u7b2c\u4e09\u80fd\u8b8a\u3000\u5dee\u5225\u6709\u516d\u7a2e\u3000\u4e86\u5883\u70ba\u6027\u76f8\u3000\u5584\u4e0d\u5584\u4ff1\u975e\n\u6b64\u5fc3\u6240\u904d\u884c\u3000\u5225\u5883\u5584\u7169\u60f1\u3000\u96a8\u7169\u60f1\u4e0d\u5b9a\u3000\u7686\u4e09\u53d7\u76f8\u61c9\n\u521d\u904d\u884c\u89f8\u7b49\u3000\u6b21\u5225\u5883\u8b02\u6b32\u3000\u52dd\u89e3\u5ff5\u5b9a\u6167\u3000\u6240\u7de3\u4e8b\u4e0d\u540c\n\u5584\u8b02\u4fe1\u615a\u6127\u3000\u7121\u8caa\u7b49\u4e09\u6839\u3000\u52e4\u5b89\u4e0d\u653e\u9038\u3000\u884c\u6368\u53ca\u4e0d\u5bb3\n\u7169\u60f1\u8b02\u8caa\u778b\u3000\u7661\u6162\u7591\u60e1\u898b\u3000\u96a8\u7169\u60f1\u8b02\u5fff\u3000\u6068\u8986\u60f1\u5ac9\u6173\n\u8a91\u8ac2\u8207\u5bb3\u618d\u3000\u7121\u615a\u53ca\u7121\u6127\u3000\u6389\u8209\u8207\u660f\u6c88\u3000\u4e0d\u4fe1\u4e26\u61c8\u6020\n\u653e\u9038\u53ca\u5931\u5ff5\u3000\u6563\u4e82\u4e0d\u6b63\u77e5\u3000\u4e0d\u5b9a\u8b02\u6094\u7720\u3000\u5c0b\u4f3a\u4e8c\u5404\u4e8c\n\n\u4f9d\u6b62\u6839\u672c\u8b58\u3000\u4e94\u8b58\u96a8\u7de3\u73fe\u3000\u6216\u4ff1\u6216\u4e0d\u4ff1\u3000\u5982\u6ce2\u6fe4\u4f9d\u6c34\n\u610f\u8b58\u5e38\u73fe\u8d77\u3000\u9664\u751f\u7121\u60f3\u5929\u3000\u53ca\u7121\u5fc3\u4e8c\u5b9a\u3000\u7761\u7720\u8207\u60b6\u7d55\n\n\u662f\u8af8\u8b58\u8f49\u8b8a\u3000\u5206\u5225\u6240\u5206\u5225\u3000\u7531\u6b64\u5f7c\u7686\u7121\u3000\u6545\u4e00\u5207\u552f\u8b58\n\n\u7531\u4e00\u5207\u7a2e\u8b58\u3000\u5982\u662f\u5982\u662f\u8b8a\u3000\u4ee5\u5c55\u8f49\u529b\u6545\u3000\u5f7c\u5f7c\u5206\u5225\u751f\n\u7531\u8af8\u696d\u7fd2\u6c23\u3000\u4e8c\u53d6\u7fd2\u6c23\u4ff1\u3000\u524d\u7570\u719f\u65e2\u76e1\u3000\u5fa9\u751f\u9918\u7570\u719f\n\n\u7531\u5f7c\u5f7c\u904d\u8a08\u3000\u904d\u8a08\u7a2e\u7a2e\u7269\u3000\u6b64\u904d\u8a08\u6240\u57f7\u3000\u81ea\u6027\u7121\u6240\u6709\n\u4f9d\u4ed6\u8d77\u81ea\u6027\u3000\u5206\u5225\u7de3\u6240\u751f\u3000\u5713\u6210\u5be6\u65bc\u5f7c\u3000\u5e38\u9060\u96e2\u524d\u6027\n\u6545\u6b64\u8207\u4f9d\u4ed6\u3000\u975e\u7570\u975e\u4e0d\u7570\u3000\u5982\u7121\u5e38\u7b49\u6027\u3000\u975e\u4e0d\u898b\u6b64\u5f7c\n\n\u5373\u4f9d\u6b64\u4e09\u6027\u3000\u7acb\u5f7c\u4e09\u7121\u6027\u3000\u6545\u4f5b\u5bc6\u610f\u8aaa\u3000\u4e00\u5207\u6cd5\u7121\u6027\n\u521d\u5373\u76f8\u7121\u6027\u3000\u6b21\u7121\u81ea\u7136\u6027\u3000\u5f8c\u7531\u9060\u96e2\u524d\u3000\u6240\u57f7\u6211\u6cd5\u6027\n\u6b64\u8af8\u6cd5\u52dd\u7fa9\u3000\u4ea6\u5373\u662f\u771f\u5982\u3000\u5e38\u5982\u5176\u6027\u6545\u3000\u5373\u552f\u8b58\u5be6\u6027\n\n\u4e43\u81f3\u672a\u8d77\u8b58\u3000\u6c42\u4f4f\u552f\u8b58\u6027\u3000\u65bc\u4e8c\u53d6\u96a8\u7720\u3000\u7336\u672a\u80fd\u4f0f\u6ec5\n\u73fe\u524d\u7acb\u5c11\u7269\u3000\u8b02\u662f\u552f\u8b58\u6027\u3000\u4ee5\u6709\u6240\u5f97\u6545\u3000\u975e\u5be6\u4f4f\u552f\u8b58\n\u82e5\u6642\u65bc\u6240\u7de3\u3000\u667a\u90fd\u7121\u6240\u5f97\u3000\u723e\u6642\u4f4f\u552f\u8b58\u3000\u96e2\u4e8c\u53d6\u76f8\u6545\n\u7121\u5f97\u4e0d\u601d\u8b70\u3000\u662f\u51fa\u4e16\u9593\u667a\u3000\u6368\u4e8c\u7c97\u91cd\u6545\u3000\u4fbf\u8b49\u5f97\u8f49\u4f9d\n\n\u6b64\u5373\u7121\u6f0f\u754c\u3000\u4e0d\u601d\u8b70\u5584\u5e38\u3000\u5b89\u6a02\u89e3\u812b\u8eab\u3000\u5927\u725f\u5c3c\u540d\u6cd5";
+  var DEFAULT_TEXT = "由假說我法　有種種相轉　彼依識所變　此能變唯三\n謂異熟思量　及了別境識\n\n初阿賴耶識　異熟一切種　不可知執受　處了常與觸\n作意受想思　相應唯捨受　是無覆無記　觸等亦如是\n恆轉如瀑流　阿羅漢位捨\n\n次第二能變　是識名末那　依彼轉緣彼　思量為性相\n四煩惱常俱　謂我癡我見　並我慢我愛　及餘觸等俱\n有覆無記攝　隨所生所繫　阿羅漢滅定　出世道無有\n\n次第三能變　差別有六種　了境為性相　善不善俱非\n此心所遍行　別境善煩惱　隨煩惱不定　皆三受相應\n初遍行觸等　次別境謂欲　勝解念定慧　所緣事不同\n善謂信慚愧　無貪等三根　勤安不放逸　行捨及不害\n煩惱謂貪瞋　癡慢疑惡見　隨煩惱謂忿　恨覆惱嫉慳\n誑諂與害憍　無慚及無愧　掉舉與昏沈　不信並懈怠\n放逸及失念　散亂不正知　不定謂悔眠　尋伺二各二\n\n依止根本識　五識隨緣現　或俱或不俱　如波濤依水\n意識常現起　除生無想天　及無心二定　睡眠與悶絕\n\n是諸識轉變　分別所分別　由此彼皆無　故一切唯識\n\n由一切種識　如是如是變　以展轉力故　彼彼分別生\n由諸業習氣　二取習氣俱　前異熟既盡　復生餘異熟\n\n由彼彼遍計　遍計種種物　此遍計所執　自性無所有\n依他起自性　分別緣所生　圓成實於彼　常遠離前性\n故此與依他　非異非不異　如無常等性　非不見此彼\n\n即依此三性　立彼三無性　故佛密意說　一切法無性\n初即相無性　次無自然性　後由遠離前　所執我法性\n此諸法勝義　亦即是真如　常如其性故　即唯識實性\n\n乃至未起識　求住唯識性　於二取隨眠　猶未能伏滅\n現前立少物　謂是唯識性　以有所得故　非實住唯識\n若時於所緣　智都無所得　爾時住唯識　離二取相故\n無得不思議　是出世間智　捨二粗重故　便證得轉依\n\n此即無漏界　不思議善常　安樂解脫身　大牟尼名法";
+
+  var HEART_SUTRA_TEXT = "觀自在菩薩，行深般若波羅蜜多時，照見五蘊皆空度一切苦厄。\n舍利子！色不異空空不異色；色即是空空即是色。受想行識亦復如是。\n舍利子！是諸法空相，不生不滅不垢不淨不增不減。是故空中無色，無受想行識；無眼耳鼻舌身意；無色聲香味觸法；無眼界乃至無意識界；無無明亦無無明盡；乃至無老死亦無老死盡；無苦集滅道；無智亦無得。\n以無所得故，菩提薩埵，依般若波羅蜜多故，心無罣礙；無罣礙故無有恐怖，遠離顛倒夢想究竟涅槃。三世諸佛，依般若波羅蜜多故，得阿耨多羅三藐三菩提。\n故知般若波羅蜜多，是大神咒是大明咒，是無上咒是無等等咒，能除一切苦真實不虛。\n故說般若波羅蜜多咒，即說咒曰：\n揭諦揭諦　\n波羅揭諦　波羅僧揭諦　\n菩提薩婆訶";
+
+  var EIGHT_VIJNANAS_TEXT = "\u6027\u5883\u73fe\u91cf\u901a\u4e09\u6027\uff0c\u773c\u8033\u8eab\u4e09\u4e8c\u5730\u5c45\uff0c\u904d\u884c\u5225\u5883\u5584\u5341\u4e00\uff0c\u4e2d\u4e8c\u5927\u516b\u8caa\u778b\u7661\u3002\n\u4e94\u8b58\u540c\u4f9d\u6de8\u8272\u6839\uff0c\u4e5d\u7de3\u4e03\u516b\u597d\u76f8\u9130\uff0c\u5408\u4e09\u96e2\u4e8c\u89c0\u5875\u4e16\uff0c\u611a\u8005\u96e3\u5206\u8b58\u8207\u6839\u3002\n\u8b8a\u76f8\u89c0\u7a7a\u552f\u5f8c\u5f97\uff0c\u679c\u4e2d\u7336\u81ea\u4e0d\u8a6e\u771f\uff0c\u5713\u660e\u521d\u767c\u6210\u7121\u6f0f\uff0c\u4e09\u985e\u5206\u8eab\u606f\u82e6\u8f2a\u3002\n\n\u4e09\u6027\u4e09\u91cf\u901a\u4e09\u5883\uff0c\u4e09\u754c\u8f2a\u6642\u6613\u53ef\u77e5\uff0c\u76f8\u61c9\u5fc3\u6240\u4e94\u5341\u4e00\uff0c\u5584\u60e1\u81e8\u6642\u5225\u914d\u4e4b\u3002\n\u6027\u754c\u53d7\u4e09\u6046\u8f49\u6613\uff0c\u6839\u96a8\u4fe1\u7b49\u7e3d\u76f8\u9023\uff0c\u52d5\u8eab\u767c\u8a9e\u7368\u70ba\u6700\uff0c\u5f15\u6eff\u80fd\u62db\u696d\u529b\u727d\u3002\n\u767c\u8d77\u521d\u5fc3\u6b61\u559c\u5730\uff0c\u4ff1\u751f\u7336\u81ea\u73fe\u7e8f\u7720\uff0c\u9060\u884c\u5730\u5f8c\u7d14\u7121\u6f0f\uff0c\u89c0\u5bdf\u5713\u660e\u7167\u5927\u5343\u3002\n\n\u5e36\u8cea\u6709\u8986\u901a\u60c5\u672c\uff0c\u96a8\u7de3\u57f7\u6211\u91cf\u70ba\u975e\uff0c\u516b\u5927\u904d\u884c\u5225\u5883\u6167\uff0c\u8caa\u7661\u6211\u898b\u6162\u76f8\u96a8\u3002\n\u6046\u5be9\u601d\u91cf\u6211\u76f8\u96a8\uff0c\u6709\u60c5\u65e5\u591c\u93ae\u660f\u8ff7\uff0c\u56db\u60d1\u516b\u5927\u76f8\u61c9\u8d77\uff0c\u516d\u8f49\u547c\u70ba\u67d3\u6de8\u4f9d\u3002\n\u6975\u559c\u521d\u5fc3\u5e73\u7b49\u6027\uff0c\u7121\u529f\u7528\u884c\u6211\u6046\u6467\uff0c\u5982\u4f86\u73fe\u8d77\u4ed6\u53d7\u7528\uff0c\u5341\u5730\u83e9\u85a9\u6240\u88ab\u6a5f\u3002\n\n\u6027\u552f\u7121\u8986\u4e94\u904d\u884c\uff0c\u754c\u5730\u96a8\u4ed6\u696d\u529b\u751f\uff0c\u4e8c\u4e58\u4e0d\u4e86\u56e0\u8ff7\u57f7\uff0c\u7531\u6b64\u80fd\u8208\u8ad6\u4e3b\u8acd\u3002\n\u6d69\u6d69\u4e09\u85cf\u4e0d\u53ef\u7aae\uff0c\u6df5\u6df1\u4e03\u6d6a\u5883\u70ba\u98a8\uff0c\u53d7\u85b0\u6301\u7a2e\u6839\u8eab\u5668\uff0c\u53bb\u5f8c\u4f86\u5148\u4f5c\u4e3b\u516c\u3002\n\u4e0d\u52d5\u5730\u524d\u624d\u820d\u85cf\uff0c\u91d1\u525b\u9053\u5f8c\u7570\u719f\u7a7a\uff0c\u5927\u5713\u7121\u57a2\u540c\u6642\u767c\uff0c\u666e\u7167\u5341\u65b9\u5875\u524e\u4e2d\u3002";
+
+  var YOGA_SILA_TEXT = "菩薩淨律儀 重四輕四三\n云四重罪者 謂嫉慳嗔痴\n初貪求榮利 自贊而毀他\n二慳惜財法 有求不施與\n三懷忿打罵 他諫謝不忍\n四謗菩薩藏 愛樂相似法\n此四他勝法 隨犯於一種\n即非真菩薩 況犯於一切\n四十三輕者 障六度四攝\n初對三寶前 不禮敬供養\n二大欲無足 著利養恭敬\n三對諸耆德 不承迎酬對\n四卻他延請 五卻他重施\n六慳法不舍 七於犯戒者\n嫌恨不饒益 此七障布施\n別解脫戒中 遮罪有差別\n護他制遮罪 共聲聞等學\n少事等遮罪 菩薩不共學\n為求利他故 多事業為妙\n於衣食資具 雖求百千種\n利他故應作 不作乃為犯\n於七支性罪 權行不為犯\n慈愍利他故 生起多功德\n如見賊作惡 欲害多有情\n及害於賢聖 當成無間業\n悲愍心熾然 持刀斷彼命\n寧自墮地獄 拔彼當來苦\n又暴惡宰官 苛政惱人民\n菩薩懷利濟 廢黜彼尊位\n或盜劫財物 持以縱諸欲\n愍彼無義利 逼奪還故主\n母邑無系屬 現求非梵行\n觀彼有善根 順之可成就\n違彼令生恚 作惡招眾苦\n愍他故權行 損己益他故\n出家護僧制 是則不應為\n所成者一人 而虧聖教故\n又脫他命難 方便說妄語\n拔他離惡友 說於離間語\n警他出險道 而說粗惡語\n順他情所習 安立善法中\n方便說綺語 此一切無犯\n菩薩重他利 心淨故皆為\n聲聞善一身 無斯大行願\n然非心誠諦 假借成重罪\n慈愍多慚愧 是乃得為耳\n第三邪命法 詭詐罔利養\n四掉動不靜 嬉戲失威儀\n五起異見論 厭背於涅槃\n於本隨煩惱 勿怖勿求斷\n以當三大劫 求大菩提故\n此言為非理 違背於聖教\n菩薩大涅槃 百倍生忻樂\n於本隨煩惱 百倍生厭離\n為普利一切 成大淨行故\n六於己惡稱 不護亦不雪\n七罷頑有情 應辛楚治罰\n護其憂惱故 姑息不懲治\n如是七輕罪 障淨戒應知\n障忍有四種 一他罵報罵\n嗔打報嗔打 二侵犯於他\n或他疑侵犯 驕慢不理謝\n三他犯還謝 惱彼而不受\n四於他懷忿 相續持不舍\n障精進有三 一貪供事故\n愛染御徒眾 二懶惰怠懈\n非量耽睡眠 三懷愛染心\n談說世俗事 費時失正業\n障定亦三種 一欲令心定\n驕慢不求師 教授諸禪法\n二不除五蓋 謂貪恚疑等\n三已得定者 於定深味著\n障慧共八種 初起見立論\n誹謗聲聞乘 不聽受修學\n二未精大乘 棄舍專學小\n三未精佛教 精勤學外論\n四於外異論 愛樂生味著\n五於殊勝法 甚深真實義\n及諸佛菩薩 難思議神力\n不自審無知 不信起謗毀\n六以愛恚心 自贊毀他人\n七聞說正法 驕慢不往聽\n八於說法師 嗤笑起輕毀\n此三十二輕 障攝善法戒\n復有十一種 能障於四攝\n他事不助伴 疾病不供事\n此障於同事 見行非理者\n不為說正法 障愛語應知\n受恩不酬報 他難不拔濟\n不釋他愁憂 不濟他窮乏\n於所攝徒眾 不正為依止\n正教授教誡 此五障布施\n若懷嫌恨心 不隨他心轉\n於他實有德 不顯揚稱贊\n應訶責治罰 及應驅擯者\n不如量如理 廣行於懲治\n已得神通者 具變現威力\n於諸有情類 應恐怖不怖\n應引攝不攝 此四障利行\n如是共十一 不饒益有情\n持菩薩戒者 一切應遠離\n此上一切戒 犯相有差別\n謂染及非染 或犯而非犯\n由貪嗔慢見 惡心而犯者\n是謂染違犯 失念怠惰等\n無記心犯者 違犯而非染\n隨染非染別 得罪亦不同\n若由心狂亂 或貧病無力\n不應行而行 應行無力行\n如是等一切 皆不名為犯\n又有為利他 慈悲調服彼\n或由全大義 權虧於小節\n雖犯於諸戒 無犯成功德";
 
   var $ = function (id) { return document.getElementById(id); };
   var setupEl = $("setup"), practiceEl = $("practice"), resultEl = $("result");
@@ -381,7 +396,6 @@
         newRow();
         continue;
       }
-      if (col >= ROW_LEN) newRow();
       var box = document.createElement("div");
       box.className = "cbox pending";
       box.textContent = "?";
@@ -394,6 +408,7 @@
     idx = 0;
     wrongCount = 0;
     skippedCount = 0;
+    revealed = [];
     pendingChoice = null;
     if (total) renderCurrent();
   }
@@ -434,6 +449,31 @@
       if (count === boxIdx) return i;
     }
     return items.length - 1;
+  }
+
+  // 點擊當前框：直接以紅色顯示正確字符並進入下一個
+  function revealCurrent() {
+    if (pendingChoice || idx >= total) return;
+    var box = boxes[idx];
+    var correct = items[wordIndexOf(idx)].c;
+    picks[idx] = null; // 標記為未作答（揭示）
+    revealed.push(idx);
+    box.className = "cbox current revealed";
+    box.innerHTML = "";
+    box.textContent = correct;
+    wrongCount++;
+    pendingChoice = true;
+    choicesEl.innerHTML = "";
+    setTimeout(function () {
+      box.classList.remove("current");
+      pendingChoice = null;
+      idx++;
+      if (idx < total) {
+        renderCurrent();
+      } else {
+        finish();
+      }
+    }, 900);
   }
 
   function choose(btn, picked, correct) {
@@ -511,7 +551,12 @@
       var correct = it.c;
       var picked = picks[boxIdx];
       boxIdx++;
-      if (picked === null) {
+      if (revealed.indexOf(boxIdx - 1) !== -1) {
+        var rev = document.createElement("span");
+        rev.className = "err";
+        rev.textContent = correct;
+        ft.appendChild(rev);
+      } else if (picked === null) {
         var green = document.createElement("span");
         green.className = "skipgreen";
         green.textContent = correct;
@@ -556,7 +601,23 @@
     $("pasteArea").value = DEFAULT_TEXT;
     $("fileName").textContent = "內建文字《唯識三十頌》";
   });
+  $("heartSutraBtn").addEventListener("click", function () {
+    $("pasteArea").value = HEART_SUTRA_TEXT;
+    $("fileName").textContent = "內建文字《般若波羅蜜多心經》";
+  });
+  $("eightVijnanasBtn").addEventListener("click", function () {
+    $("pasteArea").value = EIGHT_VIJNANAS_TEXT;
+    $("fileName").textContent = "內建文字《八識規矩頌》";
+  });
+  $("yogaSilaBtn").addEventListener("click", function () {
+    $("pasteArea").value = YOGA_SILA_TEXT;
+    $("fileName").textContent = "內建文字《瑜伽菩薩戒略攝頌》";
+  });
   $("skipBtn").addEventListener("click", skipSentence);
+  historyRows.addEventListener("click", function (e) {
+    if (pendingChoice || idx >= total) return;
+    if (boxes[idx] && boxes[idx].contains(e.target)) revealCurrent();
+  });
   $("startBtn").addEventListener("click", function () { startPractice($("pasteArea").value); });
   $("quitBtn").addEventListener("click", function () {
     setupEl.style.display = "block";
