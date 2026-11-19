@@ -79,7 +79,7 @@
 
   /* 歷史框區域：隨進度向上滾動 */
   #historyWrap {
-    height: 120px;
+    height: 360px;
     overflow-y: auto;
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -122,6 +122,13 @@
   }
   .cbox.current .ph { color: #cbd5e1; font-size: 14px; }
   .cbox.pending { color: #d1d5db; }
+  .cbox.skipped {
+    color: #2563eb;
+    border-color: #93c5fd;
+    background: #eff6ff;
+    font-style: normal;
+  }
+  #fullText .skipgreen { color: #2563eb; }
 
   /* 候選清單 */
   .choices-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
@@ -181,7 +188,7 @@
     /* 字符框与行间距缩小，一行放更多字 */
     .cbox { width: 30px; height: 36px; font-size: 17px; border-radius: 6px; }
     .row { gap: 4px; }
-    #historyWrap { height: 100px; padding: 8px; }
+    #historyWrap { height: 280px; padding: 8px; }
     /* 候选按钮缩小，保证一屏能容纳 10 个 */
     .choice { min-width: 44px; height: 48px; font-size: 20px; padding: 0 8px; }
     #choices { gap: 8px; }
@@ -230,7 +237,10 @@
 <div class="card" id="practice">
   <div class="topbar">
     <span id="progressText">0 / 0</span>
-    <button class="btn" id="quitBtn" style="padding:6px 12px;font-size:13px;">放棄重來</button>
+    <div style="display:flex; gap:8px;">
+      <button class="btn" id="skipBtn" style="padding:6px 12px;font-size:13px;">跳過此句</button>
+      <button class="btn" id="quitBtn" style="padding:6px 12px;font-size:13px;">放棄重來</button>
+    </div>
   </div>
 
   <!-- 歷史框：新框出現後整體向上滾動 -->
@@ -279,8 +289,9 @@
   var idx = 0;      // 當前 word 條目下標
   var total = 0;
   var wrongCount = 0;
+  var skippedCount = 0;
   var pendingChoice = null;
-  var ROW_LEN = 14;
+  var ROW_LEN = 7; // 每行 7 個字符，顯示區同時可見兩行
 
   var DEFAULT_TEXT = "\u7531\u5047\u8aaa\u6211\u6cd5\u3000\u6709\u7a2e\u7a2e\u76f8\u8f49\u3000\u5f7c\u4f9d\u8b58\u6240\u8b8a\u3000\u6b64\u80fd\u8b8a\u552f\u4e09\n\u8b02\u7570\u719f\u601d\u91cf\u3000\u53ca\u4e86\u5225\u5883\u8b58\n\n\u521d\u963f\u8cf4\u8036\u8b58\u3000\u7570\u719f\u4e00\u5207\u7a2e\u3000\u4e0d\u53ef\u77e5\u57f7\u53d7\u3000\u8655\u4e86\u5e38\u8207\u89f8\n\u4f5c\u610f\u53d7\u60f3\u601d\u3000\u76f8\u61c9\u552f\u6368\u53d7\u3000\u662f\u7121\u8986\u7121\u8a18\u3000\u89f8\u7b49\u4ea6\u5982\u662f\n\u6046\u8f49\u5982\u7011\u6d41\u3000\u963f\u7f85\u6f22\u4f4d\u6368\n\n\u6b21\u7b2c\u4e8c\u80fd\u8b8a\u3000\u662f\u8b58\u540d\u672b\u90a3\u3000\u4f9d\u5f7c\u8f49\u7de3\u5f7c\u3000\u601d\u91cf\u70ba\u6027\u76f8\n\u56db\u7169\u60f1\u5e38\u4ff1\u3000\u8b02\u6211\u7661\u6211\u898b\u3000\u4e26\u6211\u6162\u6211\u611b\u3000\u53ca\u9918\u89f8\u7b49\u4ff1\n\u6709\u8986\u7121\u8a18\u651d\u3000\u96a8\u6240\u751f\u6240\u7e6b\u3000\u963f\u7f85\u6f22\u6ec5\u5b9a\u3000\u51fa\u4e16\u9053\u7121\u6709\n\n\u6b21\u7b2c\u4e09\u80fd\u8b8a\u3000\u5dee\u5225\u6709\u516d\u7a2e\u3000\u4e86\u5883\u70ba\u6027\u76f8\u3000\u5584\u4e0d\u5584\u4ff1\u975e\n\u6b64\u5fc3\u6240\u904d\u884c\u3000\u5225\u5883\u5584\u7169\u60f1\u3000\u96a8\u7169\u60f1\u4e0d\u5b9a\u3000\u7686\u4e09\u53d7\u76f8\u61c9\n\u521d\u904d\u884c\u89f8\u7b49\u3000\u6b21\u5225\u5883\u8b02\u6b32\u3000\u52dd\u89e3\u5ff5\u5b9a\u6167\u3000\u6240\u7de3\u4e8b\u4e0d\u540c\n\u5584\u8b02\u4fe1\u615a\u6127\u3000\u7121\u8caa\u7b49\u4e09\u6839\u3000\u52e4\u5b89\u4e0d\u653e\u9038\u3000\u884c\u6368\u53ca\u4e0d\u5bb3\n\u7169\u60f1\u8b02\u8caa\u778b\u3000\u7661\u6162\u7591\u60e1\u898b\u3000\u96a8\u7169\u60f1\u8b02\u5fff\u3000\u6068\u8986\u60f1\u5ac9\u6173\n\u8a91\u8ac2\u8207\u5bb3\u618d\u3000\u7121\u615a\u53ca\u7121\u6127\u3000\u6389\u8209\u8207\u660f\u6c88\u3000\u4e0d\u4fe1\u4e26\u61c8\u6020\n\u653e\u9038\u53ca\u5931\u5ff5\u3000\u6563\u4e82\u4e0d\u6b63\u77e5\u3000\u4e0d\u5b9a\u8b02\u6094\u7720\u3000\u5c0b\u4f3a\u4e8c\u5404\u4e8c\n\n\u4f9d\u6b62\u6839\u672c\u8b58\u3000\u4e94\u8b58\u96a8\u7de3\u73fe\u3000\u6216\u4ff1\u6216\u4e0d\u4ff1\u3000\u5982\u6ce2\u6fe4\u4f9d\u6c34\n\u610f\u8b58\u5e38\u73fe\u8d77\u3000\u9664\u751f\u7121\u60f3\u5929\u3000\u53ca\u7121\u5fc3\u4e8c\u5b9a\u3000\u7761\u7720\u8207\u60b6\u7d55\n\n\u662f\u8af8\u8b58\u8f49\u8b8a\u3000\u5206\u5225\u6240\u5206\u5225\u3000\u7531\u6b64\u5f7c\u7686\u7121\u3000\u6545\u4e00\u5207\u552f\u8b58\n\n\u7531\u4e00\u5207\u7a2e\u8b58\u3000\u5982\u662f\u5982\u662f\u8b8a\u3000\u4ee5\u5c55\u8f49\u529b\u6545\u3000\u5f7c\u5f7c\u5206\u5225\u751f\n\u7531\u8af8\u696d\u7fd2\u6c23\u3000\u4e8c\u53d6\u7fd2\u6c23\u4ff1\u3000\u524d\u7570\u719f\u65e2\u76e1\u3000\u5fa9\u751f\u9918\u7570\u719f\n\n\u7531\u5f7c\u5f7c\u904d\u8a08\u3000\u904d\u8a08\u7a2e\u7a2e\u7269\u3000\u6b64\u904d\u8a08\u6240\u57f7\u3000\u81ea\u6027\u7121\u6240\u6709\n\u4f9d\u4ed6\u8d77\u81ea\u6027\u3000\u5206\u5225\u7de3\u6240\u751f\u3000\u5713\u6210\u5be6\u65bc\u5f7c\u3000\u5e38\u9060\u96e2\u524d\u6027\n\u6545\u6b64\u8207\u4f9d\u4ed6\u3000\u975e\u7570\u975e\u4e0d\u7570\u3000\u5982\u7121\u5e38\u7b49\u6027\u3000\u975e\u4e0d\u898b\u6b64\u5f7c\n\n\u5373\u4f9d\u6b64\u4e09\u6027\u3000\u7acb\u5f7c\u4e09\u7121\u6027\u3000\u6545\u4f5b\u5bc6\u610f\u8aaa\u3000\u4e00\u5207\u6cd5\u7121\u6027\n\u521d\u5373\u76f8\u7121\u6027\u3000\u6b21\u7121\u81ea\u7136\u6027\u3000\u5f8c\u7531\u9060\u96e2\u524d\u3000\u6240\u57f7\u6211\u6cd5\u6027\n\u6b64\u8af8\u6cd5\u52dd\u7fa9\u3000\u4ea6\u5373\u662f\u771f\u5982\u3000\u5e38\u5982\u5176\u6027\u6545\u3000\u5373\u552f\u8b58\u5be6\u6027\n\n\u4e43\u81f3\u672a\u8d77\u8b58\u3000\u6c42\u4f4f\u552f\u8b58\u6027\u3000\u65bc\u4e8c\u53d6\u96a8\u7720\u3000\u7336\u672a\u80fd\u4f0f\u6ec5\n\u73fe\u524d\u7acb\u5c11\u7269\u3000\u8b02\u662f\u552f\u8b58\u6027\u3000\u4ee5\u6709\u6240\u5f97\u6545\u3000\u975e\u5be6\u4f4f\u552f\u8b58\n\u82e5\u6642\u65bc\u6240\u7de3\u3000\u667a\u90fd\u7121\u6240\u5f97\u3000\u723e\u6642\u4f4f\u552f\u8b58\u3000\u96e2\u4e8c\u53d6\u76f8\u6545\n\u7121\u5f97\u4e0d\u601d\u8b70\u3000\u662f\u51fa\u4e16\u9593\u667a\u3000\u6368\u4e8c\u7c97\u91cd\u6545\u3000\u4fbf\u8b49\u5f97\u8f49\u4f9d\n\n\u6b64\u5373\u7121\u6f0f\u754c\u3000\u4e0d\u601d\u8b70\u5584\u5e38\u3000\u5b89\u6a02\u89e3\u812b\u8eab\u3000\u5927\u725f\u5c3c\u540d\u6cd5";
 
@@ -345,10 +356,10 @@
     for (var i = 0; i < 8 && hanFromText.length; i++) pool.push(pick(hanFromText));
     var fallback = "的一是了我不人在他有這上們來到時大地為子中你說生國年著就那和要她出也得裡後自以會家可下而過天去能對小多然於心學麼之都好看起發當沒成只如事把還用第樣道想作種開美總從無情己面最女但現前些所同日手又行意動方期它頭經長兒回位分愛老因很給名法間斯知世什兩次使身者被高已親其進此話常與活正感識性相變所說空法故無自體義門行位深度海藏塵想觀照真如淨染熏習種子現量分別執持含藏異熟末那賴耶遍計依他圓成實苦集滅道菩提涅槃觸作意受捨貪瞋癡慢疑慚愧不放逸掉舉惛沈懈怠失念散亂不正知尋伺悔眠惡見憍慳誑諂忿恨覆惱嫉害";
 
-    while (pool.length < 15) pool.push(pick(fallback));
+    while (pool.length < 20) pool.push(pick(fallback));
     pool = pool.filter(isHan);
     var uniq = pool.filter(function (c, k) { return c !== correct && pool.indexOf(c) === k; });
-    return shuffle(uniq).slice(0, 9);
+    return shuffle(uniq).slice(0, 13);
   }
 
   // ---------- 构建历史区 ----------
@@ -382,6 +393,7 @@
     total = boxes.length;
     idx = 0;
     wrongCount = 0;
+    skippedCount = 0;
     pendingChoice = null;
     if (total) renderCurrent();
   }
@@ -455,12 +467,39 @@
     }, isWrong ? 900 : 350);
   }
 
+  // ---------- 跳過此句 ----------
+  // 將當前句子剩餘字符直接以正確字符填入（藍色顯示），並跳到下一句
+  function skipSentence() {
+    if (pendingChoice || idx >= total) return;
+    var w = wordIndexOf(idx);
+    var filled = 0;
+    while (w < items.length && items[w].t === "word") {
+      var box = boxes[idx + filled];
+      var correct = items[w].c;
+      picks[idx + filled] = correct;
+      box.className = "cbox skipped";
+      box.innerHTML = "";
+      box.textContent = correct;
+      filled++;
+      w++;
+    }
+    skippedCount += filled;
+    choicesEl.innerHTML = "";
+    idx += filled;
+    if (idx < total) {
+      renderCurrent();
+    } else {
+      finish();
+    }
+  }
+
   // ---------- 完成 ----------
   function finish() {
     practiceEl.style.display = "none";
     resultEl.style.display = "block";
-    var pct = total ? Math.round((total - wrongCount) * 100 / total) : 100;
-    $("summary").textContent = "共 " + total + " 個字符，答錯 " + wrongCount + " 個，正確率 " + pct + "%。紅色為答錯的字，懸停可查看正確字符。空格與標點已跳過並以換行顯示。";
+    var answered = total - skippedCount;
+    var pct = answered ? Math.round((answered - wrongCount) * 100 / answered) : 100;
+    $("summary").textContent = "共 " + total + " 個字符，練習 " + answered + " 個（跳過 " + skippedCount + " 個），答錯 " + wrongCount + " 個，正確率 " + pct + "%。紅色為答錯的字，懸停可查看正確字符；藍色為跳過的句子。空格與標點已跳過並以換行顯示。";
     var ft = $("fullText");
     ft.innerHTML = "";
     var boxIdx = 0;
@@ -472,7 +511,12 @@
       var correct = it.c;
       var picked = picks[boxIdx];
       boxIdx++;
-      if (picked !== correct) {
+      if (picked === null) {
+        var green = document.createElement("span");
+        green.className = "skipgreen";
+        green.textContent = correct;
+        ft.appendChild(green);
+      } else if (picked !== correct) {
         var span = document.createElement("span");
         span.className = "err";
         span.textContent = picked;
@@ -512,6 +556,7 @@
     $("pasteArea").value = DEFAULT_TEXT;
     $("fileName").textContent = "內建文字《唯識三十頌》";
   });
+  $("skipBtn").addEventListener("click", skipSentence);
   $("startBtn").addEventListener("click", function () { startPractice($("pasteArea").value); });
   $("quitBtn").addEventListener("click", function () {
     setupEl.style.display = "block";
