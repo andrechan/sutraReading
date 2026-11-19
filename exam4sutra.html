@@ -246,10 +246,7 @@
 <div class="card" id="practice">
   <div class="topbar">
     <span id="progressText">0 / 0</span>
-    <div style="display:flex; gap:8px;">
-      <button class="btn" id="skipBtn" style="padding:6px 12px;font-size:13px;color:#2563eb;border-color:#93c5fd;">跳過此句</button>
-      <button class="btn" id="quitBtn" style="padding:6px 12px;font-size:13px;color:#dc2626;border-color:#fca5a5;">放棄重來</button>
-    </div>
+    <button class="btn" id="quitBtn" style="padding:6px 12px;font-size:13px;color:#dc2626;border-color:#fca5a5;">放棄重來</button>
   </div>
 
   <!-- 歷史框：新框出現後整體向上滾動 -->
@@ -260,6 +257,11 @@
   <div>
     <p class="choices-label" id="choicesLabel">請選出下一個字符：</p>
     <div id="choices"></div>
+  </div>
+
+  <!-- 跳過按鈕：右下角，方便按下 -->
+  <div style="display:flex; justify-content:flex-end;">
+    <button class="btn" id="skipBtn" style="padding:12px 24px;font-size:15px;color:#2563eb;border-color:#93c5fd;">跳過此句</button>
   </div>
 </div>
 
