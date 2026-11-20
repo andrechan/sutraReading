@@ -312,7 +312,10 @@
       <p class="choices-label" id="choicesLabel">請選出下一個字符：</p>
       <div id="choices"></div>
     </div>
-    <button class="btn" id="skipBtn" style="color:#2563eb;border-color:#93c5fd;background:#eff6ff;flex-shrink:0;">跳過此句</button>
+    <div style="display:flex; flex-direction:column; gap:10px; flex-shrink:0;">
+      <button class="btn" id="skipBtn" style="color:#2563eb;border-color:#93c5fd;background:#eff6ff;">跳過此句</button>
+      <button class="btn" id="finishBtn" style="color:#16a34a;border-color:#86efac;background:#f0fdf4;">全部完成</button>
+    </div>
   </div>
 </div>
 
@@ -673,6 +676,30 @@
     }
   }
 
+  // ---------- 全部完成 ----------
+  // 剩餘字符全部以正確字符填入（藍色，計為跳過），直接進入結果頁
+  function finishAll() {
+    if (pendingChoice) return;
+    while (idx < total) {
+      var w = wordIndexOf(idx);
+      while (w < items.length && items[w].t === "word") {
+        var box = boxes[idx];
+        var correct = items[w].c;
+        picks[idx] = correct;
+        box.className = "cbox skipped";
+        box.innerHTML = "";
+        box.textContent = correct;
+        skippedIdx.push(idx);
+        skippedCount++;
+        idx++;
+        w++;
+      }
+      idx++; // 跳過 brk
+    }
+    setChoicesEnabled(false);
+    finish();
+  }
+
   // ---------- 完成 ----------
   function finish() {
     practiceEl.style.display = "none";
@@ -775,6 +802,7 @@
     $("fileName").textContent = "內建文字《瑜伽菩薩戒略攝頌》";
   });
   $("skipBtn").addEventListener("click", skipSentence);
+  $("finishBtn").addEventListener("click", finishAll);
   historyRows.addEventListener("click", function (e) {
     var rbtn = e.target.closest(".reloadBtn");
     if (rbtn) {
