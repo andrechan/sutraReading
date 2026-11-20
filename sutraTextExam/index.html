@@ -1,1 +1,808 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>經文、頌文背記</title>
+<style>
+  :root {
+    --bg: #f4f6fa;
+    --card: #ffffff;
+    --ink: #1f2937;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --accent-soft: #dbeafe;
+    --danger: #dc2626;
+    --danger-soft: #fee2e2;
+    --border: #e5e7eb;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(160deg, #dceafc 0%, #eef0fb 45%, #ddf2ec 100%) fixed;
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
 
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    width: 100%;
+    max-width: 720px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+
+  /* ---------- 上傳區 ---------- */
+  #setup h2 { font-size: 16px; margin-bottom: 12px; }
+  .upload-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    height: 44px;
+    padding: 0 20px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--card);
+    color: var(--ink);
+    font-size: 15px;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  .btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  #fileName { color: var(--muted); font-size: 13px; }
+  .or { color: var(--muted); font-size: 13px; margin: 14px 0 8px; }
+  textarea {
+    width: 100%; min-height: 90px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+  }
+  textarea:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+  .setup-actions { margin-top: 14px; text-align: right; }
+
+  /* ---------- 練習區 ---------- */
+  #practice { display: none; flex-direction: column; gap: 16px; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); }
+
+  /* 歷史框區域：隨進度向上滾動 */
+  #historyWrap {
+    height: 360px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: #fafbfc;
+    padding: 10px;
+  }
+  #historyRows { display: flex; flex-direction: column; gap: 8px; justify-content: flex-end; min-height: 100%; }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .cbox {
+    width: 42px; height: 48px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .cbox.correct { color: #16a34a; border-color: #86efac; }
+  .cbox.wrong {
+    color: var(--danger);
+    border-color: #fca5a5;
+    background: var(--danger-soft);
+    cursor: help;
+  }
+  /* 懸停錯誤框顯示正確字符 */
+  .cbox.wrong .reveal { display: none; }
+  .cbox.wrong:hover .reveal {
+    display: flex;
+    position: absolute;
+    inset: 0;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 7px;
+    z-index: 2;
+  }
+  .cbox.current {
+    border: 2px dashed var(--accent);
+    background: #fff;
+  }
+  .cbox.current { cursor: pointer; }
+  .cbox.current .ph { color: #cbd5e1; font-size: 14px; }
+  .cbox.revealed {
+    color: #dc2626;
+    border-color: #fca5a5;
+    background: #fff5f5;
+  }
+  .cbox.pending { color: #d1d5db; }
+  /* 句首重新開始按鈕 */
+  .reloadBtn {
+    order: 1;
+    width: 42px; height: 48px;
+    border: 1px solid #93c5fd;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 22px;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .reloadBtn.show { display: inline-flex; }
+  .reloadBtn:hover { background: #fef3c7; }
+  @media (max-width: 600px) {
+    .reloadBtn { width: 32px; height: 38px; font-size: 17px; border-radius: 6px; }
+  }
+  .cbox.skipped {
+    color: #2563eb;
+    border-color: #93c5fd;
+    background: #eff6ff;
+    font-style: normal;
+  }
+  #fullText .skipgreen { color: #2563eb; }
+
+  /* 候選清單 */
+  .choices-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; text-align: center; }
+  /* 候選區：每行固定 7 個 */
+  #choices {
+    display: grid;
+    grid-template-columns: repeat(4, 56px);
+    gap: 10px;
+    justify-content: center;
+    background: #eef4fb;
+    border: 1px solid #d6e4f7;
+    border-radius: 12px;
+    padding: 12px;
+  }
+  .choice:disabled { opacity: .45; cursor: default; transform: none; }
+  .choice {
+    min-width: 0; width: 100%; height: 56px;
+    padding: 0 4px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
+    font-size: 26px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform .1s, border-color .15s, background .15s;
+  }
+  .choice:hover { transform: translateY(-2px); border-color: var(--accent); background: var(--accent-soft); }
+  .choice:active { transform: translateY(0); }
+
+  /* ---------- 完成區 ---------- */
+  #result { display: none; }
+  #result h2 { font-size: 16px; margin-bottom: 4px; }
+  #summary { color: var(--muted); font-size: 13px; margin-bottom: 14px; }
+  #fullText {
+    font-size: 20px;
+    line-height: 2;
+    word-break: break-all;
+  }
+  #fullText .err {
+    color: var(--danger);
+    background: var(--danger-soft);
+    border-radius: 4px;
+    padding: 0 2px;
+    cursor: help;
+    position: relative;
+  }
+  #errorList { margin-bottom: 16px; }
+  #errorList h3 { font-size: 14px; margin-bottom: 8px; color: var(--danger); }
+  #errorList .none { color: #16a34a; font-size: 14px; }
+  #errorList .sentrow {
+    display: flex; align-items: baseline; gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--border);
+    flex-wrap: wrap;
+  }
+  #errorList .senttxt { font-size: 17px; letter-spacing: 1px; }
+  #errorList .senterrs { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+  #errorList .okmark { color: #16a34a; font-weight: bold; }
+  #errorList .picked {
+    color: var(--danger);
+    background: var(--danger-soft);
+    border-radius: 4px; padding: 0 4px;
+    text-decoration: line-through;
+  }
+  #errorList .should {
+    color: #16a34a;
+    background: #dcfce7;
+    border-radius: 4px; padding: 0 4px;
+  }
+  #fullText .err:hover::after {
+    position: absolute;
+    top: -30px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    z-index: 5;
+  }
+  .result-actions { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .result-actions .btn { flex: 1; min-width: 140px; justify-content: center; }
+
+  /* ---------- 移动端适配 ---------- */
+  @media (max-width: 600px) {
+    body { padding: 14px 10px; }
+    h1 { font-size: 19px; }
+    .card { padding: 14px 12px; }
+    /* 字符框与行间距缩小，一行放更多字 */
+    .cbox { width: 30px; height: 36px; font-size: 17px; border-radius: 6px; }
+    .row { gap: 4px; }
+    #historyWrap { height: 280px; padding: 8px; }
+    /* 候选按钮缩小，保证一屏能容纳 10 个 */
+    .choice { height: 48px; font-size: 20px; }
+    #choices { gap: 8px; }
+    /* 按钮加大点击区域，占满整行 */
+    .btn { height: 48px; font-size: 15px; }
+    .upload-row { flex-direction: column; align-items: stretch; }
+    .upload-row .btn { justify-content: center; }
+    #fullText { font-size: 17px; line-height: 1.9; }
+    #fullText .err:hover::after { font-size: 12px; }
+    .topbar { font-size: 12px; }
+  }
+  /* 小屏手机（≤380px）进一步压缩 */
+  @media (max-width: 380px) {
+    .cbox { width: 26px; height: 32px; font-size: 15px; }
+    .row { gap: 3px; }
+    .choice { height: 44px; font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>經文、頌文背記</h1>
+
+<!-- 上傳區 -->
+<div class="card" id="setup">
+  <h2>1. 提供文字</h2>
+  <div class="upload-row">
+    <button class="btn" id="uploadBtn">選擇文字檔案</button>
+    <input type="file" id="fileInput" accept=".txt,.md,.csv,text/*" hidden>
+    <span id="fileName"></span>
+  </div>
+  <p class="or">或使用內建文字：</p>
+  <div class="upload-row">
+    <button class="btn" id="defaultTextBtn">《唯識三十頌》（玄奘譯）</button>
+    <button class="btn" id="heartSutraBtn">《般若波羅蜜多心經》（玄奘譯）</button>
+    <button class="btn" id="eightVijnanasBtn">《八識規矩頌》（玄奘作）</button>
+    <button class="btn" id="yogaSilaBtn">《瑜伽菩薩戒略攝頌》</button>
+  </div>
+
+  <p class="or">或者直接貼上文字：</p>
+  <textarea id="pasteArea" placeholder="在此貼上或輸入文字..."></textarea>
+  <div class="setup-actions">
+    <button class="btn btn-primary" id="startBtn">開始練習</button>
+  </div>
+</div>
+
+<!-- 練習區 -->
+<div class="card" id="practice">
+  <div class="topbar">
+    <span id="progressText">0 / 0</span>
+    <button class="btn" id="quitBtn" style="height:36px;padding:0 14px;font-size:13px;color:#dc2626;border-color:#fca5a5;">放棄重來</button>
+  </div>
+
+  <!-- 歷史框：新框出現後整體向上滾動 -->
+  <div id="historyWrap">
+    <div id="historyRows"></div>
+  </div>
+
+  <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+    <div style="flex:1; min-width:260px;">
+      <p class="choices-label" id="choicesLabel">請選出下一個字符：</p>
+      <div id="choices"></div>
+    </div>
+    <button class="btn" id="skipBtn" style="color:#2563eb;border-color:#93c5fd;background:#eff6ff;flex-shrink:0;">跳過此句</button>
+  </div>
+</div>
+
+<!-- 完成区 -->
+<div class="card" id="result">
+  <h2>練習完成</h2>
+    <p id="summary"></p>
+  <div id="errorList"></div>
+  <div class="result-actions">
+    <button class="btn btn-primary" id="againBtn">再來一次</button>
+    <button class="btn" id="newTextBtn">換一段文字</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- 相似字符表（用于干扰项） ----------
+  var SIMILAR = {
+    "l": ["I", "1", "|", "j"], "I": ["l", "1", "|"], "1": ["l", "I", "7"],
+    "O": ["0", "Q", "o", "D"], "0": ["O", "o", "Q"], "o": ["O", "0", "c"],
+    "S": ["5", "s", "8"], "5": ["S", "s", "6"], "B": ["8", "b", "R"],
+    "8": ["B", "3", "S"], "Z": ["2", "z"], "2": ["Z", "z"],
+    "g": ["9", "q"], "9": ["g", "q", "6"], "q": ["g", "9"],
+    "m": ["n"], "n": ["m", "u"], "u": ["v", "n"],
+    "c": ["e", "o"], "e": ["c", "a"], "a": ["e", "s"],
+    "b": ["d", "p", "6"], "d": ["b", "p"], "p": ["b", "d", "q"],
+    "v": ["u", "w"], "w": ["v", "m"], "M": ["W"], "W": ["M"]
+  };
+
+  // 練習條目列表：{ t: "word"|"brk", c: 字符(僅 word) }
+  var items = [];
+  var boxes = [];   // 每個 word 條目對應的 DOM 框
+  var picks = [];   // 每個 word 條目用戶選擇的字符
+  var idx = 0;      // 當前 word 條目下標
+  var total = 0;
+  var wrongCount = 0;
+  var skippedCount = 0;
+  var revealed = []; // 被點擊揭示（未作答）的字符下標
+  var skippedIdx = []; // 被跳過的字符下標
+  var pendingChoice = null;
+  var sentences = []; // 每句：{ start: 該句首個框下標, btn: 句首重新開始按鈕 }
+
+  var DEFAULT_TEXT = "由假說我法　有種種相轉　彼依識所變　此能變唯三\n謂異熟思量　及了別境識\n\n初阿賴耶識　異熟一切種　不可知執受　處了常與觸\n作意受想思　相應唯捨受　是無覆無記　觸等亦如是\n恆轉如瀑流　阿羅漢位捨\n\n次第二能變　是識名末那　依彼轉緣彼　思量為性相\n四煩惱常俱　謂我癡我見　並我慢我愛　及餘觸等俱\n有覆無記攝　隨所生所繫　阿羅漢滅定　出世道無有\n\n次第三能變　差別有六種　了境為性相　善不善俱非\n此心所遍行　別境善煩惱　隨煩惱不定　皆三受相應\n初遍行觸等　次別境謂欲　勝解念定慧　所緣事不同\n善謂信慚愧　無貪等三根　勤安不放逸　行捨及不害\n煩惱謂貪瞋　癡慢疑惡見　隨煩惱謂忿　恨覆惱嫉慳\n誑諂與害憍　無慚及無愧　掉舉與昏沈　不信並懈怠\n放逸及失念　散亂不正知　不定謂悔眠　尋伺二各二\n\n依止根本識　五識隨緣現　或俱或不俱　如波濤依水\n意識常現起　除生無想天　及無心二定　睡眠與悶絕\n\n是諸識轉變　分別所分別　由此彼皆無　故一切唯識\n\n由一切種識　如是如是變　以展轉力故　彼彼分別生\n由諸業習氣　二取習氣俱　前異熟既盡　復生餘異熟\n\n由彼彼遍計　遍計種種物　此遍計所執　自性無所有\n依他起自性　分別緣所生　圓成實於彼　常遠離前性\n故此與依他　非異非不異　如無常等性　非不見此彼\n\n即依此三性　立彼三無性　故佛密意說　一切法無性\n初即相無性　次無自然性　後由遠離前　所執我法性\n此諸法勝義　亦即是真如　常如其性故　即唯識實性\n\n乃至未起識　求住唯識性　於二取隨眠　猶未能伏滅\n現前立少物　謂是唯識性　以有所得故　非實住唯識\n若時於所緣　智都無所得　爾時住唯識　離二取相故\n無得不思議　是出世間智　捨二粗重故　便證得轉依\n\n此即無漏界　不思議善常　安樂解脫身　大牟尼名法";
+
+  var HEART_SUTRA_TEXT = "觀自在菩薩，行深般若波羅蜜多時，照見五蘊皆空度一切苦厄。\n舍利子！色不異空空不異色；色即是空空即是色。受想行識亦復如是。\n舍利子！是諸法空相，不生不滅不垢不淨不增不減。是故空中無色，無受想行識；無眼耳鼻舌身意；無色聲香味觸法；無眼界乃至無意識界；無無明亦無無明盡；乃至無老死亦無老死盡；無苦集滅道；無智亦無得。\n以無所得故，菩提薩埵，依般若波羅蜜多故，心無罣礙；無罣礙故無有恐怖，遠離顛倒夢想究竟涅槃。三世諸佛，依般若波羅蜜多故，得阿耨多羅三藐三菩提。\n故知般若波羅蜜多，是大神咒是大明咒，是無上咒是無等等咒，能除一切苦真實不虛。\n故說般若波羅蜜多咒，即說咒曰：\n揭諦揭諦　\n波羅揭諦　波羅僧揭諦　\n菩提薩婆訶";
+
+  var EIGHT_VIJNANAS_TEXT = "\u6027\u5883\u73fe\u91cf\u901a\u4e09\u6027\uff0c\u773c\u8033\u8eab\u4e09\u4e8c\u5730\u5c45\uff0c\u904d\u884c\u5225\u5883\u5584\u5341\u4e00\uff0c\u4e2d\u4e8c\u5927\u516b\u8caa\u778b\u7661\u3002\n\u4e94\u8b58\u540c\u4f9d\u6de8\u8272\u6839\uff0c\u4e5d\u7de3\u4e03\u516b\u597d\u76f8\u9130\uff0c\u5408\u4e09\u96e2\u4e8c\u89c0\u5875\u4e16\uff0c\u611a\u8005\u96e3\u5206\u8b58\u8207\u6839\u3002\n\u8b8a\u76f8\u89c0\u7a7a\u552f\u5f8c\u5f97\uff0c\u679c\u4e2d\u7336\u81ea\u4e0d\u8a6e\u771f\uff0c\u5713\u660e\u521d\u767c\u6210\u7121\u6f0f\uff0c\u4e09\u985e\u5206\u8eab\u606f\u82e6\u8f2a\u3002\n\n\u4e09\u6027\u4e09\u91cf\u901a\u4e09\u5883\uff0c\u4e09\u754c\u8f2a\u6642\u6613\u53ef\u77e5\uff0c\u76f8\u61c9\u5fc3\u6240\u4e94\u5341\u4e00\uff0c\u5584\u60e1\u81e8\u6642\u5225\u914d\u4e4b\u3002\n\u6027\u754c\u53d7\u4e09\u6046\u8f49\u6613\uff0c\u6839\u96a8\u4fe1\u7b49\u7e3d\u76f8\u9023\uff0c\u52d5\u8eab\u767c\u8a9e\u7368\u70ba\u6700\uff0c\u5f15\u6eff\u80fd\u62db\u696d\u529b\u727d\u3002\n\u767c\u8d77\u521d\u5fc3\u6b61\u559c\u5730\uff0c\u4ff1\u751f\u7336\u81ea\u73fe\u7e8f\u7720\uff0c\u9060\u884c\u5730\u5f8c\u7d14\u7121\u6f0f\uff0c\u89c0\u5bdf\u5713\u660e\u7167\u5927\u5343\u3002\n\n\u5e36\u8cea\u6709\u8986\u901a\u60c5\u672c\uff0c\u96a8\u7de3\u57f7\u6211\u91cf\u70ba\u975e\uff0c\u516b\u5927\u904d\u884c\u5225\u5883\u6167\uff0c\u8caa\u7661\u6211\u898b\u6162\u76f8\u96a8\u3002\n\u6046\u5be9\u601d\u91cf\u6211\u76f8\u96a8\uff0c\u6709\u60c5\u65e5\u591c\u93ae\u660f\u8ff7\uff0c\u56db\u60d1\u516b\u5927\u76f8\u61c9\u8d77\uff0c\u516d\u8f49\u547c\u70ba\u67d3\u6de8\u4f9d\u3002\n\u6975\u559c\u521d\u5fc3\u5e73\u7b49\u6027\uff0c\u7121\u529f\u7528\u884c\u6211\u6046\u6467\uff0c\u5982\u4f86\u73fe\u8d77\u4ed6\u53d7\u7528\uff0c\u5341\u5730\u83e9\u85a9\u6240\u88ab\u6a5f\u3002\n\n\u6027\u552f\u7121\u8986\u4e94\u904d\u884c\uff0c\u754c\u5730\u96a8\u4ed6\u696d\u529b\u751f\uff0c\u4e8c\u4e58\u4e0d\u4e86\u56e0\u8ff7\u57f7\uff0c\u7531\u6b64\u80fd\u8208\u8ad6\u4e3b\u8acd\u3002\n\u6d69\u6d69\u4e09\u85cf\u4e0d\u53ef\u7aae\uff0c\u6df5\u6df1\u4e03\u6d6a\u5883\u70ba\u98a8\uff0c\u53d7\u85b0\u6301\u7a2e\u6839\u8eab\u5668\uff0c\u53bb\u5f8c\u4f86\u5148\u4f5c\u4e3b\u516c\u3002\n\u4e0d\u52d5\u5730\u524d\u624d\u820d\u85cf\uff0c\u91d1\u525b\u9053\u5f8c\u7570\u719f\u7a7a\uff0c\u5927\u5713\u7121\u57a2\u540c\u6642\u767c\uff0c\u666e\u7167\u5341\u65b9\u5875\u524e\u4e2d\u3002";
+
+  var YOGA_SILA_TEXT = "菩薩淨律儀 重四輕四三\n云四重罪者 謂嫉慳嗔痴\n初貪求榮利 自贊而毀他\n二慳惜財法 有求不施與\n三懷忿打罵 他諫謝不忍\n四謗菩薩藏 愛樂相似法\n此四他勝法 隨犯於一種\n即非真菩薩 況犯於一切\n四十三輕者 障六度四攝\n初對三寶前 不禮敬供養\n二大欲無足 著利養恭敬\n三對諸耆德 不承迎酬對\n四卻他延請 五卻他重施\n六慳法不舍 七於犯戒者\n嫌恨不饒益 此七障布施\n別解脫戒中 遮罪有差別\n護他制遮罪 共聲聞等學\n少事等遮罪 菩薩不共學\n為求利他故 多事業為妙\n於衣食資具 雖求百千種\n利他故應作 不作乃為犯\n於七支性罪 權行不為犯\n慈愍利他故 生起多功德\n如見賊作惡 欲害多有情\n及害於賢聖 當成無間業\n悲愍心熾然 持刀斷彼命\n寧自墮地獄 拔彼當來苦\n又暴惡宰官 苛政惱人民\n菩薩懷利濟 廢黜彼尊位\n或盜劫財物 持以縱諸欲\n愍彼無義利 逼奪還故主\n母邑無系屬 現求非梵行\n觀彼有善根 順之可成就\n違彼令生恚 作惡招眾苦\n愍他故權行 損己益他故\n出家護僧制 是則不應為\n所成者一人 而虧聖教故\n又脫他命難 方便說妄語\n拔他離惡友 說於離間語\n警他出險道 而說粗惡語\n順他情所習 安立善法中\n方便說綺語 此一切無犯\n菩薩重他利 心淨故皆為\n聲聞善一身 無斯大行願\n然非心誠諦 假借成重罪\n慈愍多慚愧 是乃得為耳\n第三邪命法 詭詐罔利養\n四掉動不靜 嬉戲失威儀\n五起異見論 厭背於涅槃\n於本隨煩惱 勿怖勿求斷\n以當三大劫 求大菩提故\n此言為非理 違背於聖教\n菩薩大涅槃 百倍生忻樂\n於本隨煩惱 百倍生厭離\n為普利一切 成大淨行故\n六於己惡稱 不護亦不雪\n七罷頑有情 應辛楚治罰\n護其憂惱故 姑息不懲治\n如是七輕罪 障淨戒應知\n障忍有四種 一他罵報罵\n嗔打報嗔打 二侵犯於他\n或他疑侵犯 驕慢不理謝\n三他犯還謝 惱彼而不受\n四於他懷忿 相續持不舍\n障精進有三 一貪供事故\n愛染御徒眾 二懶惰怠懈\n非量耽睡眠 三懷愛染心\n談說世俗事 費時失正業\n障定亦三種 一欲令心定\n驕慢不求師 教授諸禪法\n二不除五蓋 謂貪恚疑等\n三已得定者 於定深味著\n障慧共八種 初起見立論\n誹謗聲聞乘 不聽受修學\n二未精大乘 棄舍專學小\n三未精佛教 精勤學外論\n四於外異論 愛樂生味著\n五於殊勝法 甚深真實義\n及諸佛菩薩 難思議神力\n不自審無知 不信起謗毀\n六以愛恚心 自贊毀他人\n七聞說正法 驕慢不往聽\n八於說法師 嗤笑起輕毀\n此三十二輕 障攝善法戒\n復有十一種 能障於四攝\n他事不助伴 疾病不供事\n此障於同事 見行非理者\n不為說正法 障愛語應知\n受恩不酬報 他難不拔濟\n不釋他愁憂 不濟他窮乏\n於所攝徒眾 不正為依止\n正教授教誡 此五障布施\n若懷嫌恨心 不隨他心轉\n於他實有德 不顯揚稱贊\n應訶責治罰 及應驅擯者\n不如量如理 廣行於懲治\n已得神通者 具變現威力\n於諸有情類 應恐怖不怖\n應引攝不攝 此四障利行\n如是共十一 不饒益有情\n持菩薩戒者 一切應遠離\n此上一切戒 犯相有差別\n謂染及非染 或犯而非犯\n由貪嗔慢見 惡心而犯者\n是謂染違犯 失念怠惰等\n無記心犯者 違犯而非染\n隨染非染別 得罪亦不同\n若由心狂亂 或貧病無力\n不應行而行 應行無力行\n如是等一切 皆不名為犯\n又有為利他 慈悲調服彼\n或由全大義 權虧於小節\n雖犯於諸戒 無犯成功德";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var setupEl = $("setup"), practiceEl = $("practice"), resultEl = $("result");
+  var historyRows = $("historyRows"), choicesEl = $("choices"), historyWrap = $("historyWrap");
+
+  // ---------- 工具 ----------
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  // 是否為漢字（含擴展A區常用範圍）
+  function isHan(c) {
+    var code = c.charCodeAt(0);
+    return (code >= 0x4e00 && code <= 0x9fff) || (code >= 0x3400 && code <= 0x4dbf);
+  }
+
+  // 只允許文字字符（字母/數字/漢字），空格、標點、符號都不算
+  function isWordChar(c) {
+    return /[A-Za-z0-9]/.test(c) || (c.charCodeAt(0) >= 0x4e00 && c.charCodeAt(0) <= 0x9fff);
+  }
+
+  // 把原始文字拆成練習條目：文字字符逐一練習；連續的空格/標點等合併為一個換行
+  function parseText(text) {
+    items = [];
+    var inBreak = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text.charAt(i);
+      if (isWordChar(c)) {
+        items.push({ t: "word", c: c });
+        inBreak = false;
+      } else if (!inBreak) {
+        items.push({ t: "brk" });
+        inBreak = true;
+      }
+    }
+    // 去掉開頭和結尾的換行條目
+    while (items.length && items[0].t === "brk") items.shift();
+    while (items.length && items[items.length - 1].t === "brk") items.pop();
+  }
+
+  function wordList() {
+    var arr = [];
+    for (var i = 0; i < items.length; i++) if (items[i].t === "word") arr.push(items[i].c);
+    return arr;
+  }
+
+  // 生成 15 個干擾字符：只使用漢字，來自相似表 / 文字中其他漢字 / 漢字兜底字集
+  function distractors(correct) {
+    var pool = [];
+    var sim = (SIMILAR[correct] || []).filter(isHan);
+    pool = pool.concat(sim);
+    var hanFromText = wordList().filter(function (c) { return isHan(c) && c !== correct; });
+    for (var i = 0; i < 8 && hanFromText.length; i++) pool.push(pick(hanFromText));
+    var fallback = "的一是了我不人在他有這上們來到時大地為子中你說生國年著就那和要她出也得裡後自以會家可下而過天去能對小多然於心學麼之都好看起發當沒成只如事把還用第樣道想作種開美總從無情己面最女但現前些所同日手又行意動方期它頭經長兒回位分愛老因很給名法間斯知世什兩次使身者被高已親其進此話常與活正感識性相變所說空法故無自體義門行位深度海藏塵想觀照真如淨染熏習種子現量分別執持含藏異熟末那賴耶遍計依他圓成實苦集滅道菩提涅槃觸作意受捨貪瞋癡慢疑慚愧不放逸掉舉惛沈懈怠失念散亂不正知尋伺悔眠惡見憍慳誑諂忿恨覆惱嫉害";
+
+    while (pool.length < 40) pool.push(pick(fallback));
+    pool = pool.filter(isHan);
+    var uniq = pool.filter(function (c, k) { return c !== correct && pool.indexOf(c) === k; });
+    return shuffle(uniq).slice(0, 15);
+  }
+
+  // ---------- 构建历史区 ----------
+  // 所有 word 條目各佔一個框；換行條目不佔框，只強制新起一行
+  function buildBoard() {
+    historyRows.innerHTML = "";
+    boxes = [];
+    picks = [];
+    skippedIdx = [];
+    var row = null, col = 0;
+    sentences = [];
+    function newRow() {
+      row = document.createElement("div");
+      row.className = "row";
+      var rbtn = document.createElement("button");
+      rbtn.className = "reloadBtn";
+      rbtn.textContent = "\u27F3";
+      rbtn.title = "\u7531\u6B64\u53E5\u91CD\u65B0\u958B\u59CB";
+      row.appendChild(rbtn);
+      sentences.push({ start: boxes.length, btn: rbtn });
+      historyRows.appendChild(row);
+      col = 0;
+    }
+    newRow();
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].t === "brk") {
+        newRow();
+        continue;
+      }
+      var box = document.createElement("div");
+      box.className = "cbox pending";
+      box.textContent = "?";
+      row.appendChild(box);
+      boxes.push(box);
+      picks.push(null);
+      col++;
+    }
+    total = boxes.length;
+    idx = 0;
+    wrongCount = 0;
+    skippedCount = 0;
+    revealed = [];
+    pendingChoice = null;
+    initChoices();
+    setChoicesEnabled(false);
+    if (total) renderCurrent();
+  }
+
+  // \u91CD\u65B0\u7D71\u8A08\u5DF2\u4FDD\u7559\u90E8\u5206\u7684\u7B54\u932F\u8207\u8DF3\u904E\u6578
+  function recalcStats(upto) {
+    wrongCount = 0;
+    skippedCount = 0;
+    for (var i = 0; i < upto; i++) {
+      var correct = items[wordIndexOf(i)].c;
+      if (revealed.indexOf(i) !== -1) wrongCount++;
+      else if (picks[i] === null) skippedCount++;
+      else if (picks[i] !== correct) wrongCount++;
+    }
+  }
+
+  // \u7531\u67D0\u53E5\u91CD\u65B0\u958B\u59CB\uFF1A\u8A72\u53E5\u8D77\u5168\u90E8\u91CD\u7F6E\u70BA\u5F85\u7DF4\u7FD2
+  function restartFrom(startBoxIdx) {
+    if (pendingChoice) return;
+    for (var i = startBoxIdx; i < total; i++) {
+      var box = boxes[i];
+      box.className = "cbox pending";
+      box.innerHTML = "";
+      box.textContent = "?";
+      picks[i] = null;
+    }
+    revealed = revealed.filter(function (k) { return k < startBoxIdx; });
+    skippedIdx = skippedIdx.filter(function (k) { return k < startBoxIdx; });
+    recalcStats(startBoxIdx);
+    idx = startBoxIdx;
+    pendingChoice = null;
+    renderCurrent();
+  }
+
+  function renderCurrent() {
+    // \u986F\u793A\u7576\u524D\u53E5\u53CA\u4E4B\u524D\u6240\u6709\u53E5\u7684\u91CD\u65B0\u958B\u59CB\u6309\u9215
+    sentences.forEach(function (s) {
+      if (s.btn) s.btn.classList.toggle("show", s.start <= idx);
+    });
+    var box = boxes[idx];
+    box.className = "cbox current";
+    box.innerHTML = "";
+    var ph = document.createElement("span");
+    ph.className = "ph";
+    ph.textContent = "?";
+    box.appendChild(ph);
+    // 滾動讓當前框可見
+    box.scrollIntoView({ block: "center", behavior: "smooth" });
+    $("progressText").textContent = idx + " / " + total;
+    showChoices();
+  }
+
+  // ---------- 候選清單 ----------
+  // 固定 16 個按鈕只建立一次，之後僅更新文字，避免畫面閃動
+  var fixedChoices = [];
+  function initChoices() {
+    if (fixedChoices.length) return;
+    choicesEl.innerHTML = "";
+    for (var i = 0; i < 16; i++) {
+      var btn = document.createElement("button");
+      btn.className = "choice";
+      btn.addEventListener("click", function () {
+        if (pendingChoice || idx >= total || !this.dataset.correct) return;
+        choose(this, this.textContent, this.dataset.correct);
+      });
+      choicesEl.appendChild(btn);
+      fixedChoices.push(btn);
+    }
+  }
+  function setChoicesEnabled(on) {
+    fixedChoices.forEach(function (b) { b.disabled = !on; });
+  }
+  function showChoices() {
+    var correct = items[wordIndexOf(idx)].c;
+    var opts = shuffle([correct].concat(distractors(correct)));
+    for (var i = 0; i < fixedChoices.length; i++) {
+      var b = fixedChoices[i];
+      if (i < opts.length) {
+        b.style.display = "";
+        b.textContent = opts[i];
+        b.dataset.correct = correct;
+      } else {
+        b.style.display = "none";
+      }
+    }
+    setChoicesEnabled(true);
+  }
+
+  // 取某框所在句的完整正確文字
+  function sentenceOf(boxIdx) {
+    var start = boxIdx, end = boxIdx;
+    while (start > 0 && items[wordIndexOf(start - 1)] && items[wordIndexOf(start - 1)].t === "word" && !isBreakAfter(start - 1)) start--;
+    while (end < total - 1 && !isBreakAfter(end)) end++;
+    var t = "";
+    for (var i = start; i <= end; i++) t += items[wordIndexOf(i)].c;
+    return t;
+  }
+  function isBreakAfter(boxIdx) {
+    var wi = wordIndexOf(boxIdx);
+    for (var j = wi + 1; j < items.length; j++) {
+      if (items[j].t === "word") return false;
+      return true;
+    }
+    return true;
+  }
+
+  // 第 idx 個框對應 items 中的下標（框與 word 條目一一對應，跳過 brk）
+  function wordIndexOf(boxIdx) {
+    var count = -1;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].t === "word") count++;
+      if (count === boxIdx) return i;
+    }
+    return items.length - 1;
+  }
+
+  // 點擊當前框：直接以紅色顯示正確字符並進入下一個
+  function revealCurrent() {
+    if (pendingChoice || idx >= total) return;
+    var box = boxes[idx];
+    var correct = items[wordIndexOf(idx)].c;
+    picks[idx] = null; // 標記為未作答（揭示）
+    revealed.push(idx);
+    box.className = "cbox current revealed";
+    box.innerHTML = "";
+    box.textContent = correct;
+    wrongCount++;
+    pendingChoice = true;
+    setChoicesEnabled(false);
+    setTimeout(function () {
+      box.classList.remove("current");
+      pendingChoice = null;
+      idx++;
+      if (idx < total) {
+        renderCurrent();
+      } else {
+        finish();
+      }
+    }, 900);
+  }
+
+  function choose(btn, picked, correct) {
+    if (pendingChoice) return; // 等待確認，防連點
+    var box = boxes[idx];
+    picks[idx] = picked;
+    box.innerHTML = "";
+    box.textContent = picked;
+    var isWrong = picked !== correct;
+    if (isWrong) {
+      box.classList.add("wrong");
+      wrongCount++;
+      var reveal = document.createElement("span");
+      reveal.className = "reveal";
+      reveal.textContent = correct; // 懸停顯示正確字符
+      box.appendChild(reveal);
+    } else {
+      box.classList.add("correct");
+    }
+    pendingChoice = true;
+    setChoicesEnabled(false);
+    setTimeout(function () {
+      box.classList.remove("current");
+      pendingChoice = null;
+      idx++;
+      if (idx < total) {
+        renderCurrent();
+      } else {
+        finish();
+      }
+    }, isWrong ? 900 : 350);
+  }
+
+  // ---------- 跳過此句 ----------
+  // 將當前句子剩餘字符直接以正確字符填入（藍色顯示），並跳到下一句
+  function skipSentence() {
+    if (pendingChoice || idx >= total) return;
+    var w = wordIndexOf(idx);
+    var filled = 0;
+    while (w < items.length && items[w].t === "word") {
+      var box = boxes[idx + filled];
+      var correct = items[w].c;
+      picks[idx + filled] = correct;
+      box.className = "cbox skipped";
+      box.innerHTML = "";
+      box.textContent = correct;
+      skippedIdx.push(idx + filled);
+      filled++;
+      w++;
+    }
+    skippedCount += filled;
+    setChoicesEnabled(false);
+    idx += filled;
+    if (idx < total) {
+      renderCurrent();
+    } else {
+      finish();
+    }
+  }
+
+  // ---------- 完成 ----------
+  function finish() {
+    practiceEl.style.display = "none";
+    resultEl.style.display = "block";
+    var answered = total - skippedCount;
+    var pct = answered ? Math.round((answered - wrongCount) * 100 / answered) : 100;
+    $("summary").textContent = "共 " + total + " 個字符，練習 " + answered + " 個（跳過 " + skippedCount + " 個），答錯 " + wrongCount + " 個，正確率 " + pct + "%。紅色為答錯的字，懸停可查看正確字符；藍色為跳過的句子。空格與標點已跳過並以換行顯示。";
+    // 逐句檢查：每句正確文字在左，該句錯誤在右
+    var el = $("errorList");
+    el.innerHTML = "";
+    var sentRows = [];
+    var curText = "", curErrs = [];
+    for (var i = 0; i < total; i++) {
+      var c = items[wordIndexOf(i)].c;
+      curText += c;
+      if (revealed.indexOf(i) !== -1) curErrs.push({ picked: null, correct: c });
+      else if (picks[i] !== null && picks[i] !== c) curErrs.push({ picked: picks[i], correct: c });
+      if (isBreakAfter(i)) {
+        sentRows.push({ text: curText, errs: curErrs });
+        curText = ""; curErrs = [];
+      }
+    }
+    if (curText) sentRows.push({ text: curText, errs: curErrs });
+    var bad = sentRows;
+    if (!bad.length) {
+      var ok = document.createElement("div");
+      ok.className = "none";
+      ok.textContent = "全部正確，沒有錯誤！";
+      el.appendChild(ok);
+    } else {
+      bad.forEach(function (r) {
+        var d = document.createElement("div");
+        d.className = "sentrow";
+        var t = document.createElement("span");
+        t.className = "senttxt";
+        t.textContent = r.text;
+        var er = document.createElement("span");
+        er.className = "senterrs";
+        r.errs.forEach(function (e) {
+          var a = document.createElement("span");
+          a.className = "picked";
+          a.textContent = (e.picked === null ? "未作答" : e.picked);
+          var b = document.createElement("span");
+          b.className = "should";
+          b.textContent = e.correct;
+          er.appendChild(a);
+          er.appendChild(b);
+        });
+        if (!r.errs.length) {
+          var okm = document.createElement("span");
+          okm.className = "okmark";
+          okm.textContent = "\u2713";
+          er.appendChild(okm);
+        }
+        d.appendChild(t);
+        d.appendChild(er);
+        el.appendChild(d);
+      });
+    }
+  }
+
+  // ---------- 開始 / 重來 ----------
+  function startPractice(t) {
+    text = t.replace(/\r\n/g, "\n").trim();
+    if (!text) { alert("請先提供文字內容"); return; }
+    parseText(text);
+    if (!wordList().length) { alert("文字中沒有可練習的文字字符"); return; }
+    setupEl.style.display = "none";
+    resultEl.style.display = "none";
+    practiceEl.style.display = "flex";
+    buildBoard();
+  }
+
+  var text = "";
+
+  // ---------- 事件綁定 ----------
+  $("uploadBtn").addEventListener("click", function () { $("fileInput").click(); });
+  $("fileInput").addEventListener("change", function () {
+    var f = this.files[0];
+    if (!f) return;
+    $("fileName").textContent = f.name;
+    var reader = new FileReader();
+    reader.onload = function () { $("pasteArea").value = reader.result; };
+    reader.readAsText(f);
+  });
+  $("defaultTextBtn").addEventListener("click", function () {
+    $("pasteArea").value = DEFAULT_TEXT;
+    $("fileName").textContent = "內建文字《唯識三十頌》";
+  });
+  $("heartSutraBtn").addEventListener("click", function () {
+    $("pasteArea").value = HEART_SUTRA_TEXT;
+    $("fileName").textContent = "內建文字《般若波羅蜜多心經》";
+  });
+  $("eightVijnanasBtn").addEventListener("click", function () {
+    $("pasteArea").value = EIGHT_VIJNANAS_TEXT;
+    $("fileName").textContent = "內建文字《八識規矩頌》";
+  });
+  $("yogaSilaBtn").addEventListener("click", function () {
+    $("pasteArea").value = YOGA_SILA_TEXT;
+    $("fileName").textContent = "內建文字《瑜伽菩薩戒略攝頌》";
+  });
+  $("skipBtn").addEventListener("click", skipSentence);
+  historyRows.addEventListener("click", function (e) {
+    var rbtn = e.target.closest(".reloadBtn");
+    if (rbtn) {
+      for (var i = 0; i < sentences.length; i++) {
+        if (sentences[i].btn === rbtn) {
+          restartFrom(sentences[i].start);
+          return;
+        }
+      }
+      return;
+    }
+    if (pendingChoice || idx >= total) return;
+    if (boxes[idx] && boxes[idx].contains(e.target)) revealCurrent();
+  });
+  $("startBtn").addEventListener("click", function () { startPractice($("pasteArea").value); });
+  $("quitBtn").addEventListener("click", function () {
+    setupEl.style.display = "block";
+    practiceEl.style.display = "none";
+    resultEl.style.display = "none";
+  });
+  $("againBtn").addEventListener("click", function () { startPractice(text); });
+  $("newTextBtn").addEventListener("click", function () {
+    resultEl.style.display = "none";
+    setupEl.style.display = "block";
+    $("pasteArea").value = "";
+    $("fileName").textContent = "";
+  });
+})();
+</script>
+</body>
+</html>
