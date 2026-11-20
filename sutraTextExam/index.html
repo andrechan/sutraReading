@@ -225,6 +225,14 @@
   #errorList .senttxt { font-size: 17px; letter-spacing: 1px; }
   #errorList .senterrs { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
   #errorList .okmark { color: #16a34a; font-weight: bold; }
+  #errorList .skipmark {
+    color: #2563eb;
+    background: #eff6ff;
+    border: 1px solid #93c5fd;
+    border-radius: 4px;
+    padding: 0 8px;
+    font-size: 13px;
+  }
   #errorList .picked {
     color: var(--danger);
     background: var(--danger-soft);
@@ -708,7 +716,7 @@
         idx++;
         w++;
       }
-      idx++; // 跳過 brk
+      // brk 不佔框，idx 只對應 word 框，無需額外跳過
     }
     setChoicesEnabled(false);
     finish();
@@ -726,17 +734,20 @@
     el.innerHTML = "";
     var sentRows = [];
     var curText = "", curErrs = [];
+    var curN = 0, curSk = 0;
     for (var i = 0; i < total; i++) {
       var c = items[wordIndexOf(i)].c;
       curText += c;
+      curN++;
+      if (skippedIdx.indexOf(i) !== -1) curSk++;
       if (revealed.indexOf(i) !== -1) curErrs.push({ picked: null, correct: c });
       else if (picks[i] !== null && picks[i] !== c) curErrs.push({ picked: picks[i], correct: c });
       if (isBreakAfter(i)) {
-        sentRows.push({ text: curText, errs: curErrs });
-        curText = ""; curErrs = [];
+        sentRows.push({ text: curText, errs: curErrs, allSkipped: curN > 0 && curSk === curN });
+        curText = ""; curErrs = []; curN = 0; curSk = 0;
       }
     }
-    if (curText) sentRows.push({ text: curText, errs: curErrs });
+    if (curText) sentRows.push({ text: curText, errs: curErrs, allSkipped: curN > 0 && curSk === curN });
     var bad = sentRows;
     if (!bad.length) {
       var ok = document.createElement("div");
@@ -762,7 +773,12 @@
           er.appendChild(a);
           er.appendChild(b);
         });
-        if (!r.errs.length) {
+        if (r.allSkipped) {
+          var skm = document.createElement("span");
+          skm.className = "skipmark";
+          skm.textContent = "跳過";
+          er.appendChild(skm);
+        } else if (!r.errs.length) {
           var okm = document.createElement("span");
           okm.className = "okmark";
           okm.textContent = "\u2713";
